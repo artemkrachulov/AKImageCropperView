@@ -2,8 +2,9 @@
 //  AppDelegate.swift
 //  AKImageCropperDemo
 //
-//  Created by Krachulov Artem  on 8/21/15.
-//  Copyright (c) 2015 Artem Krachulov. All rights reserved.
+//  Created by Krachulov Artem
+//  Copyright (c) 2015 Krachulov Artem. All rights reserved.
+//  Website: http://www.artemkrachulov.com/
 //
 
 import UIKit
@@ -12,7 +13,6 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
@@ -40,7 +40,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
 }
 

@@ -2,24 +2,55 @@
 //  ViewController.swift
 //  AKImageCropperDemo
 //
-//  Created by Krachulov Artem  on 8/21/15.
-//  Copyright (c) 2015 Artem Krachulov. All rights reserved.
+//  Created by Krachulov Artem
+//  Copyright (c) 2015 Krachulov Artem. All rights reserved.
+//  Website: http://www.artemkrachulov.com/
 //
 
 import UIKit
 
 class ViewController: UIViewController {
+    
+    // MARK: - Components
+    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    
+    @IBOutlet var galleryBuuton: UIButton!
+    @IBOutlet var demoFolderBuuton: UIButton!
+    var imagePicker = UIImagePickerController()
+}
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+// MARK: - UIImagePickerControllerDelegate
+//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+    @IBAction func galleryBuutonClicked(){
+        
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.SavedPhotosAlbum){
+            
+            imagePicker.delegate = self
+            imagePicker.sourceType = UIImagePickerControllerSourceType.SavedPhotosAlbum;
+            imagePicker.allowsEditing = false
+            
+            self.presentViewController(imagePicker, animated: true, completion: nil)
+        }
     }
+    
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewControllerWithIdentifier("cropper-vc") as! CropperViewController
+                vc._image = pickedImage
+            
+            picker.pushViewController(vc, animated: true)
+        }        
     }
-
-
+    
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
 }
 

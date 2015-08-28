@@ -7,12 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4356D6141B8F3DE90033FDBD /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4356D6131B8F3DE90033FDBD /* ImageViewController.swift */; };
 		43CBB4031B870EBC00C8F9AE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4021B870EBC00C8F9AE /* AppDelegate.swift */; };
 		43CBB4051B870EBC00C8F9AE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4041B870EBC00C8F9AE /* ViewController.swift */; };
 		43CBB4081B870EBC00C8F9AE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43CBB4061B870EBC00C8F9AE /* Main.storyboard */; };
 		43CBB40A1B870EBC00C8F9AE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43CBB4091B870EBC00C8F9AE /* Images.xcassets */; };
 		43CBB40D1B870EBC00C8F9AE /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 43CBB40B1B870EBC00C8F9AE /* LaunchScreen.xib */; };
 		43CBB4191B870EBC00C8F9AE /* AKImageCropperDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4181B870EBC00C8F9AE /* AKImageCropperDemoTests.swift */; };
+		43CBB4241B8716EA00C8F9AE /* CropperViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4231B8716EA00C8F9AE /* CropperViewController.swift */; };
+		43CBB4281B8718A800C8F9AE /* AKImageCropperOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4261B8718A800C8F9AE /* AKImageCropperOverlay.swift */; };
+		43CBB4291B8718A800C8F9AE /* AKImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4271B8718A800C8F9AE /* AKImageCropperView.swift */; };
+		43CBB42F1B87223E00C8F9AE /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB42C1B87223E00C8F9AE /* CGFloat.swift */; };
+		43CBB4311B87223E00C8F9AE /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB42E1B87223E00C8F9AE /* UIColor.swift */; };
+		43CBB4351B8722DD00C8F9AE /* CGRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4321B8722DD00C8F9AE /* CGRect.swift */; };
+		43CBB4371B8722DD00C8F9AE /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4341B8722DD00C8F9AE /* UIImage.swift */; };
+		43CBB4401B8739B100C8F9AE /* DemoImagesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB43F1B8739B100C8F9AE /* DemoImagesTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4356D6131B8F3DE90033FDBD /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		43CBB3FD1B870EBC00C8F9AE /* AKImageCropperDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AKImageCropperDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43CBB4011B870EBC00C8F9AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		43CBB4021B870EBC00C8F9AE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -36,6 +46,17 @@
 		43CBB4121B870EBC00C8F9AE /* AKImageCropperDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AKImageCropperDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		43CBB4171B870EBC00C8F9AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		43CBB4181B870EBC00C8F9AE /* AKImageCropperDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKImageCropperDemoTests.swift; sourceTree = "<group>"; };
+		43CBB4231B8716EA00C8F9AE /* CropperViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CropperViewController.swift; sourceTree = "<group>"; };
+		43CBB4261B8718A800C8F9AE /* AKImageCropperOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlay.swift; sourceTree = "<group>"; };
+		43CBB4271B8718A800C8F9AE /* AKImageCropperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperView.swift; sourceTree = "<group>"; };
+		43CBB42C1B87223E00C8F9AE /* CGFloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
+		43CBB42D1B87223E00C8F9AE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		43CBB42E1B87223E00C8F9AE /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
+		43CBB4321B8722DD00C8F9AE /* CGRect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGRect.swift; sourceTree = "<group>"; };
+		43CBB4341B8722DD00C8F9AE /* UIImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
+		43CBB4381B8723A700C8F9AE /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		43CBB43A1B87240800C8F9AE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		43CBB43F1B8739B100C8F9AE /* DemoImagesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoImagesTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,7 +80,9 @@
 		43CBB3F41B870EBC00C8F9AE = {
 			isa = PBXGroup;
 			children = (
-				43CBB4221B870EDC00C8F9AE /* AKImageCropper */,
+				43CBB43A1B87240800C8F9AE /* UIKit.framework */,
+				43CBB4381B8723A700C8F9AE /* CoreGraphics.framework */,
+				43CBB4251B8718A800C8F9AE /* AKImageCropper */,
 				43CBB3FF1B870EBC00C8F9AE /* AKImageCropperDemo */,
 				43CBB4151B870EBC00C8F9AE /* AKImageCropperDemoTests */,
 				43CBB3FE1B870EBC00C8F9AE /* Products */,
@@ -80,6 +103,9 @@
 			children = (
 				43CBB4021B870EBC00C8F9AE /* AppDelegate.swift */,
 				43CBB4041B870EBC00C8F9AE /* ViewController.swift */,
+				43CBB4231B8716EA00C8F9AE /* CropperViewController.swift */,
+				43CBB43F1B8739B100C8F9AE /* DemoImagesTableViewController.swift */,
+				4356D6131B8F3DE90033FDBD /* ImageViewController.swift */,
 				43CBB4061B870EBC00C8F9AE /* Main.storyboard */,
 				43CBB4091B870EBC00C8F9AE /* Images.xcassets */,
 				43CBB40B1B870EBC00C8F9AE /* LaunchScreen.xib */,
@@ -113,11 +139,26 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		43CBB4221B870EDC00C8F9AE /* AKImageCropper */ = {
+		43CBB4251B8718A800C8F9AE /* AKImageCropper */ = {
 			isa = PBXGroup;
 			children = (
+				43CBB42B1B87223E00C8F9AE /* SwiftExtensions */,
+				43CBB4261B8718A800C8F9AE /* AKImageCropperOverlay.swift */,
+				43CBB4271B8718A800C8F9AE /* AKImageCropperView.swift */,
 			);
 			path = AKImageCropper;
+			sourceTree = "<group>";
+		};
+		43CBB42B1B87223E00C8F9AE /* SwiftExtensions */ = {
+			isa = PBXGroup;
+			children = (
+				43CBB4321B8722DD00C8F9AE /* CGRect.swift */,
+				43CBB4341B8722DD00C8F9AE /* UIImage.swift */,
+				43CBB42C1B87223E00C8F9AE /* CGFloat.swift */,
+				43CBB42E1B87223E00C8F9AE /* UIColor.swift */,
+				43CBB42D1B87223E00C8F9AE /* README.md */,
+			);
+			path = SwiftExtensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -220,8 +261,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43CBB42F1B87223E00C8F9AE /* CGFloat.swift in Sources */,
+				43CBB4371B8722DD00C8F9AE /* UIImage.swift in Sources */,
+				43CBB4281B8718A800C8F9AE /* AKImageCropperOverlay.swift in Sources */,
 				43CBB4051B870EBC00C8F9AE /* ViewController.swift in Sources */,
+				43CBB4291B8718A800C8F9AE /* AKImageCropperView.swift in Sources */,
+				43CBB4311B87223E00C8F9AE /* UIColor.swift in Sources */,
+				43CBB4241B8716EA00C8F9AE /* CropperViewController.swift in Sources */,
+				43CBB4351B8722DD00C8F9AE /* CGRect.swift in Sources */,
 				43CBB4031B870EBC00C8F9AE /* AppDelegate.swift in Sources */,
+				4356D6141B8F3DE90033FDBD /* ImageViewController.swift in Sources */,
+				43CBB4401B8739B100C8F9AE /* DemoImagesTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,8 +400,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = AKImageCropperDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-D DEBUG";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -362,6 +417,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = AKImageCropperDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = No;
+				OTHER_SWIFT_FLAGS = "-D RELEASE";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
