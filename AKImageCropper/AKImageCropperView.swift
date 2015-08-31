@@ -9,6 +9,21 @@
 
 import UIKit
 
+@objc protocol AKImageCropperDelegate {
+    
+//    optional func pinchGesture(overlay: AKImageCropperOverlay, sender: UIPinchGestureRecognizer)
+    
+    optional func cropperViewDidScroll(scrollView: UIScrollView)
+    
+    optional func cropperViewDidZoom(scrollView: UIScrollView)
+
+    optional func croperViewDidMoveCropFrame(frame: UIView)
+    
+//    optional func panGesture(overlay: AKImageCropperOverlay, sender: UIPanGestureRecognizer)
+    
+    
+}
+
 class AKImageCropperView: UIView {
     
     // MARK: - Settings
@@ -58,7 +73,7 @@ class AKImageCropperView: UIView {
     var image: UIImage! {
         get {
             
-            return imageView.image
+            return viewsInitializated ? imageView.image : nil
         }
         set(image) {
             
@@ -83,6 +98,9 @@ class AKImageCropperView: UIView {
     private (set) var cropFrameIsActive = false
     
     // Flags
+
+    // Блокирует новое действие пока не завершится текущее
+    private var viewsInitializated = false
     
     // Блокирует новое действие пока не завершится текущее
     private var cropFrameAnimationActive = false
@@ -94,23 +112,26 @@ class AKImageCropperView: UIView {
     private var cropFrameTransitionWithAnimation = true
     
 
-    // MARK: - Initialisation
+    // MARK: - Initialization
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
-    init () {
+    /*init () {
         super.init(frame:CGRectZero)
         
         create(nil, showCropFrame: false)
-    }
+    }*/
     
-    init(image: UIImage, showCropFrame: Bool) {
+
+    /*init(image: UIImage, showCropFrame: Bool) {
+        
         super.init(frame:CGRectZero)
         
         create(image, showCropFrame: showCropFrame)
     
-    }
+    }*/
     
     init(frame: CGRect, image: UIImage, showCropFrame: Bool) {
+        
         super.init(frame: frame)
         
         create(image, showCropFrame: showCropFrame)
@@ -120,50 +141,67 @@ class AKImageCropperView: UIView {
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-
+        
         create(nil, showCropFrame: false)
+        
+        #if DEBUG
+            println("init(coder aDecoder: NSCoder)")
+            println(" ")
+        #endif
     }
     
     private func create(image: UIImage!, showCropFrame: Bool) {
         
-        self.backgroundColor = UIColor.clearColor()
-        
-        // Aspect View
-        aspectView = UIView()
-        aspectView.backgroundColor = UIColor.clearColor()
-        aspectView.clipsToBounds = false
-        
-        self.addSubview(aspectView)
-        
-        // Scroll View
-        scrollView = UIScrollView()
-        scrollView.backgroundColor = UIColor.clearColor()
-        scrollView.delegate = self
-        scrollView.clipsToBounds = true
-        scrollView.maximumZoomScale = 1
-        
-        aspectView.addSubview(scrollView)
-        
-        // Image View
-        imageView = UIImageView()
-        imageView.backgroundColor = UIColor.clearColor()
-        imageView.userInteractionEnabled = true
-        scrollView.addSubview(imageView)
-        
-        self.image = image
-        
-        if showCropFrame {
+        if viewsInitializated == false {
             
-            self.showCropFrame(animated: false, rect: nil, completion: nil)
+            self.backgroundColor = UIColor.clearColor()
+            
+            // Aspect View
+            aspectView = UIView()
+            aspectView.backgroundColor = UIColor.clearColor()
+            aspectView.clipsToBounds = false
+            
+            self.addSubview(aspectView)
+            
+            
+        
+            
+            // Scroll View
+            scrollView = UIScrollView()
+            scrollView.backgroundColor = UIColor.clearColor()
+            scrollView.delegate = self
+            scrollView.clipsToBounds = true
+            scrollView.maximumZoomScale = 1
+            
+            aspectView.addSubview(scrollView)
+            
+            
+            // Image View
+            imageView = UIImageView()
+            imageView.backgroundColor = UIColor.clearColor()
+            imageView.userInteractionEnabled = true
+            scrollView.addSubview(imageView)
+            
+            overlay = AKImageCropperOverlay()
+            overlay.delegate = self
+            aspectView.addSubview(overlay)
+            
+            viewsInitializated = true
+            
+            self.image = image
+            
+            if showCropFrame {
+                
+                self.showCropFrame(animated: false, rect: nil, completion: nil)
+            }
         }
-
     }
     
     func refresh() {
         
         let views = getViews()
         
-        if !cropFrameAnimationActive && views.aspect != aspectView.frame {
+        if viewsInitializated && !cropFrameAnimationActive && views.aspect != aspectView.frame {
         
             #if DEBUG
                 println("AKImageCropperView: refresh()")
@@ -206,7 +244,7 @@ class AKImageCropperView: UIView {
             cropFrameTransitionWithAnimation = flag
             
             // Init Overlay View
-            overlay = AKImageCropperOverlay()
+
             
             self.viewWillTransition(nil) { () -> Void in
                 
@@ -217,10 +255,26 @@ class AKImageCropperView: UIView {
 //                let rect = CGRectMake(0, 0, 60, 60)
                 
                 // Create Overlay View
-                self.overlay = AKImageCropperOverlay(frame: overlayRect, animated: flag)
-                self.overlay.delegate = self
+                self.overlay.frame = /*AKImageCropperOverlay(frame: overlayRect, animated: flag)*/ overlayRect
+                self.overlay.hidden = false
                 
-                self.aspectView.addSubview(self.overlay)
+                self.overlay.refresh()
+                
+                
+                // Animate
+                if flag {
+                    
+                    self.overlay.alpha = 0
+                    
+                    UIView.animateWithDuration(0.3,
+                        animations: { () -> Void in
+                            
+                            self.overlay.alpha = 1
+                        }
+                    )
+                }
+
+                
                 
                 // Reset Flags
                 self.cropFrameAnimationActive = false

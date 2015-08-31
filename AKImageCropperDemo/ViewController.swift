@@ -24,7 +24,7 @@ class ViewController: UIViewController {
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-    @IBAction func galleryBuutonClicked(){
+    @IBAction func galleryBuutonClicked(){        
         
         if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.SavedPhotosAlbum){
             
@@ -32,7 +32,13 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             imagePicker.sourceType = UIImagePickerControllerSourceType.SavedPhotosAlbum;
             imagePicker.allowsEditing = false
             
+            imagePicker.navigationBar.translucent = false
+            imagePicker.navigationBar.barStyle = .Black
+            imagePicker.navigationBar.tintColor = UIColor.whiteColor()
+            
             self.presentViewController(imagePicker, animated: true, completion: nil)
+            
+            
         }
     }
     

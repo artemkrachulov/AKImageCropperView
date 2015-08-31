@@ -29,7 +29,18 @@ class CropperViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+
+        
+
+        
+
         cropView.image = _image
+
+//        cropView.overlay.fingerSize = 100
+        
+        
+        
+        //cropView.showCropFrame(animated: false, rect: nil, completion: nil)
         
         /**
 

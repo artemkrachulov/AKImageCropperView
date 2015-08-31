@@ -29,8 +29,12 @@ class AKImageCropperOverlay: UIView {
     var cornerColor = UIColor.whiteColor()
 
     var grid: Bool = true
-    var gridColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
-    var gridLines: UInt8 = 3
+
+    var gridLines: Int8 = 3
+
+    
+        var gridColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
+    
 
     var delegate: AKImageCropperOverlayDelegate?
     
@@ -79,31 +83,26 @@ class AKImageCropperOverlay: UIView {
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
     init() {
-        
         super.init(frame: CGRectZero)
+        
+        self.hidden = true
         
         // Clear color
         backgroundColor = UIColor.clearColor()
+        
+        // Apply Gestures
+        self.applyGesures()
     }
     
     init(frame: CGRect, animated flag: Bool) {
         super.init(frame: frame)
         
+        println(frame)
+        
         // Clear color
         backgroundColor = UIColor.clearColor()
         
-        // Animate
-        if flag {
-            
-            alpha = 0
-            
-            UIView.animateWithDuration(0.3,
-                animations: { () -> Void in
-                
-                    self.alpha = 1
-                }
-            )
-        }
+
         
         self.refresh()
         
@@ -127,7 +126,10 @@ class AKImageCropperOverlay: UIView {
         
         // Crop Frame
         _cropFrame = fitFrameTo(cropFrame ?? _frame)
-    
+        
+        
+//        println()
+        
         
         // Redraw
         self.setNeedsDisplay()
@@ -261,7 +263,7 @@ class AKImageCropperOverlay: UIView {
             var from, to: CGPoint!
             
             // Vetical lines
-            for (var i: UInt8 = 1; i <= gridLines; i++) {
+            for (var i: Int8 = 1; i <= gridLines; i++) {
                 
                 from = CGPointMake(CGRectGetMinX(_cropFrame) + CGRectGetWidth(_cropFrame) / (CGFloat(gridLines) + 1) * CGFloat(i), CGRectGetMinY(_cropFrame))
                 to = CGPointMake(from.x, CGRectGetMaxY(_cropFrame))
@@ -271,7 +273,7 @@ class AKImageCropperOverlay: UIView {
             }
             
             // Horizontal Lines
-            for (var i: UInt8 = 1; i <= gridLines; i++) {
+            for (var i: Int8 = 1; i <= gridLines; i++) {
                 
                 from = CGPointMake(CGRectGetMinX(_cropFrame), CGRectGetMinY(_cropFrame) + CGRectGetHeight(_cropFrame) / (CGFloat(gridLines) + 1) * CGFloat(i))
                 to = CGPointMake(CGRectGetMaxX(_cropFrame), from.y)
