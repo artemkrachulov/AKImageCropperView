@@ -62,7 +62,7 @@ init(frame: CGRect, image: UIImage, showCropFrame: Bool)
 ```
 
 | Parameters  |  Description |
-| ------------- | ------------- |
+| : ------------- | : ------------- |
 | frame         | The frame rectangle for the cropper view, measured in points. The origin of the frame is relative to the superview in which you plan to add it. |
 | image         | The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px). |
 | showCropFrame | Pass true to show crop frame on initialization. |
@@ -80,7 +80,9 @@ var image: UIImage?
 The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px).
 The initial value of this property is `nil`.
 
-`var fingerSize: CGFloat`
+```swift
+var fingerSize: CGFloat
+```
 
 A size width of finger touch on the outside line of crop frame. This value used to calculate a size of the outer offset crop frame. See diagram below.
 ```swift
