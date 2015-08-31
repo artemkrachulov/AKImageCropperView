@@ -61,8 +61,8 @@ override func viewWillLayoutSubviews() {
 init(frame: CGRect, image: UIImage, showCropFrame: Bool)
 ```
 
-**Parameters**
-
+| Parameters  |  Description |
+| ------------- | ------------- |
 | frame         | The frame rectangle for the cropper view, measured in points. The origin of the frame is relative to the superview in which you plan to add it. |
 | image         | The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px). |
 | showCropFrame | Pass true to show crop frame on initialization. |
@@ -73,7 +73,9 @@ Initializes and returns a newly allocated croper view object with the specified 
 
 ### Configuring
 
-'var image: UIImage?'
+```swift
+var image: UIImage?
+```
 
 The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px).
 The initial value of this property is `nil`.
