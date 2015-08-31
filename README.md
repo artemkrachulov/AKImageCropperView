@@ -164,12 +164,14 @@ Call this method to destroy the copper view with removing from superview.
 
 ### Presenting crop overlay
 
-`func showOverlayViewAnimated(flag: Bool,
+```swift
+func showOverlayViewAnimated(flag: Bool,
                 withCropFrame cropRect: CGRect!,
-                   completion completion: (() -> Void)?)`
+                   completion completion: (() -> Void)?)
+```
 
-**Parameters**
-
+| Parameter  |  Description |
+| :------------- | :------------- |
 | flag        | Pass true to animate the transition. |
 | cropRect    | The frame rectangle for the crop frame, measured in points. The origin of the frame is relative to the crop overlay view. If you may specify `nil` for this parameter, crop frame rectangle will have size that eaual of image view. |
 | completion  | The block to execute after the crop overlay is presented. This block has no return value and takes no parameters. You may specify `nil` for this parameter. |
