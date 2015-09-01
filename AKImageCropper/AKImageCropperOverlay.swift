@@ -12,46 +12,29 @@ import UIKit
 @objc protocol AKImageCropperOverlayDelegate {
     
     optional func pinchGesture(overlay: AKImageCropperOverlay, sender: UIPinchGestureRecognizer)
-    
     optional func panGesture(overlay: AKImageCropperOverlay, sender: UIPanGestureRecognizer)
 }
 
 class AKImageCropperOverlay: UIView {
-    
-    // MARK: - Settings
-    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-    var fingerSize: CGFloat = 30.0
-    
-    var overlayColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-    
-    var strokeColor = UIColor.whiteColor()
-    var cornerColor = UIColor.whiteColor()
-
-    var grid: Bool = true
-
-    var gridLines: Int8 = 3
-
-    
-        var gridColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
-    
-
-    var delegate: AKImageCropperOverlayDelegate?
-    
     // MARK: - Properties
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
+    var superView: AKImageCropperView!
+    
+    weak var delegate: AKImageCropperOverlayDelegate?
+    
     private var offset: CGFloat {
-        return fingerSize / 2
+        return superView.fingerSize / 2
     }
     private var cornerSize: CGSize {
-        return CGSizeMake(fingerSize, fingerSize)
+        return CGSizeMake(superView.fingerSize, superView.fingerSize)
     }
     private var cornerSquareSize: CGSize {
         return CGSizeMake( cornerSize.width + offset - 3,  cornerSize.height + offset - 3)
     }
     private var maxCropSideSize: CGFloat {
-        return fingerSize * 2
+        return superView.fingerSize * 2
     }
     private var _frame: CGRect!
     
@@ -210,12 +193,13 @@ class AKImageCropperOverlay: UIView {
     override func drawRect(rect: CGRect) {
         super.drawRect(rect)
         
+        
         // Get the Graphics Context
         var context = UIGraphicsGetCurrentContext()
         CGContextSetShouldAntialias(context, true)
         
         // Fill back
-        CGContextSetFillColorWithColor(context, overlayColor.CGColor)
+        CGContextSetFillColorWithColor(context, superView.overlayColor.CGColor)
         CGContextAddRect(context, _frame)
         CGContextFillPath(context)
         
@@ -223,7 +207,7 @@ class AKImageCropperOverlay: UIView {
         CGContextFillPath(context)
         
         // Corners
-        CGContextSetFillColorWithColor(context, cornerColor.CGColor)
+        CGContextSetFillColorWithColor(context, superView.cornerColor.CGColor)
         
         CGContextSaveGState(context)
         CGContextSetShouldAntialias(context, true)
@@ -250,22 +234,22 @@ class AKImageCropperOverlay: UIView {
         #endif
 
         // Stroke
-        CGContextSetStrokeColorWithColor(context, strokeColor.CGColor)
+        CGContextSetStrokeColorWithColor(context, superView.strokeColor.CGColor)
         CGContextSetLineWidth(context, 1)
         CGContextAddRect(context, _cropFrame)
         CGContextStrokePath(context)
         
         // Grid
-        CGContextSetStrokeColorWithColor(context, gridColor.CGColor)
+        CGContextSetStrokeColorWithColor(context, superView.gridColor.CGColor)
         CGContextSetLineWidth(context, 1)
         
-        if grid {
+        if superView.grid {
             var from, to: CGPoint!
             
             // Vetical lines
-            for (var i: Int8 = 1; i <= gridLines; i++) {
+            for (var i: Int8 = 1; i <= superView.gridLines; i++) {
                 
-                from = CGPointMake(CGRectGetMinX(_cropFrame) + CGRectGetWidth(_cropFrame) / (CGFloat(gridLines) + 1) * CGFloat(i), CGRectGetMinY(_cropFrame))
+                from = CGPointMake(CGRectGetMinX(_cropFrame) + CGRectGetWidth(_cropFrame) / (CGFloat(superView.gridLines) + 1) * CGFloat(i), CGRectGetMinY(_cropFrame))
                 to = CGPointMake(from.x, CGRectGetMaxY(_cropFrame))
                 
                 CGContextMoveToPoint(context, from.x, from.y)
@@ -273,9 +257,9 @@ class AKImageCropperOverlay: UIView {
             }
             
             // Horizontal Lines
-            for (var i: Int8 = 1; i <= gridLines; i++) {
+            for (var i: Int8 = 1; i <= superView.gridLines; i++) {
                 
-                from = CGPointMake(CGRectGetMinX(_cropFrame), CGRectGetMinY(_cropFrame) + CGRectGetHeight(_cropFrame) / (CGFloat(gridLines) + 1) * CGFloat(i))
+                from = CGPointMake(CGRectGetMinX(_cropFrame), CGRectGetMinY(_cropFrame) + CGRectGetHeight(_cropFrame) / (CGFloat(superView.gridLines) + 1) * CGFloat(i))
                 to = CGPointMake(CGRectGetMaxX(_cropFrame), from.y)
                 
                 CGContextMoveToPoint(context, from.x, from.y)
@@ -308,17 +292,17 @@ class AKImageCropperOverlay: UIView {
     
     private func isTopRightCorner() -> CGRect {
         
-        return CGRect(origin: CGPointMake(CGRectGetMaxX(_cropFrame) - fingerSize + 3, CGRectGetMinY(_cropFrame) - offset), size: cornerSquareSize)
+        return CGRect(origin: CGPointMake(CGRectGetMaxX(_cropFrame) - superView.fingerSize + 3, CGRectGetMinY(_cropFrame) - offset), size: cornerSquareSize)
     }
     
     private func isBottomLeftCorner() -> CGRect {
         
-        return CGRect(origin: CGPointMake(CGRectGetMinX(_cropFrame) - offset, CGRectGetMaxY(_cropFrame) - fingerSize + 3) , size: cornerSquareSize)
+        return CGRect(origin: CGPointMake(CGRectGetMinX(_cropFrame) - offset, CGRectGetMaxY(_cropFrame) - superView.fingerSize + 3) , size: cornerSquareSize)
     }
     
     private func isBottomRightCorner() -> CGRect {
         
-        return CGRect(origin: CGPointMake(CGRectGetMaxX(_cropFrame) - fingerSize + 3, CGRectGetMaxY(_cropFrame) - fingerSize + 3), size: cornerSquareSize)
+        return CGRect(origin: CGPointMake(CGRectGetMaxX(_cropFrame) - superView.fingerSize + 3, CGRectGetMaxY(_cropFrame) - superView.fingerSize + 3), size: cornerSquareSize)
     }
     
     private func isEdgeRect() -> CGRect {
@@ -328,22 +312,22 @@ class AKImageCropperOverlay: UIView {
     
     private func isTopEdgeRect() -> CGRect {
         
-        return CGRectMake(CGRectGetMaxX(isTopLeftCorner()), CGRectGetMinY(isEdgeRect()) - offset / 2, CGRectGetWidth(isEdgeRect()) - CGRectGetWidth(isTopRightCorner()) * 2 + offset, fingerSize)
+        return CGRectMake(CGRectGetMaxX(isTopLeftCorner()), CGRectGetMinY(isEdgeRect()) - offset / 2, CGRectGetWidth(isEdgeRect()) - CGRectGetWidth(isTopRightCorner()) * 2 + offset, superView.fingerSize)
     }
     
     private func isBottomEdgeRect() -> CGRect {
         
-        return CGRectMake(CGRectGetMaxX(isTopLeftCorner()), CGRectGetMaxY(isEdgeRect()) - offset - offset/2, CGRectGetWidth(isEdgeRect()) - CGRectGetWidth(isTopRightCorner()) * 2 + offset, fingerSize)
+        return CGRectMake(CGRectGetMaxX(isTopLeftCorner()), CGRectGetMaxY(isEdgeRect()) - offset - offset/2, CGRectGetWidth(isEdgeRect()) - CGRectGetWidth(isTopRightCorner()) * 2 + offset, superView.fingerSize)
     }
     
     private func isRightEdgeRect() -> CGRect {
         
-        return CGRectMake(CGRectGetMaxX(isEdgeRect()) - offset - offset/2, CGRectGetMaxY(isTopRightCorner()), fingerSize, CGRectGetHeight(isEdgeRect()) - CGRectGetHeight(isTopRightCorner()) * 2 + offset)
+        return CGRectMake(CGRectGetMaxX(isEdgeRect()) - offset - offset/2, CGRectGetMaxY(isTopRightCorner()), superView.fingerSize, CGRectGetHeight(isEdgeRect()) - CGRectGetHeight(isTopRightCorner()) * 2 + offset)
     }
     
     private func isLeftEdgeRect() -> CGRect {
         
-        return CGRectMake(CGRectGetMinX(isEdgeRect()) - offset/2, CGRectGetMaxY(isTopLeftCorner()), fingerSize, CGRectGetHeight(isEdgeRect()) - CGRectGetHeight(isTopLeftCorner()) * 2 + offset)
+        return CGRectMake(CGRectGetMinX(isEdgeRect()) - offset/2, CGRectGetMaxY(isTopLeftCorner()), superView.fingerSize, CGRectGetHeight(isEdgeRect()) - CGRectGetHeight(isTopLeftCorner()) * 2 + offset)
     }
     
     private func isFrame (point: CGPoint) -> Frame {

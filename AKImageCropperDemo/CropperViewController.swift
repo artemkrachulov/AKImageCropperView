@@ -35,6 +35,8 @@ class CropperViewController: UIViewController {
         
 
         cropView.image = _image
+        cropView.delegate = self
+        cropViewProgrammatically = AKImageCropperView(image: _image, showCropFrame: false)
 
 //        cropView.overlay.fingerSize = 100
         
@@ -101,7 +103,7 @@ class CropperViewController: UIViewController {
             
             showHideBtn.setTitle("Show Crop Frame", forState: UIControlState.Normal)
             
-            cropView.hideCropFrame(animated: true) { () -> Void in
+            cropView.dismissOverlayViewAnimated(true) { () -> Void in
                 
                 println("Frame disabled")
             }
@@ -109,10 +111,10 @@ class CropperViewController: UIViewController {
             
             showHideBtn.setTitle("Hide Crop Frame", forState: UIControlState.Normal)
             
-            cropView.showCropFrame(animated: true, rect: nil) { () -> Void in
+            cropView.showOverlayViewAnimated(true, withCropFrame: nil, completion: { () -> Void in
                 
                 println("Frame active")
-            }
+            })
         }
         
     }
@@ -126,5 +128,28 @@ class CropperViewController: UIViewController {
             
             vc._image = cropView.croppedImage()
         }
+    }
+    
+}
+
+// MARK: - AKImageCropperDelegate
+//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+extension CropperViewController: AKImageCropperDelegate {
+    
+    func croperViewDidChangeCropRect(cropRect: CGRect, translatedToImageRect imageRect: CGRect) {
+        
+        println("Crop rectangle has been changed: \(cropRect)")
+        println("Image crop rectangle has been changed: \(imageRect)")
+    }
+    
+    func cropperViewDidScroll(scrollView: UIScrollView) {
+        
+         println("Image has been scrolled: \(scrollView.contentOffset)")
+    }
+    
+    func cropperViewDidZoom(scrollView: UIScrollView) {
+        
+         println("Image has been zoomed: \(scrollView.zoomScale)")
     }
 }
