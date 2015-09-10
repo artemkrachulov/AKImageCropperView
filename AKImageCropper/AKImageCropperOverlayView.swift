@@ -1,6 +1,7 @@
 //
-//  AKImageCropperOverlay.swift
+//  AKImageCropperOverlayView.swift
 //  AKImageCropper
+//  GitHub: https://github.com/artemkrachulov/AKImageCropper
 //
 //  Created by Krachulov Artem
 //  Copyright (c) 2015 Krachulov Artem. All rights reserved.

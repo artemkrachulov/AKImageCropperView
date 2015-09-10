@@ -65,7 +65,7 @@ override func viewWillLayoutSubviews() {
 ## Initializing
 
 ```swift
-init(frame: CGRect, image: UIImage, showOverlayView: Bool)
+func init(frame: CGRect, image: UIImage, showOverlayView: Bool)
 ```
 
 | Parameter       | Description    |
@@ -77,7 +77,7 @@ init(frame: CGRect, image: UIImage, showOverlayView: Bool)
 Initializes and returns a newly allocated Cropper view object with the specified frame rectangle, image to crop and Overlay view show / hide on initialization flag.
 
 ```swift
-init(image: UIImage, showOverlayView: Bool)
+func init(image: UIImage, showOverlayView: Bool)
 ```
 
 | Parameter       | Description    |

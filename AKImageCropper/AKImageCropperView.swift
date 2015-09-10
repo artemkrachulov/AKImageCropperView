@@ -1,12 +1,12 @@
 //
 //  AKImageCropperView.swift
 //  AKImageCropper
+//  GitHub: https://github.com/artemkrachulov/AKImageCropper
 //
 //  Created by Krachulov Artem
 //  Copyright (c) 2015 Krachulov Artem. All rights reserved.
 //  Website: http://www.artemkrachulov.com/
 //
-
 // Hierarchy
 //
 //  - - - AKImageCropperView - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

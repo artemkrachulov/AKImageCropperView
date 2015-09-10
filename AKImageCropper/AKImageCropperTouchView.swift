@@ -1,9 +1,11 @@
 //
-//  AKImageCropperframe.swift
-//  AKImageCropperDemo
+//  AKImageCropperTouchView.swift
+//  AKImageCropper
+//  GitHub: https://github.com/artemkrachulov/AKImageCropper
 //
-//  Created by Krachulov Artem  on 9/2/15.
-//  Copyright (c) 2015 Artem Krachulov. All rights reserved.
+//  Created by Krachulov Artem
+//  Copyright (c) 2015 Krachulov Artem. All rights reserved.
+//  Website: http://www.artemkrachulov.com/
 //
 
 import UIKit
