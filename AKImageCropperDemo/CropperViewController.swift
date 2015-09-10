@@ -32,15 +32,23 @@ class CropperViewController: UIViewController {
         cropView.image = _image
         cropView.delegate = self
         
-        cropView.scrollView.delegate = self
-        cropView.cropRectMinSize = CGSizeMake(100, 100)
+//        cropView.scrollView.delegate = self
+        
       
-        /**
+        
 
         cropView.removeFromSuperview()
         
+        
+
+        let frame = CGRectMake(0, 0, 300, 300)
+        cropViewProgrammatically = AKImageCropperView(frame: frame, image: _image, showOverlayView: false)
+        
+        
+        view.addSubview(cropViewProgrammatically)
+        
         // initialize Crop View programmatically
-        cropViewProgrammatically = AKImageCropperView(image: _image, showCropFrame: false)
+        /*cropViewProgrammatically = AKImageCropperView(image: _image, showOverlayView: false)
         cropViewProgrammatically.delegate = self
         cropViewProgrammatically.setTranslatesAutoresizingMaskIntoConstraints(false)
 
@@ -62,9 +70,9 @@ class CropperViewController: UIViewController {
      
         var rightBtn = NSLayoutConstraint(item: showHideBtn, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: cropViewProgrammatically, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
         
-        view.addConstraint(rightBtn)
+        view.addConstraint(rightBtn)*/
 
-        */
+    
     }
     
     override func viewWillLayoutSubviews() {
@@ -78,6 +86,8 @@ class CropperViewController: UIViewController {
         */
         
         cropView.refresh()
+        
+        cropViewProgrammatically.refresh()
     
     }
     
