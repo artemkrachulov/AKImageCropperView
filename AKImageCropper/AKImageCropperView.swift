@@ -330,15 +330,16 @@ class AKImageCropperView: UIView {
                 
                 // Animate
                 if flag {
-                    
-                    self.overlayView.alpha = 0
-                    
+                                        
                     UIView.animateWithDuration(self.overlayViewAnimationDuration,
                         animations: { () -> Void in
                             
                             self.overlayView.alpha = 1
                         }
                     )
+                } else {
+                    
+                    self.overlayView.alpha = 1
                 }
                 
                 // Reset Flags

@@ -38,8 +38,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             imagePicker.navigationBar.tintColor = UIColor.whiteColor()
             
             self.presentViewController(imagePicker, animated: true, completion: nil)
-            
-            
         }
     }
     

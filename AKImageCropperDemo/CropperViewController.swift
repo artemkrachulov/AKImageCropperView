@@ -33,24 +33,19 @@ class CropperViewController: UIViewController {
         cropView.image = _image
         cropView.delegate = self
         
-//        cropView.scrollView.delegate = self
+        // Uncomment this line to detect all Scrollview events
+        // cropView.scrollView.delegate = self
         
-      
+        /**
         
-
-        cropView.removeFromSuperview()
+            Initialize Crop View programmatically
         
+        */
         
-
-        let frame = CGRectMake(0, 0, 300, 300)
-        cropViewProgrammatically = AKImageCropperView(frame: frame, image: _image, showOverlayView: false)
-        
-        
-        view.addSubview(cropViewProgrammatically)
-        
-        // initialize Crop View programmatically
-        /*cropViewProgrammatically = AKImageCropperView(image: _image, showOverlayView: false)
+        /*
+        cropViewProgrammatically = AKImageCropperView(image: _image, showOverlayView: false)
         cropViewProgrammatically.delegate = self
+        cropViewProgrammatically.scrollView.delegate = self
         cropViewProgrammatically.setTranslatesAutoresizingMaskIntoConstraints(false)
 
         view.addSubview(cropViewProgrammatically)
@@ -71,25 +66,23 @@ class CropperViewController: UIViewController {
      
         var rightBtn = NSLayoutConstraint(item: showHideBtn, attribute: NSLayoutAttribute.Left, relatedBy: NSLayoutRelation.Equal, toItem: cropViewProgrammatically, attribute: NSLayoutAttribute.Left, multiplier: 1, constant: 0)
         
-        view.addConstraint(rightBtn)*/
-
-    
+        view.addConstraint(rightBtn)
+        */
     }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
         /**
-            
-            Switch cropView to cropViewProgrammatically
-            if you suing programmatically initalisation
+        
+            If you use programmatically initalization
+            Switch 'cropView' to 'cropViewProgrammatically'
+        
+            Example: cropViewProgrammatically.refresh()
         
         */
         
         cropView.refresh()
-        
-        cropViewProgrammatically.refresh()
-    
     }
     
     // MARK: - Button Actions
@@ -99,10 +92,14 @@ class CropperViewController: UIViewController {
         
         /**
         
-            Switch cropView to cropViewProgrammatically
-            if you suing programmatically initalisation
+            If you use programmatically initalization
+            Switch 'cropView' to 'cropViewProgrammatically'
+        
+            Example: if cropViewProgrammatically.overlayViewIsActive {
+                        ...
         
         */
+        
         if cropView.overlayViewIsActive {
             
             showHideBtn.setTitle("Show Crop Frame", forState: UIControlState.Normal)
@@ -120,14 +117,12 @@ class CropperViewController: UIViewController {
                 println("Frame active")
             })
         }
-        
     }
     
     @IBAction func cropTestBtn(sender: UIBarButtonItem) {
         
         cropView.setCropRect(CGRectMake(50, 50, 150, 150))
     }
-    
     
     // MARK: - Navigation
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -150,31 +145,17 @@ extension CropperViewController: AKImageCropperViewDelegate {
         
         println("New crop rectangle: \(rect)")
     }
-    
-    /*func croperViewDidChangeCropRect(cropRect: CGRect, translatedToImageRect imageRect: CGRect) {
-        
-        println("Crop rectangle has been changed: \(cropRect)")
-        println("Image crop rectangle has been changed: \(imageRect)")
-    }
-    
-    func cropperViewDidScroll(scrollView: UIScrollView, cropRect: CGRect, translatedToImageRect imageRect: CGRect) {
-        
-        println("Image has been scrolled: \(scrollView.contentOffset)")
-        println("Crop rectangle has been changed: \(cropRect)")
-        println("Image crop rectangle has been changed: \(imageRect)")
-    }
-    
-    func cropperViewDidZoom(scrollView: UIScrollView, cropRect: CGRect, translatedToImageRect imageRect: CGRect) {
-        
-        println("Image has been zoomed: \(scrollView.zoomScale)")
-        println("Crop rectangle has been changed: \(cropRect)")
-        println("Image crop rectangle has been changed: \(imageRect)")
-    }*/
 }
 
+// MARK: - UIScrollViewDelegate
+//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+// Uncomment this block if cropView.scrollView.delegate = self is set
+
+/*
 extension CropperViewController: UIScrollViewDelegate {
     func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         
         return cropView.imageView
     }
-}
+}*/
