@@ -42,7 +42,7 @@ override func viewDidLoad() {
 
     let image = UIImage(named: "yourImage")
     let frame = CGRectMake(0, 0, 300, 300)
-    cropView = AKImageCropperView(frame: frame, image: image, showCropFrame: false)
+    cropView = AKImageCropperView(frame: frame, image: image, showOverlayView: false)
 
     view.addSubview(cropView)
 }
@@ -58,73 +58,93 @@ override func viewWillLayoutSubviews() {
 ## Initializing
 
 ```swift
-init(frame: CGRect, image: UIImage, showCropFrame: Bool)
+init(frame: CGRect, image: UIImage, showOverlayView: Bool)
 ```
 
-| Parameter     | Description    |
-| :------------ | :------------- |
-| frame         | The frame rectangle for the cropper view, measured in points. The origin of the frame is relative to the superview in which you plan to add it. |
-| image         | The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px). |
-| showCropFrame | Pass true to show crop frame on initialization. |
+| Parameter       | Description    |
+| :-------------- | :------------- |
+| frame           | The frame rectangle for the cropper view, measured in points. The origin of the frame is relative to the superview in which you plan to add it. |
+| image           | The image you want to crop. |
+| showOverlayView | Pass true to show overlay view with crop rect on initialization. |
 
 Initializes and returns a newly allocated croper view object with the specified frame rectangle, image to crop and crop frame show/hide on initialization flag.
 
 ```swift
-init(image: UIImage, showCropFrame: Bool)
+init(image: UIImage, showOverlayView: Bool)
 ```
 
-| Parameter     | Description    |
-| :------------ | :------------- |
-| image         | The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px). |
-| showCropFrame | Pass true to show crop frame on initialization. |
+| Parameter       | Description    |
+| :-------------- | :------------- |
+| image           | The image you want to crop. |
+| showOverlayView | Pass true to show overlay view with crop rect on initialization. |
 
-Initializes and returns a newly allocated croper view object with CGRectZero frame rectangle, image to crop and crop frame show/hide on initialization flag.
+Initializes and returns a newly allocated croper view object with CGRectZero frame rectangle, image to crop and overlay view show / hide on initialization flag.
 
 ## Properties
 
-### Configuring cropper view
+<!-- ### Image -->
 
 ```swift
 var image: UIImage!
 ```
 
-The image you want to crop. The minimum size of the image is calculated by the formula: minWidth x minHeight = fingerSize*2 x fingerSize*2, where fingerSize - a size width of finger touch (default 30 px).
+The image you want to crop.
 The initial value of this property is `nil`.
 
 ```swift
-var cropRect: CGRect
+var imageView: UIImageView! {get}
 ```
 
-The crop frame rectangle, measured in points. In depending, if crop overlay is active value returns crop frane rectangle located in the overlay or crop frane rectangle based on scroll view size and content offset origin points.
+Returns image view object.
+
+### Crop rectangle
 
 ```swift
-var cropImageRect: CGRect
+var cropRect: CGRect {get}
 ```
 
-The crop frame rectangle `cropRect` translated to image with zoom scale factor, measured in points.
+Returns crop frame rectangle, measured in points. If overlay view is active value returns crop rectangle located on the overlay view, if not - crop rectangle based on scroll view frame.
 
 ```swift
-var cropFrameAnimationDuration: NSTimeInterval
+var cropRectTranslatedToImage: CGRect {get}
+```
+
+Returns crop rectangle `cropRect` translated to image with scroll view scale factor, measured in points.
+
+```swift
+var cropRectMinSize: CGSize
+```
+
+The minimum value to which is possible to reduce the size of crop rectangle.
+The initial value of this property is `30` pixels width and `30` pixels height.
+
+```swift
+var scrollView: AKImageCropperScollView! {get}
+```
+
+Returns scroll view object as `UIScrollView` subclass. `UIScrollViewDelegate` protocol can be extended in your view controller.
+
+### Configuring overlay animation
+
+```swift
+var overlayViewAnimationDuration: NSTimeInterval
 ```
 
 The duration of the transition animation, measured in seconds.
 The initial value of this property is `300` milliseconds.
 
 ```swift
-var cropFrameAnimationOptions: UIViewAnimationOptions
+var overlayViewAnimationOptions: UIViewAnimationOptions
 ```
 
 Specifies the supported animation curves.
 The initial value of this property is `CurveLinear`.
 
-### Configuring overlay view with crop frame
+### Configuring overlay view
 
 ```swift
 var fingerSize: CGFloat
-```
 
-A size width of finger touch on the outside line of crop frame. This value used to calculate a size of the outer offset crop frame. See diagram below.
-```swift
 //     __ __ __ __ Crop View __ __
 //    |
 //    |      __ __ __ __ Crop Frame __ __
@@ -134,7 +154,21 @@ A size width of finger touch on the outside line of crop frame. This value used 
 //    |<---- ----> -- Finger touch size "fingerSize"  (Default: 30.0)
 //    |     |
 ```
+
+A size width of finger touch. This value used to calculate a size of the outer offset crop frame. See diagram.
 The initial value of this property is `30` pixels.
+
+```swift
+var cornerOffset: Int
+```
+The distance to which will be offset corners of the crop rectangle.
+The initial value of this property is `3` pixels.
+
+```swift
+var cornerSize: Int
+```
+The size of the crop rectangle corners.
+The initial value of this property is `18` pixels width and `18` pixels height.
 
 ```swift
 var grid: Bool
@@ -144,7 +178,7 @@ A Boolean value that determines whether the lines inside the crop frame will be 
 The initial value of this property is `true`.
 
 ```swift
-var gridLines: Int8
+var gridLines: Int
 ```
 
 The number of vertical and horizontal lines inside the crop frame.
@@ -178,20 +212,20 @@ var gridColor: UIColor
 The color of the vertical and horizontal lines inside the crop frame.
 The initial value of this property is `UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)` (White with 50% alpha).
 
-### Crop Frame state
+### Overlay view state
 
 ```swift
-var cropFrameIsActive { get }
+var overlayViewIsActive {get}
 ```
 
-A Boolean value that determines crop frame state in current moment.
-The initial value of this property is `false`.
+Returns a boolean value that determines overaly view state in current moment.
 
 ### Managing the Delegate
 
 ```swift
-weak var delegate: AKImageCropperDelegate?
+weak var delegate: AKImageCropperViewDelegate?
 ```
+
 The object that acts as the delegate of the cropper view.
 
 ## Methods
@@ -218,7 +252,7 @@ func setCropRect(rect: CGRect)
 
 | Parameter     | Description    |
 | :------------ | :------------- |
-| rect          | The crop frame rectangle for the cropper view, measured in points. The origin of the frame is relative to the superview where overlay view placed. |
+| rect          | The crop rectangle for the overlay view, measured in points. The origin of the frame is relative to the superview where overlay view placed. |
 
 ### Presenting crop overlay
 
@@ -231,8 +265,8 @@ func showOverlayViewAnimated(flag: Bool,
 | Parameter     | Description    |
 | :------------ | :------------- |
 | flag          | Pass true to animate the transition. |
-| cropRect      | The frame rectangle for the crop frame, measured in points. The origin of the frame is relative to the crop overlay view. If you may specify `nil` for this parameter, crop frame rectangle will have size that eaual of image view. |
-| completion    | The block to execute after the crop overlay is presented. This block has no return value and takes no parameters. You may specify `nil` for this parameter. |
+| cropRect      | The crop rectangle, measured in points. The origin of the frame is relative to the overlay view. If you may specify `nil` for this parameter, crop rectangle will have size that eaual of scroll view. |
+| completion    | The block to execute after the overlay view is presented. This block has no return value and takes no parameters. You may specify `nil` for this parameter. |
 
 Presents a crop view.
 
@@ -244,7 +278,7 @@ func dismissOverlayViewAnimated(flag: Bool,
 | Parameter     | Description    |
 | :------------ | :------------- |
 | flag          | Pass true to animate the transition. |
-| completion    | The block to execute after the crop overlay is dismissed. This block has no return value and takes no parameters. You may specify `nil` for this parameter. |
+| completion    | The block to execute after the overlay view is dismissed. This block has no return value and takes no parameters. You may specify `nil` for this parameter. |
 
 Dismisses the crop view.
 
@@ -254,39 +288,82 @@ Dismisses the crop view.
 func croppedImage() -> UIImage
 ```
 
-Returns a cropped image. Расмер выреззанного изображения учитывается с зумм фактором
+Returns a cropped image.
 
 ### Responding to user actions
 
 ```swift
-optional func cropperViewDidScroll(scrollView: UIScrollView)
+optional func cropRectChanged(rect: CGRect)
 ```
 
 | Parameter     | Description    |
 | :------------ | :------------- |
-| scrollView    | The scroll-view object in which the scrolling occurred. |
+| rect          | New crop rectangle origin and size. |
 
-Tells the delegate when the user scrolls the image view within the receiver.
+Tells the delegate when the crop rectangle was changed.
+
+### Draw crop rectagle
 
 ```swift
-optional func cropperViewDidZoom(scrollView: UIScrollView)
+optional func overlayViewDrawInTopLeftCropRectCornerPoint(point: CGPoint)
 ```
 
 | Parameter     | Description    |
 | :------------ | :------------- |
-| scrollView    | The scroll-view object in which the scrolling occurred. |
+| point         | Point where placed corner view. |
 
-Tells the delegate that the scroll view’s zoom factor changed.
+Draws corner on the overlay view context in top left corner of the crop rectangle.
 
 ```swift
-optional func croperViewDidMoveCropFrame(frame: UIView)
+optional func overlayViewDrawInTopRightCropRectCornerPoint(point: CGPoint)
 ```
 
 | Parameter     | Description    |
 | :------------ | :------------- |
-| frame         | Crop frame.    |
+| point         | Point where placed corner view. |
 
-Tells the delegate that the crop frame size changed.
+Draws corner on the overlay view context in top right corner of the crop rectangle.
+
+```swift
+optional func overlayViewDrawInBottomRightCropRectCornerPoint(point: CGPoint)
+```
+
+| Parameter     | Description    |
+| :------------ | :------------- |
+| point         | Point where placed corner view. |
+
+Draws corner on the overlay view context in bottom right corner of the crop rectangle.
+
+```swift
+optional func overlayViewDrawInBottomLeftCropRectCornerPoint(point: CGPoint)
+```
+
+| Parameter     | Description    |
+| :------------ | :------------- |
+| point         | Point where placed corner view. |
+
+Draws corner on the overlay view context in bottom left corner of the crop rectangle.
+
+```swift
+optional func overlayViewDrawStrokeInCropRect(cropRect: CGRect)
+```
+
+| Parameter     | Description    |
+| :------------ | :------------- |
+| cropRect      | Crop rectangle origin and size. |
+
+Draws stroke line for the crop rectangle on the overlay view context.
+
+
+```swift
+optional func overlayViewDrawGridInCropRect(cropRect: CGRect)
+```
+
+| Parameter     | Description    |
+| :------------ | :------------- |
+| cropRect      | Crop rectangle origin and size. |
+
+Draws grid lines inside the crop rectangle on the overlay view context.
 
 ### Author
 

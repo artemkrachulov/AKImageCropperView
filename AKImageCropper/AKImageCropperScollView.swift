@@ -9,13 +9,18 @@
 import UIKit
 
 class AKImageCropperScollView: UIScrollView {
-
-    /*
-    // Only override drawRect: if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func drawRect(rect: CGRect) {
-        // Drawing code
+    
+    // MARK: - Properties
+    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    
+    // Block / UnBlock scroll content
+    weak var sender: AKImageCropperTouchView!
+    
+    // MARK: - Gestures
+    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    
+    override func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return sender.flagScrollViewGesture
     }
-    */
-
 }

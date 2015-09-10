@@ -7,24 +7,61 @@
 //  Website: http://www.artemkrachulov.com/
 //
 
+// Hierarchy
+//
+//  - - - AKImageCropperView - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// |                                                                                               |
+// |   - - - Aspect View - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   |
+// |  |                                                                                         |  |
+// |  |   - - - Touch View - - -    - - - Overlay View - - -    - - - Scroll View - - - - - -   |  |
+// |  |  |                      |  |                        |  |                             |  |  |
+// |  |  |                      |  |                        |  |   - - - Image View - - -    |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  |                       |  |  |  |
+// |  |  |                      |  |                        |  |  | _ _ _ _ _ _ _ _ _ _ _ |  |  |  |
+// |  |  | _ _ _ _ _ _ _ _ _ _ _|  | _ _ _ _ _ _ _ _ _ _ _ _|  | _ _ _ _ _ _ _ _ _ _ _ _ _ _ |  |  |
+// |  | _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |  |
+// | _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |
+
+
 import UIKit
 
-@objc protocol AKImageCropperDelegate {
+// MARK: - AKImageCropperViewDelegate
+//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+@objc protocol AKImageCropperViewDelegate {
     
-    optional func cropperViewDidScroll(scrollView: UIScrollView)
-    optional func cropperViewDidZoom(scrollView: UIScrollView)
-    optional func croperViewDidChangeCropRect(cropRect: CGRect, translatedToImageRect imageRect: CGRect)
+    // Any crop rect changes
+    optional func cropRectChanged(rect: CGRect)
+    
+    // Custom overlay view
+    optional func overlayViewDrawInTopLeftCropRectCornerPoint(point: CGPoint)
+    optional func overlayViewDrawInTopRightCropRectCornerPoint(point: CGPoint)
+    optional func overlayViewDrawInBottomRightCropRectCornerPoint(point: CGPoint)
+    optional func overlayViewDrawInBottomLeftCropRectCornerPoint(point: CGPoint)
+    optional func overlayViewDrawStrokeInCropRect(cropRect: CGRect)
+    optional func overlayViewDrawGridInCropRect(cropRect: CGRect)
 }
 
+// MARK: - AKImageCropperView
+//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
 class AKImageCropperView: UIView {
-    
+
     // MARK: - Properties
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
     var image: UIImage! {
         get {
             
-            return viewsInitializated ? imageView.image : nil
+            return flagCreated ? imageView.image : nil
         }
         set(image) {
             
@@ -42,157 +79,125 @@ class AKImageCropperView: UIView {
             }
         }
     }
-    var cropRect: CGRect {
+
+    var cropRect: CGRect  {
+
+        return cropRectSaved ?? CGRect(origin: CGPointZero, size: scrollView.frame.size)
+    }
+    var cropRectTranslatedToImage: CGRect {
         
-        return getCropRects().cropRect
+        return overlayViewIsActive ?
+            CGRectMake((scrollView.contentOffset.x + cropRect.origin.x) / scrollView.zoomScale, (scrollView.contentOffset.y + cropRect.origin.y) / scrollView.zoomScale, cropRect.size.width / scrollView.zoomScale, cropRect.size.height / scrollView.zoomScale) :
+            CGRectMake(scrollView.contentOffset.x / scrollView.zoomScale, scrollView.contentOffset.y / scrollView.zoomScale, scrollView.frame.size.width / scrollView.zoomScale, scrollView.frame.size.height / scrollView.zoomScale)
     }
     
-    var cropImageRect: CGRect {
-        
-        return getCropRects().imageRect
-    }
+    var cropRectMinSize = CGSizeMake(30, 30)
     
+    private (set) var overlayViewIsActive = false
     
-    // Configuring cropper view
-    var cropFrameAnimationDuration: NSTimeInterval = 0.3
-    var cropFrameAnimationOptions: UIViewAnimationOptions = .CurveEaseOut
+    // Managing the Delegate
+    weak var delegate: AKImageCropperViewDelegate?
     
-    // Configuring overlay view with crop frame
-    var fingerSize: CGFloat = 30.0
-    var grid: Bool = true
-    var gridLines: Int8 = 3
+    // MARK: - Configuration
+    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    
+    var overlayViewAnimationDuration: NSTimeInterval = 0.3
+    var overlayViewAnimationOptions: UIViewAnimationOptions = .CurveEaseOut
+    
+    var fingerSize = 30 // px
+    
+    var cornerOffset = 3 // px
+    var cornerSize = CGSizeMake(18, 18)
+    
+    var grid = true
+    var gridLines = 2
     
     var overlayColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
     var strokeColor = UIColor.whiteColor()
     var cornerColor = UIColor.whiteColor()
     var gridColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
     
-    // Managing the Delegate
-    weak var delegate: AKImageCropperDelegate?
-    
-    
-    // MARK: - Properties
+    // MARK: - Class Properties
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    
-    private var overlay: AKImageCropperOverlay!
-    
-    private var offset: CGFloat {
-        return cropFrameWillShow ? fingerSize / 2 : 0
-    }
-    
-    // Hierarchy
-    //
-    //  - - - AKImageCropperView - - - - - - - -
-    // |                                         |
-    // |   - - - Aspect View - - - - - - - - -   |
-    // |  |                                   |  |
-    // |  |   - - - Scroll View - - - - - -   |  |
-    // |  |  |                             |  |  |
-    // |  |  |   - - - Image View - - -    |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  |                       |  |  |  |
-    // |  |  |  | _ _ _ _ _ _ _ _ _ _ _ |  |  |  |
-    // |  |  |                             |  |  |
-    // |  |  | _ _ _ _ _ _ _ _ _ _ _ _ _ _ |  |  |
-    // |  |                                   |  |
-    // |  | _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |  |
-    // |                                         |
-    // | _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |
     
     private var aspectView: UIView!
-    private var scrollView: UIScrollView!
-    private var imageView: UIImageView!
-
+    private var touchView: AKImageCropperTouchView!
+    private var overlayView: AKImageCropperOverlayView!
+    private var overlayViewCornerOffset: CGFloat {
+        
+        return CGFloat(cornerOffset)
+    }
+    private (set) var scrollView: AKImageCropperScollView!
+    private var scrollViewActiveOffset: CGFloat {
+        
+        return overlayViewIsActive ? CGFloat(fingerSize) / 2 : 0
+    }
+    private var scrollViewOffset: CGFloat {
+        
+        return CGFloat(fingerSize / 2)
+    }
+    private (set) var imageView: UIImageView!
     
-    // MARK: - Properties
+    // Saved crop rect (if rectagle was set in code)
+    private var cropRectSaved: CGRect!
+    
+    // MARK: - Flags
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
-    private (set) var cropFrameIsActive = false
+    /// Blocks any actions if all views not initialized
+    private var flagCreated = false
     
-    // Flags
-
-    // Блокирует новое действие пока не завершится текущее
-    private var viewsInitializated = false
+    /// Blocks new action until the current not finish
+    private var flagOverlayAnimation = false
     
-    // Блокирует новое действие пока не завершится текущее
-    private var cropFrameAnimationActive = false
+    /// Blocks transition when using built-in transition
+    private var flagCropperViewTransitionWithAnimation = true
     
-    // Используется для определения размера отступа рамки
-    private var cropFrameWillShow = false
+    /// Blocks multiple refreshing if size is same
+    private var flagRefresh = true
     
-    // Испольльзуется анимация рамки в тукушьй момент или нет
-    private var cropFrameTransitionWithAnimation = true
-    
-
     // MARK: - Initialization
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
-    /*init () {
-        super.init(frame:CGRectZero)
-        
-        create(nil, showCropFrame: false)
-    }*/
-    
-
-    init(image: UIImage, showCropFrame: Bool) {
-        
-        super.init(frame:CGRectZero)
-        
-        create(image, showCropFrame: showCropFrame)
-    
-    }
-    
-    init(frame: CGRect, image: UIImage, showCropFrame: Bool) {
-        
+    init(frame: CGRect, image: UIImage, showOverlayView: Bool) {
         super.init(frame: frame)
         
-        create(image, showCropFrame: showCropFrame)
-
-
+        create(image, showOverlayView: showOverlayView)
+    }
+    
+    init(image: UIImage, showOverlayView: Bool) {
+        super.init(frame:CGRectZero)
+        
+        create(image, showOverlayView: showOverlayView)
     }
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        create(nil, showCropFrame: false)
-        
-        #if DEBUG
-            println("init(coder aDecoder: NSCoder)")
-            println(" ")
-        #endif
+        create(nil, showOverlayView: false)
     }
     
-    private func create(image: UIImage!, showCropFrame: Bool) {
-        
-        if viewsInitializated == false {
+    
+    private func create(image: UIImage!, showOverlayView: Bool) {
+        if !flagCreated {
             
-            self.backgroundColor = UIColor.clearColor()
+            backgroundColor = UIColor.clearColor()
             
             // Aspect View
             aspectView = UIView()
             aspectView.backgroundColor = UIColor.clearColor()
             aspectView.clipsToBounds = false
             
-            self.addSubview(aspectView)
-            
-            
-        
+            addSubview(aspectView)
             
             // Scroll View
-            scrollView = UIScrollView()
+            scrollView = AKImageCropperScollView()
             scrollView.backgroundColor = UIColor.clearColor()
             scrollView.delegate = self
             scrollView.clipsToBounds = true
-            scrollView.maximumZoomScale = 1
+            scrollView.maximumZoomScale = 2
             
             aspectView.addSubview(scrollView)
-            
             
             // Image View
             imageView = UIImageView()
@@ -200,22 +205,33 @@ class AKImageCropperView: UIView {
             imageView.userInteractionEnabled = true
             scrollView.addSubview(imageView)
             
+            // Overlay View
+            overlayView = AKImageCropperOverlayView()
+            overlayView.backgroundColor = UIColor.clearColor()
+            overlayView.hidden = true
+            overlayView.alpha = 0
+            overlayView.clipsToBounds = false
+            overlayView.croppperView = self
+            aspectView.addSubview(overlayView)
             
-            overlay = AKImageCropperOverlay()
-            overlay.delegate = self
+            // Touch View
+            touchView = AKImageCropperTouchView()
+            touchView.backgroundColor = UIColor.clearColor()
+            touchView.delegate = self
+            touchView.cropperView = self
             
-            // Send settings
-            overlay.superView = self
-            aspectView.addSubview(overlay)
+            touchView.receiver = scrollView
+            scrollView.sender = touchView
+            aspectView.addSubview(touchView)
             
-            
-            viewsInitializated = true
+            // Update flag
+            flagCreated = true
             
             self.image = image
             
-            if showCropFrame {
+            if showOverlayView {
                 
-                self.showOverlayViewAnimated(false, withCropFrame: nil, completion: nil)
+                showOverlayViewAnimated(false, withCropFrame: nil, completion: nil)
             }
         }
     }
@@ -224,194 +240,165 @@ class AKImageCropperView: UIView {
         
         let views = getViews()
         
-        if viewsInitializated && !cropFrameAnimationActive && views.aspect != aspectView.frame {
-        
+        if flagRefresh ? aspectView.frame != views.aspect : false {
+            
             #if DEBUG
-                println("AKImageCropperView: refresh()")
-                println("Aspect View Frame: \(views.aspect)")
-                println("Scale View Frame: \(views.scale)")
-                println(" ")
+            println("AKImageCropperView: refresh()")
+            println("Aspect View Frame: \(views.aspect)")
+            println("Scale View Frame: \(views.scale)")
+            println("Crop Rect: \(cropRect)")
+            println("Crop Rect Saved: \(cropRectSaved)")
+            println(" ")
             #endif
         
             // Aspect View
             aspectView.frame = views.aspect
             
+            let maxRect = CGRect(origin: CGPointZero, size: scrollView.frame.size)
+            let minRect = cropRectMinSize
+            
+            let newCropRect  = CGRectFit(cropRect, toRect: maxRect, minRect)
+            
+            if newCropRect != cropRect && cropRectSaved != nil {
+            
+                cropRectSaved = newCropRect
+                
+                delegate?.cropRectChanged?(newCropRect)
+            }
+            
+            // Touch View
+            touchView.frame = CGRectInset(views.scroll, -scrollViewOffset, -scrollViewOffset)
+            touchView.setNeedsDisplay()
+            
+            // Overlay View
+            overlayView.frame = CGRectInset(views.scroll, -overlayViewCornerOffset, -overlayViewCornerOffset)
+            overlayView.setNeedsDisplay()
+     
+            
             // Scroll View
             scrollView.frame = views.scroll
             scrollView.minimumZoomScale = views.scale
             scrollView.zoomScale = views.scale
-        
-            if cropFrameIsActive {
-                
-                overlay.refresh()
-            }
         }
     }
     
     func destroy() {
         
-        self.removeFromSuperview()
+        removeFromSuperview()
     }
     
-    // MARK: - Crop Frame
+    // MARK: - Overlay View with Crop Rect
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
-    func showOverlayViewAnimated(flag: Bool, withCropFrame rect: CGRect!, completion: (() -> Void)?) {
+    func setCropRect(rect: CGRect) {
         
-        // Block multiple clicking
-        if !cropFrameAnimationActive  {
+        if overlayViewIsActive {
+        
+            let maxRect = CGRect(origin: CGPointZero, size: scrollView.frame.size)
+            let minRect = cropRectMinSize
+            
+            cropRectSaved = CGRectFit(rect, toRect: maxRect, minRect)
+            
+            touchView.setNeedsDisplay()
+            overlayView.setNeedsDisplay()
+            
+            delegate?.cropRectChanged?(rect)
+        }
+    }
+    
+    func showOverlayViewAnimated(flag: Bool, withCropFrame rect: CGRect!, completion: (() -> Void)?) {
+        if !flagOverlayAnimation  {
+            
+            overlayViewIsActive = true
             
             // Set new flags
-            cropFrameAnimationActive = true
-            cropFrameWillShow = true
-            cropFrameTransitionWithAnimation = flag
+            flagOverlayAnimation = true
+            flagCropperViewTransitionWithAnimation = flag
             
-            // Init Overlay View
-
+            // Reset crop rectangle
+            cropRectSaved = nil
             
-            self.viewWillTransition(nil) { () -> Void in
+            // Set new crop rectangle
+            if rect != nil {
                 
-                println(self.aspectView.frame)
+                setCropRect(rect)
+            }
+            
+            viewWillTransition { () -> Void in
                 
-                let overlayRect = CGRect(origin: CGPointZero, size: self.aspectView.frame.size)
-                
-//                let rect = CGRectMake(0, 0, 60, 60)
-                
-                // Create Overlay View
-                self.overlay.frame = /*AKImageCropperOverlay(frame: overlayRect, animated: flag)*/ overlayRect
-                self.overlay.hidden = false
-                
-                self.overlay.refresh()
-                
+                self.overlayView.hidden = false
                 
                 // Animate
                 if flag {
                     
-                    self.overlay.alpha = 0
+                    self.overlayView.alpha = 0
                     
-                    UIView.animateWithDuration(0.3,
+                    UIView.animateWithDuration(self.overlayViewAnimationDuration,
                         animations: { () -> Void in
                             
-                            self.overlay.alpha = 1
+                            self.overlayView.alpha = 1
                         }
                     )
                 }
-
-                
                 
                 // Reset Flags
-                self.cropFrameAnimationActive = false
+                self.flagOverlayAnimation = false
+                self.flagCropperViewTransitionWithAnimation = true
                 
-                // Set status
-                self.cropFrameIsActive = true
-                
-                if completion != nil { completion!() }
+                // Return handler
+                if completion != nil {
+                    
+                    completion!()
+                }
             }
         }
     }
     
     func dismissOverlayViewAnimated(flag: Bool, completion: (() -> Void)?) {
-        
-        // Block multiple clicking
-        if !cropFrameAnimationActive  {
+        if !flagOverlayAnimation  {
+
+            overlayViewIsActive = false
             
             // Set new flags
-            cropFrameAnimationActive = true
-            cropFrameWillShow = false
-            cropFrameTransitionWithAnimation = flag
+            flagOverlayAnimation = true
+            flagCropperViewTransitionWithAnimation = flag
+            flagRefresh = false
             
-            // Destroy Overlay View
-            overlay.destroy(animated: flag,
-                completion: { () -> Void in
-                    
-                    self.viewWillTransition(nil) { () -> Void in
+            if flag {
+                UIView.animateWithDuration(overlayViewAnimationDuration,
+                    animations: { () -> Void in
                         
-                        // Reset Flags
-                        self.cropFrameTransitionWithAnimation = true
-                        self.cropFrameAnimationActive = false
-                        
-                        // Set status
-                        self.cropFrameIsActive = false
-                        
-                        // Retutn handler
-                        completion!()
+                        self.overlayView.alpha = 0
                     }
+                ) { (done) -> Void in
+                    
+                    self.viewWillTransition(self.dismissOverlayViewAnimatedHandler(completion))
                 }
-            )
+            } else {
+                
+                viewWillTransition(dismissOverlayViewAnimatedHandler(completion))
+            }
         }
-        
     }
-    
 
+    private func dismissOverlayViewAnimatedHandler(completion: (() -> Void)?) -> (() -> Void)? {
     
-    func setCropRect(rect: CGRect) {
+        // Reset Flags
+        flagCropperViewTransitionWithAnimation = true
+        flagOverlayAnimation = false
         
-        overlay.setCropFrame(rect)
+        // Reset crop rectangle
+        cropRectSaved = nil
+        
+        // Return handler
+        return completion
     }
-    
-    
-    
-    private func getCropRects() -> (cropRect: CGRect, imageRect: CGRect) {
-        
-        var imageRect = CGRect()
-        var cropRect = CGRect()
-        
-        if cropFrameIsActive {
-            
-            
-            let cropFrame = overlay.getCropFrame()
-            
-            imageRect.origin.x = (scrollView.contentOffset.x + cropFrame.origin.x) / scrollView.zoomScale
-            imageRect.origin.y = (scrollView.contentOffset.y + cropFrame.origin.y) / scrollView.zoomScale
-            imageRect.size.width =  cropFrame.size.width / scrollView.zoomScale
-            imageRect.size.height = cropFrame.size.height / scrollView.zoomScale
-            
-            
-            
-            
-        } else {
-            
-            cropRect = CGRect(origin: scrollView.contentOffset, size: scrollView.frame.size)
-            
-            imageRect = CGRectMake(
-                scrollView.contentOffset.x / scrollView.zoomScale,
-                scrollView.contentOffset.y / scrollView.zoomScale,
-                scrollView.frame.size.width / scrollView.zoomScale,
-                scrollView.frame.size.height / scrollView.zoomScale)
-        }
-        
-        return (cropRect, imageRect)
-    }
-    
     
     func croppedImage() -> UIImage {
         
-        var cropRect = CGRect()
+        let imageRect = cropRectTranslatedToImage
         
-        if cropFrameIsActive {
-            
-            let cropFrame = overlay.getCropFrame()
-            
-            println(cropFrame)
-                     
-            cropRect.origin.x = (scrollView.contentOffset.x + cropFrame.origin.x) / scrollView.zoomScale
-            cropRect.origin.y = (scrollView.contentOffset.y + cropFrame.origin.y) / scrollView.zoomScale
-            cropRect.size.width =  cropFrame.size.width / scrollView.zoomScale
-            cropRect.size.height = cropFrame.size.height / scrollView.zoomScale
-            
-            println(cropRect)
-            
-        
-        } else {
-            
-            cropRect = CGRectMake(
-                scrollView.contentOffset.x / scrollView.zoomScale,
-                scrollView.contentOffset.y / scrollView.zoomScale,
-                scrollView.frame.size.width / scrollView.zoomScale,
-                scrollView.frame.size.height / scrollView.zoomScale)
-        }
-        
-        var rect = CGRectMake(CGFloat(Int(cropRect.origin.x)), CGFloat(Int(cropRect.origin.y)), CGFloat(Int(cropRect.size.width)), CGFloat(Int(cropRect.size.height)))
+        let rect = CGRectMake(CGFloat(Int(imageRect.origin.x)), CGFloat(Int(imageRect.origin.y)), CGFloat(Int(imageRect.size.width)), CGFloat(Int(imageRect.size.height)))
 
         return image.getImageInRect(rect)
     }
@@ -421,28 +408,31 @@ class AKImageCropperView: UIView {
     
     private func getViews() -> (aspect: CGRect, scroll: CGRect, scale: CGFloat) {
         
-        self.layoutIfNeeded()
+        // Update Layouts
+        layoutIfNeeded()
         
         if let image = image {
             
             // Crop view with offset
-            let viewWithOffset = CGRectInset(frame, offset, offset)
+            let viewWithOffset = CGRectInset(frame, scrollViewActiveOffset, scrollViewActiveOffset)
             
             var scale = CGRectFitScale(CGRect(origin: CGPointZero, size: image.size), toRect: viewWithOffset)
                 scale = scale < 1 ? scale : 1
-            
+        
             let scaledSize = CGSizeMake(image.size.width * scale, image.size.height * scale)
             
             // Scale image with proportion
-            let aspectSize = CGSizeMake(scaledSize.width + offset*2, scaledSize.height + offset*2)
+            let aspectSize = CGSizeMake(scaledSize.width + scrollViewActiveOffset*2, scaledSize.height + scrollViewActiveOffset*2)
+            
             let aspect = CGRectCenters(CGRect(origin: CGPointZero, size: aspectSize), inRect: self.frame)
             
             var scroll = CGRect(origin: CGPointZero, size: aspectSize)
-                scroll.inset(dx: offset, dy: offset)
+                scroll.inset(dx: scrollViewActiveOffset, dy: scrollViewActiveOffset)
             
-            return (aspect, scroll, scale)
+            return (CGRectMake(ceil(CGRectGetMinX(aspect),0.5), ceil(CGRectGetMinY(aspect),0.5), ceil(CGRectGetWidth(aspect),0.5), ceil(CGRectGetHeight(aspect),0.5)), CGRectMake(ceil(CGRectGetMinX(scroll),0.5), ceil(CGRectGetMinY(scroll),0.5), ceil(CGRectGetWidth(scroll),0.5), ceil(CGRectGetHeight(scroll),0.5)), scale)
             
         } else {
+            
             return (aspect: CGRectZero, scroll: CGRectZero, scale: 0)
         }
     }
@@ -450,69 +440,29 @@ class AKImageCropperView: UIView {
     // MARK: - Rotate Animation
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     
-    private func viewWillTransition(coordinator: UIViewControllerTransitionCoordinator!, completion:(() -> Void)?) {
+    private func viewWillTransition(completion:(() -> Void)?) {
         
-        let views = getViews()
-                    
-        if (CGRectGetWidth(self.frame) - offset*2 > CGRectGetWidth(aspectView.frame) && CGRectGetHeight(self.frame) - offset*2 > CGRectGetHeight(aspectView.frame)) || cropFrameTransitionWithAnimation == false {
-        
-            aspectView.frame = views.aspect
-            
-            scrollView.frame = views.scroll
-            scrollView.minimumZoomScale = views.scale
-            scrollView.zoomScale = views.scale
-            
-            completion!()
+        if (CGRectGetWidth(frame) - scrollViewActiveOffset > CGRectGetWidth(aspectView.frame) && CGRectGetHeight(frame) - scrollViewActiveOffset > CGRectGetHeight(aspectView.frame)) || flagCropperViewTransitionWithAnimation == false {
+
+            refresh()
+
+            if completion != nil {
+                
+                completion!()
+            }
             
         } else {
             
-            println("AA")
-            
-            if self.overlay != nil {
-                UIView.animateWithDuration(cropFrameAnimationDuration / 2,
-                    animations: { () -> Void in
-                        
-                        self.overlay.alpha = 0
-                    }
-                )
-            }
-            
-            UIView.animateWithDuration(cropFrameAnimationDuration, delay: 0.0, options: cropFrameAnimationOptions,
-                animations: {
-                
-                    self.aspectView.frame = views.aspect
-                    
-                    self.scrollView.frame = views.scroll
-                    self.scrollView.minimumZoomScale = views.scale
-                    self.scrollView.zoomScale = views.scale
+            flagRefresh = true
 
+            UIView.animateWithDuration(overlayViewAnimationDuration, delay: 0.0, options: overlayViewAnimationOptions,
+                animations: {
+                    
+                    self.refresh()
                 },
                 completion: { (finished) -> Void in
-                    if finished {
-                        
-                        if coordinator != nil {
-                            coordinator.animateAlongsideTransition(nil,
-                                completion: { (context) -> Void in
 
-                                    if self.overlay != nil {
-                                        let overlay = CGRect(origin: CGPointZero, size: self.aspectView.frame.size)
-                                        
-                                        self.overlay.refresh()
-                                        
-//                                        self.overlay.frame = overlay
-//                                        self.overlay.cropFrame = overlay
-//                                        self.overlay.setCropFrame(<#frame: CGRect#>)
-                                        
-                                        UIView.animateWithDuration(self.cropFrameAnimationDuration,
-                                            animations: { () -> Void in
-                                                
-                                                self.overlay.alpha = 1
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        }
+                    if completion != nil {
                         
                         completion!()
                     }
@@ -528,112 +478,125 @@ class AKImageCropperView: UIView {
 extension AKImageCropperView: UIScrollViewDelegate {
     
     func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+        
         return imageView
     }
+}
+
+// MARK: - AKImageCropperViewDelegate
+//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+extension AKImageCropperView: AKImageCropperViewDelegate {
     
+    func overlayViewDrawInTopLeftCropRectCornerPoint(point: CGPoint) {
+
+         // Prepare Rects
+        let rect = CGRect(origin: point, size: cornerSize)
+        let substract = CGRect(origin: CGPointMake(point.x + overlayViewCornerOffset, point.y + overlayViewCornerOffset), size: CGSizeMake(cornerSize.width - overlayViewCornerOffset, cornerSize.height - overlayViewCornerOffset))
+        
+        // Corner color
+        cornerColor.setFill()
+        
+        // Draw
+        let path = UIBezierPath(rect: rect)
+            path.appendPath(UIBezierPath(rect: substract).bezierPathByReversingPath())
+            path.fill()
+    }
+    
+    func overlayViewDrawInTopRightCropRectCornerPoint(point: CGPoint) {
+        
+        // Prepare Rects
+        let rect = CGRect(origin: point, size: cornerSize)
+        let substract = CGRect(origin: CGPointMake(point.x, point.y + overlayViewCornerOffset), size: CGSizeMake(cornerSize.width - overlayViewCornerOffset, cornerSize.height - overlayViewCornerOffset))
+        
+        // Corner color
+        cornerColor.setFill()
+        
+        // Draw
+        let path = UIBezierPath(rect: rect)
+            path.appendPath(UIBezierPath(rect: substract).bezierPathByReversingPath())
+            path.fill()
+    }
+    
+    func overlayViewDrawInBottomRightCropRectCornerPoint(point: CGPoint) {
+        
+        // Prepare Rects
+        let rect = CGRect(origin: point, size: cornerSize)
+        let substract = CGRect(origin: CGPointMake(point.x, point.y), size: CGSizeMake(cornerSize.width - overlayViewCornerOffset, cornerSize.height - overlayViewCornerOffset))
+        
+        // Corner color
+        cornerColor.setFill()
+        
+        // Draw
+        let path = UIBezierPath(rect: rect)
+            path.appendPath(UIBezierPath(rect: substract).bezierPathByReversingPath())
+            path.fill()
+    }
+    
+    func overlayViewDrawInBottomLeftCropRectCornerPoint(point: CGPoint) {
+        
+        // Prepare Rects
+        let rect = CGRect(origin: point, size: cornerSize)
+        let substract = CGRect(origin: CGPointMake(point.x + overlayViewCornerOffset, point.y), size: CGSizeMake(cornerSize.width - overlayViewCornerOffset, cornerSize.height - overlayViewCornerOffset))
+        
+        // Corner color
+        cornerColor.setFill()
+        
+        // Draw
+        let path = UIBezierPath(rect: rect)
+            path.appendPath(UIBezierPath(rect: substract).bezierPathByReversingPath())
+            path.fill()
+    }
+    
+    func overlayViewDrawStrokeInCropRect(cropRect: CGRect) {
+     
+        // Stroke color
+        strokeColor.set()
+        
+        // Draw
+        let path = UIBezierPath(rect: cropRect)
+            path.lineWidth = 1
+            path.stroke()
+    }
+    
+    func overlayViewDrawGridInCropRect(cropRect: CGRect) {
+        
+        // Grid color
+        gridColor.set()
+        
+        // Draw
+        var path = UIBezierPath()
+            path.lineWidth = 1
+        
+        // Vetical lines
+        for (var i = 1; i <= gridLines; i++) {
+            
+           var from = CGPointMake(CGRectGetMinX(cropRect) + CGRectGetWidth(cropRect) / (CGFloat(gridLines) + 1) * CGFloat(i), CGRectGetMinY(cropRect))
+            
+            path.moveToPoint(from)
+            path.addLineToPoint(CGPointMake(from.x, CGRectGetMaxY(cropRect)))
+        }
+        
+        // Horizontal Lines
+        for (var i = 1; i <= gridLines; i++) {
+            
+            var from = CGPointMake(CGRectGetMinX(cropRect), CGRectGetMinY(cropRect) + CGRectGetHeight(cropRect) / (CGFloat(gridLines) + 1) * CGFloat(i))
+            
+            path.moveToPoint(from)
+            path.addLineToPoint(CGPointMake(CGRectGetMaxX(cropRect), from.y))
+        }
+    
+        path.stroke()
+    }
 }
 
 // MARK: - AKImageCropperOverlayDelegate
 //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-extension AKImageCropperView: AKImageCropperOverlayDelegate {
+extension AKImageCropperView: AKImageCropperTouchViewDelegate {
     
-    func pinchGesture(overlay: AKImageCropperOverlay, sender: UIPinchGestureRecognizer) {
+    func cropRectChanged(rect: CGRect) {
         
-        var scrollScale = sender.scale
-        
-        if scrollScale > 1 {
-            
-            var delta = sender.scale / 100
-            scrollScale = (1 * delta) + 1
-            
-        } else {
-            
-            var delta = sender.scale / 50
-            scrollScale = 1 - (1 * delta)
-        }
-        
-        scrollView.zoomScale *= scrollScale
-    }
-    
-    func panGesture(overlay: AKImageCropperOverlay, sender: UIPanGestureRecognizer) {
-        
-        let size = scrollView.contentSize
-        let offset = scrollView.contentOffset
-        let frame = scrollView.frame
-        
-        if size.height > frame.height || size.width > frame.width {
-            
-            var translation = sender.translationInView(overlay)
-            
-            scrollView.contentOffset.x -= translation.x
-            scrollView.contentOffset.y -= translation.y
-            
-            if sender.state == .Ended {
-                
-                var newOffset = offset
-                
-                if size.width >= frame.width {
-                    
-                    var delta = size.width - frame.size.width
-                    
-                    
-                    if offset.x < 0 {
-                        
-                        newOffset.x = 0
-                    }
-                    
-                    if offset.x > delta {
-                        newOffset.x = delta
-                        
-                    }
-                }
-                
-                if size.height >= frame.height {
-                    
-                    var delta = size.height - frame.size.height
-                    
-                    if offset.y < 0 {
-                        
-                        newOffset.y = 0
-                    }
-                    
-                    if offset.y > delta {
-                        
-                        newOffset.y = delta
-                    }
-                }
-                
-                UIView.animateWithDuration(0.3, delay: 0, options: UIViewAnimationOptions.CurveEaseIn,
-                    animations: { () -> Void in
-                        
-                        self.scrollView.contentOffset = newOffset
-                    },
-                    completion: nil
-                )
-                
-            }
-        }
-    }
-
-}
-
-
-// MARK: - UIScrollViewDelegate
-//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-extension AKImageCropperView: UIScrollViewDelegate {
-    
-    func scrollViewDidScroll(scrollView: UIScrollView) {
-        
-        self.delegate?.cropperViewDidScroll?(scrollView)
-        
-        let rects = getCropRects()
-        self.delegate?.croperViewDidChangeCropRect?(rects.cropRect, translatedToImageRect: rects.imageRect)
-    }
-    
-    func scrollViewDidZoom(scrollView: UIScrollView) {
-        
-        self.delegate?.cropperViewDidZoom?(scrollView)
+        self.setCropRect(rect)
     }
 }

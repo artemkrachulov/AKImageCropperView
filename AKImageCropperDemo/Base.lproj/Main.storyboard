@@ -179,7 +179,13 @@
                             <constraint firstItem="aDG-WU-S8J" firstAttribute="top" secondItem="Xik-3z-UDc" secondAttribute="bottom" constant="10" id="qt1-7o-nux"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Crop View" id="Dch-T8-hoF"/>
+                    <navigationItem key="navigationItem" title="Crop View" id="Dch-T8-hoF">
+                        <barButtonItem key="rightBarButtonItem" title="Crop Test" id="Lnd-yo-8vx">
+                            <connections>
+                                <action selector="cropTestBtn:" destination="Rdn-7Y-KLl" id="lo3-6f-ubO"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="cropBtn" destination="AAk-pb-8ob" id="hub-un-cPa"/>
                         <outlet property="cropView" destination="NNR-8r-Iig" id="fgH-4s-8UL"/>
