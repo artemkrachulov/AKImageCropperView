@@ -1,6 +1,8 @@
 # AKImageCropper
 
--> ![Preview](https://raw.githubusercontent.com/artemkrachulov/AKMaskField/master/Assets/preview.png) <-
+<p align="center">
+![Preview](https://github.com/artemkrachulov/AKImageCropper/blob/master/Assets/Preview.png)
+</p>
 
 A View subclass for image cropping for iSO devices with support for landscape orientation. Cropper allows to specify the location and size of the crop frame. Easy to set up. Has many settings for flexible integration into your project. The plugin is written in Swift.
 
