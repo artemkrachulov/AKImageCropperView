@@ -240,12 +240,15 @@ class AKImageCropperView: UIView {
         
         let views = getViews()
         
-        if flagRefresh ? aspectView.frame != views.aspect : false {
-            
+        if flagRefresh ? aspectView.frame != views.aspect || scrollView.frame != views.scroll : false {
+        
             #if DEBUG
             println("AKImageCropperView: refresh()")
-            println("Aspect View Frame: \(views.aspect)")
-            println("Scale View Frame: \(views.scale)")
+            println("Aspect View Frame: \(aspectView.frame)")
+            println("New Aspect View Frame: \(views.aspect)")
+                
+            println("Scale View Frame: \(scrollView.frame)")
+            println("New Scale View Frame: \(views.scroll)")
             println("Crop Rect: \(cropRect)")
             println("Crop Rect Saved: \(cropRectSaved)")
             println(" ")
@@ -274,7 +277,6 @@ class AKImageCropperView: UIView {
             overlayView.frame = CGRectInset(views.scroll, -overlayViewCornerOffset, -overlayViewCornerOffset)
             overlayView.setNeedsDisplay()
      
-            
             // Scroll View
             scrollView.frame = views.scroll
             scrollView.minimumZoomScale = views.scale
@@ -387,6 +389,7 @@ class AKImageCropperView: UIView {
         // Reset Flags
         flagCropperViewTransitionWithAnimation = true
         flagOverlayAnimation = false
+        flagRefresh = true
         
         // Reset crop rectangle
         cropRectSaved = nil
@@ -454,8 +457,10 @@ class AKImageCropperView: UIView {
             
         } else {
             
-            flagRefresh = true
-
+            #if DEBUG
+            println("Animation viewWillTransition")
+            #endif
+            
             UIView.animateWithDuration(overlayViewAnimationDuration, delay: 0.0, options: overlayViewAnimationOptions,
                 animations: {
                     

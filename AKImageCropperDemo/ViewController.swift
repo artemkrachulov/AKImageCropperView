@@ -37,7 +37,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             imagePicker.navigationBar.barStyle = .Black
             imagePicker.navigationBar.tintColor = UIColor.whiteColor()
             
-            self.presentViewController(imagePicker, animated: true, completion: nil)
+            presentViewController(imagePicker, animated: true, completion: nil)
         }
     }
     
@@ -55,7 +55,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         
-        self.dismissViewControllerAnimated(true, completion: nil)
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
     

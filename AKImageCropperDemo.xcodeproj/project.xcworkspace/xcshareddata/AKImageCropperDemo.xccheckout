@@ -10,8 +10,6 @@
 	<string>AKImageCropperDemo</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>3F93E7E49B3E440DEEF98D9887AFD7C223ADBC65</key>
-		<string>https://github.com/artemkrachulov/SwiftExtensions.git</string>
 		<key>74FC6B16832EDE035AC047E84A01E2F0C9097FE9</key>
 		<string>https://github.com/artemkrachulov/AKImageCropper.git</string>
 	</dict>
@@ -19,8 +17,6 @@
 	<string>AKImageCropperDemo.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>3F93E7E49B3E440DEEF98D9887AFD7C223ADBC65</key>
-		<string>../..AKImageCropper/SwiftExtensions</string>
 		<key>74FC6B16832EDE035AC047E84A01E2F0C9097FE9</key>
 		<string>../..</string>
 	</dict>
@@ -39,14 +35,6 @@
 			<string>74FC6B16832EDE035AC047E84A01E2F0C9097FE9</string>
 			<key>IDESourceControlWCCName</key>
 			<string>AKImageCropper</string>
-		</dict>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.git</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>3F93E7E49B3E440DEEF98D9887AFD7C223ADBC65</string>
-			<key>IDESourceControlWCCName</key>
-			<string>SwiftExtensions</string>
 		</dict>
 	</array>
 </dict>
