@@ -75,7 +75,7 @@ class AKImageCropperView: UIView {
                 imageView.frame.size = image.size
                 
                 // Update Sizes
-                refresh ()
+                refresh()
             }
         }
     }
@@ -171,7 +171,7 @@ class AKImageCropperView: UIView {
         create(image, showOverlayView: showOverlayView)
     }
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
         create(nil, showOverlayView: false)
@@ -260,13 +260,13 @@ class AKImageCropperView: UIView {
             let maxRect = CGRect(origin: CGPointZero, size: scrollView.frame.size)
             let minRect = cropRectMinSize
             
-            let newCropRect  = CGRectFit(cropRect, toRect: maxRect, minRect)
+            let newCropRect  = CGRectFit(cropRect, toRect: maxRect, minSize: minRect)
             
             if newCropRect != cropRect && cropRectSaved != nil {
             
                 cropRectSaved = newCropRect
                 
-                delegate?.cropRectChanged?(newCropRect)
+                delegate?.cropRectChanged!(newCropRect)
             }
             
             // Touch View
@@ -299,12 +299,12 @@ class AKImageCropperView: UIView {
             let maxRect = CGRect(origin: CGPointZero, size: scrollView.frame.size)
             let minRect = cropRectMinSize
             
-            cropRectSaved = CGRectFit(rect, toRect: maxRect, minRect)
+            cropRectSaved = CGRectFit(rect, toRect: maxRect, minSize: minRect)
             
             touchView.setNeedsDisplay()
             overlayView.setNeedsDisplay()
             
-            delegate?.cropRectChanged?(rect)
+            delegate?.cropRectChanged!(rect)
         }
     }
     
@@ -431,9 +431,9 @@ class AKImageCropperView: UIView {
             let aspect = CGRectCenters(CGRect(origin: CGPointZero, size: aspectSize), inRect: self.frame)
             
             var scroll = CGRect(origin: CGPointZero, size: aspectSize)
-                scroll.inset(dx: scrollViewActiveOffset, dy: scrollViewActiveOffset)
+                scroll.insetInPlace(dx: scrollViewActiveOffset, dy: scrollViewActiveOffset)
             
-            return (CGRectMake(ceil(CGRectGetMinX(aspect),0.5), ceil(CGRectGetMinY(aspect),0.5), ceil(CGRectGetWidth(aspect),0.5), ceil(CGRectGetHeight(aspect),0.5)), CGRectMake(ceil(CGRectGetMinX(scroll),0.5), ceil(CGRectGetMinY(scroll),0.5), ceil(CGRectGetWidth(scroll),0.5), ceil(CGRectGetHeight(scroll),0.5)), scale)
+            return (CGRectMake(ceil(CGRectGetMinX(aspect),multiplier: 0.5), ceil(CGRectGetMinY(aspect),multiplier: 0.5), ceil(CGRectGetWidth(aspect),multiplier: 0.5), ceil(CGRectGetHeight(aspect),multiplier: 0.5)), CGRectMake(ceil(CGRectGetMinX(scroll),multiplier: 0.5), ceil(CGRectGetMinY(scroll),multiplier: 0.5), ceil(CGRectGetWidth(scroll),multiplier: 0.5), ceil(CGRectGetHeight(scroll),multiplier: 0.5)), scale)
             
         } else {
             
@@ -571,13 +571,13 @@ extension AKImageCropperView: AKImageCropperViewDelegate {
         gridColor.set()
         
         // Draw
-        var path = UIBezierPath()
+        let path = UIBezierPath()
             path.lineWidth = 1
         
         // Vetical lines
         for (var i = 1; i <= gridLines; i++) {
             
-           var from = CGPointMake(CGRectGetMinX(cropRect) + CGRectGetWidth(cropRect) / (CGFloat(gridLines) + 1) * CGFloat(i), CGRectGetMinY(cropRect))
+           let from = CGPointMake(CGRectGetMinX(cropRect) + CGRectGetWidth(cropRect) / (CGFloat(gridLines) + 1) * CGFloat(i), CGRectGetMinY(cropRect))
             
             path.moveToPoint(from)
             path.addLineToPoint(CGPointMake(from.x, CGRectGetMaxY(cropRect)))
@@ -586,7 +586,7 @@ extension AKImageCropperView: AKImageCropperViewDelegate {
         // Horizontal Lines
         for (var i = 1; i <= gridLines; i++) {
             
-            var from = CGPointMake(CGRectGetMinX(cropRect), CGRectGetMinY(cropRect) + CGRectGetHeight(cropRect) / (CGFloat(gridLines) + 1) * CGFloat(i))
+            let from = CGPointMake(CGRectGetMinX(cropRect), CGRectGetMinY(cropRect) + CGRectGetHeight(cropRect) / (CGFloat(gridLines) + 1) * CGFloat(i))
             
             path.moveToPoint(from)
             path.addLineToPoint(CGPointMake(CGRectGetMaxX(cropRect), from.y))

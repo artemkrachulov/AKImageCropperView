@@ -37,7 +37,7 @@ class AKImageCropperOverlayView: UIView {
         let cropRect = CGRectOffset(croppperView.cropRect, cornerOffset, cornerOffset)
         
         // Get the Graphics Context
-        var context = UIGraphicsGetCurrentContext()
+        let context = UIGraphicsGetCurrentContext()
         
         // Draw background
         // Source: Self

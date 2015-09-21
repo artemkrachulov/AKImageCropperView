@@ -344,8 +344,6 @@ class AKImageCropperTouchView: UIView {
                     cropRectMoved.origin.x = CGRectGetMaxX(cropRectBeforeMoving) - cropRectMinSize.width
                     cropRectMoved.size.width = cropRectMinSize.width
                 }
-            
-            default: ()
         }
        
         // Another test crop rectangle sizes
@@ -392,9 +390,9 @@ extension AKImageCropperTouchView {
 
 extension AKImageCropperTouchView {
     
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
-        if let touch = touches.first as? UITouch {
+        if let touch = touches.first {
             
             touchBeforeMoving = touch.locationInView(self)
             
@@ -404,9 +402,9 @@ extension AKImageCropperTouchView {
         }
     }
     
-    override func touchesMoved(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
-        if let touch = touches.first as? UITouch {
+        if let touch = touches.first {
             
             touchMoved = touch.locationInView(self)
             
@@ -419,7 +417,7 @@ extension AKImageCropperTouchView {
         }
     }
     
-    override func touchesEnded(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
         // Reset
         touchBeforeMoving = nil

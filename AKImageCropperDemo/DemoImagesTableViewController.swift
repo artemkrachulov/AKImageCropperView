@@ -39,13 +39,13 @@ class DemoImagesTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
                 
-        let cell = tableView.dequeueReusableCellWithIdentifier("image", forIndexPath: indexPath) as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("image", forIndexPath: indexPath) 
         
         let name = images[indexPath.section][indexPath.row]
         let image = UIImage(named: name)
 
         // Configure the cell...
-        cell.textLabel!.text = " ".join(name.componentsSeparatedByString("-"))
+        cell.textLabel!.text = name.componentsSeparatedByString("-").joinWithSeparator(" ")
         cell.detailTextLabel?.text = String(format: "Size %0.1f x %0.1f", image?.size.width as CGFloat!, image?.size.height as CGFloat!)
         
         return cell
@@ -56,7 +56,7 @@ class DemoImagesTableViewController: UITableViewController {
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
-        let selectedPath = tableView.indexPathForSelectedRow() as NSIndexPath!
+        let selectedPath = tableView.indexPathForSelectedRow as NSIndexPath!
 
         if let vc = segue.destinationViewController as? CropperViewController {
             

@@ -106,7 +106,7 @@ class CropperViewController: UIViewController {
             
             cropView.dismissOverlayViewAnimated(true) { () -> Void in
                 
-                println("Frame disabled")
+                print("Frame disabled")
             }
         } else {
             
@@ -114,7 +114,7 @@ class CropperViewController: UIViewController {
             
             cropView.showOverlayViewAnimated(true, withCropFrame: nil, completion: { () -> Void in
                 
-                println("Frame active")
+                print("Frame active")
             })
         }
     }
@@ -143,7 +143,7 @@ extension CropperViewController: AKImageCropperViewDelegate {
     
     func cropRectChanged(rect: CGRect) {
         
-        println("New crop rectangle: \(rect)")
+        print("New crop rectangle: \(rect)")
     }
 }
 

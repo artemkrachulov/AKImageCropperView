@@ -47,23 +47,23 @@ extension UIColor {
     ///  var rgba = UIColor().fromHex(hex: "#FC93") // UIColor(red: 1.0, green: 0.8, blue: 0.6, alpha: 0.2)
     ///  var rgba = UIColor().fromHex(hex: "#FFCC9933") // UIColor(red: 1.0, green: 0.8, blue: 0.6, alpha: 0.2)
     
-    func fromHex(#hex: String) -> UIColor! {
+    func fromHex(hex hex: String) -> UIColor! {
         
         let hex = hex.lowercaseString
         let hexCharSet = NSCharacterSet(charactersInString: "#0123456789abcdef")
         
         if hex.rangeOfCharacterFromSet(hexCharSet.invertedSet, options: .CaseInsensitiveSearch) != nil {
             
-            println("Error: Unknown character in HEX string \(hex)")
+            print("Error: Unknown character in HEX string \(hex)")
             
         } else {
-            if hex.substringToIndex(advance(hex.startIndex, 1)) == "#" {
+            if hex.substringToIndex(hex.startIndex.advancedBy(1)) == "#" {
                 
-                let hexLength = count(hex)
+                let hexLength = hex.characters.count
                 
                 if hexLength < 4 || hexLength == 6 || hexLength == 8 || hexLength > 9  {
                     
-                    println("Error: Unknown HEX length \(hex)")
+                    print("Error: Unknown HEX length \(hex)")
                     
                 } else {
                     
@@ -80,7 +80,7 @@ extension UIColor {
                     
                     for index in 0...range {
                         
-                        var hexChar = hex.substringWithRange(Range(start: advance(hex.startIndex, multiply * index + 1), end: advance(hex.startIndex, multiply * index + 1 + multiply)))
+                        var hexChar = hex.substringWithRange(Range(start: hex.startIndex.advancedBy(multiply * index + 1), end: hex.startIndex.advancedBy(multiply * index + 1 + multiply)))
                         
                         // Duplicate char
                         if multiply == 1 {
@@ -106,7 +106,7 @@ extension UIColor {
                 }
             } else {
                 
-                println("Error: HEX without \"#\"")
+                print("Error: HEX without \"#\"")
             }
         }
         return nil
