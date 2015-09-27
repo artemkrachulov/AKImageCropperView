@@ -1,7 +1,7 @@
 # AKImageCropper
 
 <p align="center">
-    <img src="https://github.com/artemkrachulov/AKImageCropper/blob/master/Assets/Preview.png" alt="Preview">
+    <img src="https://github.com/artemkrachulov/AKImageCropper/raw/master/Assets/Preview.png" alt="Preview">
 </p>
 
 Image cropping plugin for iOS devices with support for landscape and portrait orientation. Cropper view allows to specify the location and size of the crop rectangle. Easy to set up. Has many settings for flexible integration into your project. The plugin is written in Swift.
@@ -371,6 +371,10 @@ optional func overlayViewDrawGridInCropRect(cropRect: CGRect)
 | cropRect      | Crop rectangle origin and size. |
 
 Draws grid lines inside the crop rectangle in the Overlay view context.
+
+---
+
+Please do not forget to star this repository and follow me.
 
 ### Author
 
