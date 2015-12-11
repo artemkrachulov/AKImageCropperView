@@ -242,17 +242,17 @@ class AKImageCropperView: UIView {
         
         if flagRefresh ? aspectView.frame != views.aspect || scrollView.frame != views.scroll : false {
         
-            #if DEBUG
-            print("AKImageCropperView: refresh()")
-            print("Aspect View Frame: \(aspectView.frame)")
-            print("New Aspect View Frame: \(views.aspect)")
-                
-            print("Scale View Frame: \(scrollView.frame)")
-            print("New Scale View Frame: \(views.scroll)")
-            print("Crop Rect: \(cropRect)")
-            print("Crop Rect Saved: \(cropRectSaved)")
-            print(" ")
-            #endif
+//            #if DEBUG
+//            print("AKImageCropperView: refresh()")
+//            print("Aspect View Frame: \(aspectView.frame)")
+//            print("New Aspect View Frame: \(views.aspect)")
+//                
+//            print("Scale View Frame: \(scrollView.frame)")
+//            print("New Scale View Frame: \(views.scroll)")
+//            print("Crop Rect: \(cropRect)")
+//            print("Crop Rect Saved: \(cropRectSaved)")
+//            print(" ")
+//            #endif
         
             // Aspect View
             aspectView.frame = views.aspect
@@ -457,9 +457,9 @@ class AKImageCropperView: UIView {
             
         } else {
             
-            #if DEBUG
-            print("Animation viewWillTransition")
-            #endif
+//            #if DEBUG
+//            print("Animation viewWillTransition")
+//            #endif
             
             UIView.animateWithDuration(overlayViewAnimationDuration, delay: 0.0, options: overlayViewAnimationOptions,
                 animations: {

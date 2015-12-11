@@ -91,27 +91,27 @@ class AKImageCropperTouchView: UIView {
     // MARK: - Draw view
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-    #if DEBUG
-    override func drawRect(rect: CGRect) {
-        
-        let context = UIGraphicsGetCurrentContext()
-        CGContextSetShouldAntialias(context, true)
-        
-        CGContextSetFillColorWithColor(context, UIColor(red: 255, green: 0, blue: 255, alpha: 0.5).CGColor)
-        CGContextAddRect(context, topLeftCorner())
-        CGContextAddRect(context, topRightCorner())
-        CGContextAddRect(context, bottomLeftCorner())
-        CGContextAddRect(context, bottomRightCorner())
-        CGContextFillPath(context)
-        
-        CGContextSetFillColorWithColor(context, UIColor(red: 0, green: 255, blue: 255, alpha: 0.5).CGColor)
-        CGContextAddRect(context, leftEdgeRect())
-        CGContextAddRect(context, rightEdgeRect())
-        CGContextAddRect(context, topEdgeRect())
-        CGContextAddRect(context, bottomEdgeRect())
-        CGContextFillPath(context)
-    }
-    #endif
+//    #if DEBUG
+//    override func drawRect(rect: CGRect) {
+//        
+//        let context = UIGraphicsGetCurrentContext()
+//        CGContextSetShouldAntialias(context, true)
+//        
+//        CGContextSetFillColorWithColor(context, UIColor(red: 255, green: 0, blue: 255, alpha: 0.5).CGColor)
+//        CGContextAddRect(context, topLeftCorner())
+//        CGContextAddRect(context, topRightCorner())
+//        CGContextAddRect(context, bottomLeftCorner())
+//        CGContextAddRect(context, bottomRightCorner())
+//        CGContextFillPath(context)
+//        
+//        CGContextSetFillColorWithColor(context, UIColor(red: 0, green: 255, blue: 255, alpha: 0.5).CGColor)
+//        CGContextAddRect(context, leftEdgeRect())
+//        CGContextAddRect(context, rightEdgeRect())
+//        CGContextAddRect(context, topEdgeRect())
+//        CGContextAddRect(context, bottomEdgeRect())
+//        CGContextFillPath(context)
+//    }
+//    #endif
     
     // MARK: - Move crop rectangle
     //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
