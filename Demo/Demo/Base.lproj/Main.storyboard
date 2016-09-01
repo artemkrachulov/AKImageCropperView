@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="wQk-zT-bng">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Demo folder-->
+        <scene sceneID="R06-je-7kK">
+            <objects>
+                <tableViewController id="dCy-DU-1gs" customClass="TableViewController" customModule="Demo" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="80" sectionHeaderHeight="10" sectionFooterHeight="10" id="8Qw-gW-rSq">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="0.93725490196078431" green="0.93725490196078431" blue="0.95686274509803926" alpha="1" colorSpace="calibratedRGB"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="image" textLabel="PAT-oO-2hL" detailTextLabel="mnx-Mm-eqW" style="IBUITableViewCellStyleSubtitle" id="uS4-ET-v3L">
+                                <rect key="frame" x="0.0" y="114" width="600" height="80"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="uS4-ET-v3L" id="pRa-pE-0iP">
+                                    <rect key="frame" x="0.0" y="0.0" width="567" height="79"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="PAT-oO-2hL">
+                                            <rect key="frame" x="15" y="20" width="34" height="21"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Detail" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="mnx-Mm-eqW">
+                                            <rect key="frame" x="15" y="41" width="40" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="Rdn-7Y-KLl" kind="show" id="awS-AO-qOC"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="dCy-DU-1gs" id="AGP-R5-LfS"/>
+                            <outlet property="delegate" destination="dCy-DU-1gs" id="Nx1-yp-dHE"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Demo folder" id="7Is-JM-HRz">
+                        <barButtonItem key="rightBarButtonItem" title="Close" id="S18-GF-QzA"/>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7Ef-Cy-a8G" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1123" y="619"/>
+        </scene>
+        <!--Crop View-->
+        <scene sceneID="knG-at-evs">
+            <objects>
+                <viewController storyboardIdentifier="cropper-vc" id="Rdn-7Y-KLl" customClass="CropperViewController" customModule="Demo" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Qt6-f6-NMs"/>
+                        <viewControllerLayoutGuide type="bottom" id="aDG-WU-S8J"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="yhB-g2-lKN">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xik-3z-UDc">
+                                <rect key="frame" x="20" y="557" width="43" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="Show">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="showHideAction:" destination="Rdn-7Y-KLl" eventType="touchUpInside" id="Mlh-U0-BcZ"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NNR-8r-Iig" customClass="AKImageCropperView" customModule="Demo" customModuleProvider="target">
+                                <rect key="frame" x="20" y="84" width="560" height="473"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tya-bS-Cdx">
+                                <rect key="frame" x="394" y="558" width="79" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Rand Rect">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="cropRandomAction:" destination="Rdn-7Y-KLl" eventType="touchUpInside" id="2xs-jy-Z1M"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AAk-pb-8ob">
+                                <rect key="frame" x="489" y="558" width="91" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Rand Image">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="changeImgAction:" destination="Rdn-7Y-KLl" eventType="touchUpInside" id="LIw-cp-zv9"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="AAk-pb-8ob" firstAttribute="trailing" secondItem="NNR-8r-Iig" secondAttribute="trailing" id="0kW-i4-Rxr"/>
+                            <constraint firstItem="AAk-pb-8ob" firstAttribute="centerY" secondItem="Xik-3z-UDc" secondAttribute="centerY" constant="0.5" id="6vk-q6-vrG"/>
+                            <constraint firstItem="AAk-pb-8ob" firstAttribute="leading" secondItem="Tya-bS-Cdx" secondAttribute="trailing" constant="16" id="DZ6-9C-cLR"/>
+                            <constraint firstItem="Xik-3z-UDc" firstAttribute="top" secondItem="NNR-8r-Iig" secondAttribute="bottom" id="G8G-PZ-FYf"/>
+                            <constraint firstItem="Tya-bS-Cdx" firstAttribute="top" secondItem="AAk-pb-8ob" secondAttribute="top" id="Va2-1F-7A0"/>
+                            <constraint firstItem="NNR-8r-Iig" firstAttribute="leading" secondItem="Xik-3z-UDc" secondAttribute="leading" id="hAq-u0-O85"/>
+                            <constraint firstItem="NNR-8r-Iig" firstAttribute="top" secondItem="Qt6-f6-NMs" secondAttribute="bottom" constant="20" id="htP-dh-LDh"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="AAk-pb-8ob" secondAttribute="trailing" id="iFZ-8l-5ns"/>
+                            <constraint firstItem="aDG-WU-S8J" firstAttribute="top" secondItem="Xik-3z-UDc" secondAttribute="bottom" constant="10" id="qt1-7o-nux"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="Xik-3z-UDc" secondAttribute="leading" id="xcO-fo-S9p"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Crop View" id="Dch-T8-hoF">
+                        <barButtonItem key="rightBarButtonItem" title="Crop" id="Lnd-yo-8vx">
+                            <connections>
+                                <action selector="cropImgAction:" destination="Rdn-7Y-KLl" id="WV9-3T-oBC"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="cropView" destination="NNR-8r-Iig" id="fgH-4s-8UL"/>
+                        <outlet property="randImgBtn" destination="AAk-pb-8ob" id="sQa-Rm-5Vx"/>
+                        <outlet property="randRectBtn" destination="Tya-bS-Cdx" id="0b8-pO-b74"/>
+                        <outlet property="showHideBtn" destination="Xik-3z-UDc" id="ULG-dw-6Cy"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vfa-Bq-aJk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2038" y="619"/>
+        </scene>
+        <!--Cropped Image-->
+        <scene sceneID="uND-rV-bwv">
+            <objects>
+                <viewController storyboardIdentifier="image-vc" id="RKe-5g-3sC" customClass="ImageViewController" customModule="Demo" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="3wc-Wp-Jyx"/>
+                        <viewControllerLayoutGuide type="bottom" id="f21-mp-caw"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="s9k-zV-KY6">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="qUK-T2-uUb">
+                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="qUK-T2-uUb" secondAttribute="trailing" id="Umf-7n-wRw"/>
+                            <constraint firstItem="qUK-T2-uUb" firstAttribute="leading" secondItem="s9k-zV-KY6" secondAttribute="leading" id="nY3-UT-vp5"/>
+                            <constraint firstItem="f21-mp-caw" firstAttribute="top" secondItem="qUK-T2-uUb" secondAttribute="bottom" id="oVq-ph-uOP"/>
+                            <constraint firstItem="qUK-T2-uUb" firstAttribute="top" secondItem="3wc-Wp-Jyx" secondAttribute="bottom" id="x7h-gf-TAm"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Cropped Image" id="vfd-Eq-99c"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <connections>
+                        <outlet property="imageView" destination="qUK-T2-uUb" id="XRf-oF-d9n"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ZVo-Oy-Yc0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2789" y="619"/>
+        </scene>
+        <!--AKLocationManager-->
+        <scene sceneID="mR8-El-N3M">
+            <objects>
+                <viewController id="o8A-Qi-PEH" userLabel="AKLocationManager" customClass="ViewController" customModule="Demo" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ICs-CR-drR"/>
+                        <viewControllerLayoutGuide type="bottom" id="QFS-sv-RYa"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="D8c-Xa-Pec">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zeo-Cv-xbz">
+                                <rect key="frame" x="180" y="248" width="240" height="1"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="70Z-Eo-lef"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uBf-yH-pWL">
+                                <rect key="frame" x="212" y="281" width="177" height="30"/>
+                                <state key="normal" title="Select Image from Gallery">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="galleryAction" destination="o8A-Qi-PEH" eventType="touchUpInside" id="W7k-Kv-Dkl"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Responsive image cropper" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cm5-TZ-NK7">
+                                <rect key="frame" x="20" y="96" width="560" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Demos" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RnQ-Uu-Fqe">
+                                <rect key="frame" x="20" y="214" width="560" height="26"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WB8-2V-Rsz">
+                                <rect key="frame" x="192" y="343" width="217" height="30"/>
+                                <state key="normal" title="Select Image from Demo Folder"/>
+                                <connections>
+                                    <segue destination="dCy-DU-1gs" kind="show" id="8va-bh-mBB"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="Cm5-TZ-NK7" secondAttribute="trailing" id="16w-U8-opa"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Zeo-Cv-xbz" secondAttribute="trailing" constant="160" id="6XU-Bp-Dq9"/>
+                            <constraint firstItem="Cm5-TZ-NK7" firstAttribute="top" secondItem="ICs-CR-drR" secondAttribute="bottom" constant="32" id="8a3-A9-iMG"/>
+                            <constraint firstItem="RnQ-Uu-Fqe" firstAttribute="top" secondItem="ICs-CR-drR" secondAttribute="bottom" constant="150" id="DLc-Rl-yrZ"/>
+                            <constraint firstItem="Zeo-Cv-xbz" firstAttribute="leading" secondItem="D8c-Xa-Pec" secondAttribute="leadingMargin" constant="160" id="DMH-Yr-cwK"/>
+                            <constraint firstItem="Cm5-TZ-NK7" firstAttribute="leading" secondItem="D8c-Xa-Pec" secondAttribute="leadingMargin" id="Ewe-Hk-hDu"/>
+                            <constraint firstItem="WB8-2V-Rsz" firstAttribute="centerX" secondItem="D8c-Xa-Pec" secondAttribute="centerX" id="GXe-fv-L7v"/>
+                            <constraint firstItem="WB8-2V-Rsz" firstAttribute="top" secondItem="uBf-yH-pWL" secondAttribute="bottom" constant="32" id="Ihd-Ot-wYi"/>
+                            <constraint firstItem="uBf-yH-pWL" firstAttribute="centerX" secondItem="D8c-Xa-Pec" secondAttribute="centerX" id="Pgv-SQ-HUN"/>
+                            <constraint firstItem="uBf-yH-pWL" firstAttribute="top" secondItem="Zeo-Cv-xbz" secondAttribute="bottom" constant="32" id="XeJ-EB-beG"/>
+                            <constraint firstItem="Zeo-Cv-xbz" firstAttribute="top" secondItem="RnQ-Uu-Fqe" secondAttribute="bottom" constant="8" id="hmX-w8-wSI"/>
+                            <constraint firstItem="RnQ-Uu-Fqe" firstAttribute="leading" secondItem="D8c-Xa-Pec" secondAttribute="leadingMargin" id="rTj-hc-eRg"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="RnQ-Uu-Fqe" secondAttribute="trailing" id="yWP-7s-GtS"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="AKImageCropper" id="Qt3-o7-Xus"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Qjw-UL-ejc" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="414" y="619"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="khx-1F-DYa">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="wQk-zT-bng" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="MxY-Fx-TEB">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="o8A-Qi-PEH" kind="relationship" relationship="rootViewController" id="52B-Rg-ppu"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JuF-T7-bWT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-318" y="619"/>
+        </scene>
+    </scenes>
+</document>
