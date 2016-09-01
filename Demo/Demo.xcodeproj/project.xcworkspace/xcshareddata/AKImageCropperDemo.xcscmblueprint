@@ -1,0 +1,51 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "74FC6B16832EDE035AC047E84A01E2F0C9097FE9",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "74FC6B16832EDE035AC047E84A01E2F0C9097FE9" : 0,
+    "F0D98E582FA112BC083159DA5B51E17128CD38B4" : 0,
+    "B234E04AE2BC64FD278418F0B83A3F07C2F904DB" : 0,
+    "78558585540D6A03C4B47C1A04640D7B2BD34C66" : 0,
+    "EAD4BE7C3980137405ECAE8A71597A264DEE9FD1" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "CACF0744-A1D3-4BA8-8481-EB16E6A7A6C0",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "74FC6B16832EDE035AC047E84A01E2F0C9097FE9" : "AKImageCropper\/",
+    "F0D98E582FA112BC083159DA5B51E17128CD38B4" : "AKImageCropper\/Demo\/Vendor\/Extensions\/Double-Float\/",
+    "B234E04AE2BC64FD278418F0B83A3F07C2F904DB" : "AKImageCropper\/Demo\/Vendor\/Extensions\/CGRect-CGSize\/",
+    "78558585540D6A03C4B47C1A04640D7B2BD34C66" : "AKImageCropper\/Demo\/Vendor\/Extensions\/Range\/",
+    "EAD4BE7C3980137405ECAE8A71597A264DEE9FD1" : "AKImageCropper\/Demo\/Vendor\/Extensions\/UIImage\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "AKImageCropperDemo",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Demo\/AKImageCropperDemo.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:artemkrachulov\/AKImageCropper.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "74FC6B16832EDE035AC047E84A01E2F0C9097FE9"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/artemkrachulov\/Range-Extension.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "78558585540D6A03C4B47C1A04640D7B2BD34C66"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/artemkrachulov\/CGRect-CGSize-Extensions.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "B234E04AE2BC64FD278418F0B83A3F07C2F904DB"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/artemkrachulov\/UIImage-Extension.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "EAD4BE7C3980137405ECAE8A71597A264DEE9FD1"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/artemkrachulov\/Double-Float-Extensions.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F0D98E582FA112BC083159DA5B51E17128CD38B4"
+    }
+  ]
+}

@@ -3,427 +3,373 @@
 //  AKImageCropper
 //  GitHub: https://github.com/artemkrachulov/AKImageCropper
 //
-//  Created by Krachulov Artem
-//  Copyright (c) 2015 Krachulov Artem. All rights reserved.
+//  Created by Artem Krachulov.
+//  Copyright (c) 2016 Artem Krachulov. All rights reserved.
 //  Website: http://www.artemkrachulov.com/
+//
+//  ver. 0.1
 //
 
 import UIKit
 
-// MARK: - AKImageCropperTouchViewDelegate
-//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+//  MARK: - AKImageCropperTouchViewDelegate
 
 @objc protocol AKImageCropperTouchViewDelegate {
-    
-    optional func cropRectChanged(rect: CGRect)
-    optional func blockScrollViewGestures() -> Bool
+  optional func cropRectChanged(rect: CGRect)
+  optional func blockScrollViewGestures() -> Bool
 }
 
-// MARK: - AKImageCropperTouchView
-//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
+/// Touch view is first view in AKImageCropperView hierarchy. Used for translating all gestures to scroll view and changing crop frame rectangle when the user touches and moves proper area of view frame.
 class AKImageCropperTouchView: UIView {
- 
-    // MARK: - Properties
-    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-    /// Superview
-    var cropperView: AKImageCropperView!
-    
-    /// Translation receiver (AKImageCropperScollView)
-    weak var receiver: UIView!
   
-    // Touch dimentions
-    var fingerSize: CGFloat {
-        
-        return CGFloat(cropperView.fingerSize)
-    }
-    var fingerCornerSize: CGSize {
-        
-        return CGSizeMake(fingerSize, fingerSize)
-    }
+  /// Managing the Delegate
+  weak var delegate: AKImageCropperTouchViewDelegate?
+  
+  //  MARK: - Properties
+  
+  /// Superview for sending setting properties
+  weak var cropperView: AKImageCropperView!
+  
+  var minimumSize: CGSize { return cropperView.configuration.cropRect.minimumSize }
+  var touchArea: CGFloat { return cropperView.configuration.touchArea }
+  
+  /// Translation receiver (AKImageCropperScollView)
+  weak var receiver: UIView!
+  
+  /// Corner area
+  private var cornerTouchArea: CGSize {
+    return CGSizeMake(touchArea, touchArea)
+  }
+  
+  var cropRectBeforeMoving: CGRect!
+  var cropRectMoved: CGRect!
+  
+  // Touches points
+  var touchBeforeMoving: CGPoint!
+  var touchMoved: CGPoint!
+  
+  // Flags
+  var flagScrollViewGesture = true
+  
+  // Enums
+  enum Edge {
+    case Top, Left, Right, Bottom
+  }
+  
+  enum RectPart {
+    case No
+    
+    case TopLeftCorner, TopEdge
+    case TopRightCorner, RightEdge
+    case BottomRightCorner, BottomEdge
+    case BottomLeftCorner, LeftEdge
+  }
+  
+  var isCropRect: RectPart = .No
+  
+  //  MARK:   Draw
 
-    // Crop rectangles
-    var cropRect: CGRect {
-        
-        return cropperView.cropRect
-    }
-    var cropRectMinSize: CGSize {
-    
-        return cropperView.cropRectMinSize
-    }
-    var cropRectBeforeMoving: CGRect!
-    var cropRectMoved: CGRect!
-    
-    // Touches points
-    var touchBeforeMoving: CGPoint!
-    var touchMoved: CGPoint!
-    
-    // Flags
-    var flagScrollViewGesture = true
-    
-    // Enums
-    enum Edge {
-        case Top
-        case Left
-        case Right
-        case Bottom
-    }
- 
-    enum RectPart {
-        case No
-        
-        case TopLeftCorner
-        case TopEdge
-        case TopRightCorner
-        case RightEdge
-        case BottomRightCorner
-        case BottomEdge
-        case BottomLeftCorner
-        case LeftEdge
-    }
-    
-    var isCropRect: RectPart = .No
-    
-    // Managing the Delegate
-    weak var delegate: AKImageCropperTouchViewDelegate?
-    
-    // MARK: - Draw view
-    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  #if AKImageCropperDEBUG
+  override func drawRect(rect: CGRect) {
+    super.drawRect(rect)
 
-    #if DEBUG
-    override func drawRect(rect: CGRect) {
-        
-        let context = UIGraphicsGetCurrentContext()
-        CGContextSetShouldAntialias(context, true)
-        
-        CGContextSetFillColorWithColor(context, UIColor(red: 255, green: 0, blue: 255, alpha: 0.5).CGColor)
-        CGContextAddRect(context, topLeftCorner())
-        CGContextAddRect(context, topRightCorner())
-        CGContextAddRect(context, bottomLeftCorner())
-        CGContextAddRect(context, bottomRightCorner())
-        CGContextFillPath(context)
-        
-        CGContextSetFillColorWithColor(context, UIColor(red: 0, green: 255, blue: 255, alpha: 0.5).CGColor)
-        CGContextAddRect(context, leftEdgeRect())
-        CGContextAddRect(context, rightEdgeRect())
-        CGContextAddRect(context, topEdgeRect())
-        CGContextAddRect(context, bottomEdgeRect())
-        CGContextFillPath(context)
-    }
-    #endif
+    let context = UIGraphicsGetCurrentContext()
+    CGContextSetShouldAntialias(context, true)
     
-    // MARK: - Move crop rectangle
-    //         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    CGContextSetFillColorWithColor(context, UIColor.redColor().colorWithAlphaComponent(0.5).CGColor)
+    CGContextAddRect(context, topLeftCorner())
+    CGContextAddRect(context, topRightCorner())
+    CGContextAddRect(context, bottomLeftCorner())
+    CGContextAddRect(context, bottomRightCorner())
+    CGContextFillPath(context)
     
-    func topLeftCorner() -> CGRect {
-        
-        return CGRect(origin: CGPointMake(CGRectGetMinX(cropRect), CGRectGetMinY(cropRect)), size: fingerCornerSize)
+    CGContextSetFillColorWithColor(context, UIColor.blueColor().colorWithAlphaComponent(0.5).CGColor)
+    CGContextAddRect(context, leftEdgeRect())
+    CGContextAddRect(context, rightEdgeRect())
+    CGContextAddRect(context, topEdgeRect())
+    CGContextAddRect(context, bottomEdgeRect())
+    CGContextFillPath(context)
+  }
+  #endif
+  
+  
+  //  MARK:   Crop area parts
+  
+  func topLeftCorner() -> CGRect {
+    return CGRect(origin: CGPointMake(CGRectGetMinX(cropperView.cropRect), CGRectGetMinY(cropperView.cropRect)), size: cornerTouchArea)
+  }
+  
+  func topRightCorner() -> CGRect {
+    return CGRect(origin: CGPointMake(CGRectGetMaxX(cropperView.cropRect), CGRectGetMinY(cropperView.cropRect)), size: cornerTouchArea)
+  }
+  
+  func bottomLeftCorner() -> CGRect {
+    return CGRect(origin: CGPointMake(CGRectGetMinX(cropperView.cropRect), CGRectGetMaxY(cropperView.cropRect)) , size: cornerTouchArea)
+  }
+  
+  func bottomRightCorner() -> CGRect {
+    return CGRect(origin: CGPointMake(CGRectGetMaxX(cropperView.cropRect), CGRectGetMaxY(cropperView.cropRect)), size: cornerTouchArea)
+  }
+  
+  func topEdgeRect() -> CGRect {
+    return CGRectMake(CGRectGetMaxX(topLeftCorner()), CGRectGetMinY(topLeftCorner()), CGRectGetWidth(cropperView.cropRect) - touchArea, touchArea)
+  }
+  
+  func bottomEdgeRect() -> CGRect {
+    return CGRectMake(CGRectGetMaxX(bottomLeftCorner()),  CGRectGetMaxY(cropperView.cropRect), CGRectGetWidth(cropperView.cropRect) - touchArea, touchArea)
+  }
+  
+  func rightEdgeRect() -> CGRect {
+    return CGRectMake(CGRectGetMinX(topRightCorner()), CGRectGetMaxY(topRightCorner()), touchArea, CGRectGetHeight(cropperView.cropRect) - touchArea)
+  }
+  
+  func leftEdgeRect() -> CGRect {
+    return CGRectMake(CGRectGetMinX(topLeftCorner()), CGRectGetMaxY(topLeftCorner()), touchArea, CGRectGetHeight(cropperView.cropRect) - touchArea)
+  }
+  
+  func isCropRect (point: CGPoint) -> RectPart {
+    if CGRectContainsPoint(topEdgeRect(), point) {
+      return .TopEdge
     }
-    func topRightCorner() -> CGRect {
-        
-        return CGRect(origin: CGPointMake(CGRectGetMaxX(cropRect), CGRectGetMinY(cropRect)), size: fingerCornerSize)
+    if CGRectContainsPoint(bottomEdgeRect(), point) {
+      return .BottomEdge
     }
-    func bottomLeftCorner() -> CGRect {
-        
-        return CGRect(origin: CGPointMake(CGRectGetMinX(cropRect), CGRectGetMaxY(cropRect)) , size: fingerCornerSize)
+    if CGRectContainsPoint(rightEdgeRect(), point) {
+      return .RightEdge
     }
-    func bottomRightCorner() -> CGRect {
-        
-        return CGRect(origin: CGPointMake(CGRectGetMaxX(cropRect), CGRectGetMaxY(cropRect)), size: fingerCornerSize)
+    if CGRectContainsPoint(leftEdgeRect(), point) {
+      return .LeftEdge
     }
-    func topEdgeRect() -> CGRect {
-        
-        return CGRectMake(CGRectGetMaxX(topLeftCorner()), CGRectGetMinY(topLeftCorner()), CGRectGetWidth(cropRect) - fingerSize, fingerSize)
+    if CGRectContainsPoint(topLeftCorner(), point) {
+      return .TopLeftCorner
     }
-    func bottomEdgeRect() -> CGRect {
-        
-        return CGRectMake(CGRectGetMaxX(bottomLeftCorner()),  CGRectGetMaxY(cropRect), CGRectGetWidth(cropRect) - fingerSize, fingerSize)
+    if CGRectContainsPoint(topRightCorner(), point) {
+      return .TopRightCorner
     }
-    func rightEdgeRect() -> CGRect {
-        
-        return CGRectMake(CGRectGetMinX(topRightCorner()), CGRectGetMaxY(topRightCorner()), fingerSize, CGRectGetHeight(cropRect) - fingerSize)
+    if CGRectContainsPoint(bottomLeftCorner(), point) {
+      return .BottomLeftCorner
     }
-    func leftEdgeRect() -> CGRect {
-        
-        return CGRectMake(CGRectGetMinX(topLeftCorner()), CGRectGetMaxY(topLeftCorner()), fingerSize, CGRectGetHeight(cropRect) - fingerSize)
+    if CGRectContainsPoint(bottomRightCorner(), point) {
+      return .BottomRightCorner
+    }
+    return .No
+  }
+  
+  func moveRect(part: RectPart, onTranslation translation: CGPoint) {
+    
+    cropRectMoved = cropperView.cropRect
+    
+    switch part {
+    case .TopLeftCorner:
+      moveEdge(.Top, onDistance: translation.y)
+      moveEdge(.Left, onDistance: translation.x)
+    case .TopEdge:
+      moveEdge(.Top, onDistance: translation.y)
+    case .TopRightCorner:
+      moveEdge(.Top, onDistance: translation.y)
+      moveEdge(.Right, onDistance: translation.x)
+    case .RightEdge:
+      moveEdge(.Right, onDistance: translation.x)
+    case .BottomRightCorner:
+      moveEdge(.Bottom, onDistance: translation.y)
+      moveEdge(.Right, onDistance: translation.x)
+    case .BottomEdge:
+      moveEdge(.Bottom, onDistance: translation.y)
+    case .BottomLeftCorner:
+      moveEdge(.Bottom, onDistance: translation.y)
+      moveEdge(.Left, onDistance: translation.x)
+    case .LeftEdge:
+      moveEdge(.Left, onDistance: translation.x)
+    default: ()
     }
     
-    func isCropRect (point: CGPoint) -> RectPart {
-        
-        if CGRectContainsPoint(topEdgeRect(), point) {
-            
-            return .TopEdge
-            
-        } else if CGRectContainsPoint(bottomEdgeRect(), point) {
-            
-            return .BottomEdge
-            
-        } else if CGRectContainsPoint(rightEdgeRect(), point) {
-            
-            return .RightEdge
-            
-        } else if CGRectContainsPoint(leftEdgeRect(), point) {
-            
-            return .LeftEdge
-            
-        } else if CGRectContainsPoint(topLeftCorner(), point) {
-            
-            return .TopLeftCorner
-            
-        } else if CGRectContainsPoint(topRightCorner(), point) {
-            
-            return .TopRightCorner
-            
-        } else if CGRectContainsPoint(bottomLeftCorner(), point) {
-            
-            return .BottomLeftCorner
-            
-        } else if CGRectContainsPoint(bottomRightCorner(), point) {
-            
-            return .BottomRightCorner
-        }
-        
-        return .No
-    }
+    // Send new crop rectangle frame to main class
+    cropperView.cropRect(cropRectMoved)
+  }
+  
+  func moveEdge(edge: Edge, onDistance distance: CGFloat) {
+    
+    switch edge {
+    case .Top :
+      
+      // Update sizes.
+      
+      cropRectMoved.origin.y += distance
+      cropRectMoved.size.height -= distance
+      
+      // Save point if moved touch over touch view. First touched point in top edge
+      
+      let pointInEdge = touchBeforeMoving.y - CGRectGetMinY(cropRectBeforeMoving)
+      
+      // Min point if crop rectangle edge will move up
+      
+      let minStickPoint = pointInEdge
+      
+      // Max point if crop rectangle edge will move down
+      
+      let maxStickPoint = CGRectGetMaxY(cropRectBeforeMoving) - minimumSize.height + pointInEdge
+      
+      // Moving
+      
+      if touchMoved.y < minStickPoint || CGRectGetMinY(cropRectMoved) < CGRectGetMinY(frame) {
+        cropRectMoved.origin.y = 0
+        cropRectMoved.size.height = CGRectGetMaxY(cropRectBeforeMoving)
+      }
+      if  touchMoved.y > maxStickPoint || CGRectGetHeight(cropRectMoved) < minimumSize.height {
+        cropRectMoved.origin.y = CGRectGetMaxY(cropRectBeforeMoving) - minimumSize.height
+        cropRectMoved.size.height = minimumSize.height
+      }
+    case .Right :
+      
+      // Update sizes
+      
+      cropRectMoved.size.width += distance
+      
+      // Save point if moved touch over touch view. First touched point in bottom edge
 
-    func moveRect(part: RectPart, onTranslation translation: CGPoint) {
-        
-        // copy
-        cropRectMoved = cropRect
-        
-        switch part {
-            case .TopLeftCorner:
-                
-                moveEdge(.Top, onDistance: translation.y)
-                moveEdge(.Left, onDistance: translation.x)
-            
-            case .TopEdge:
-                
-                moveEdge(.Top, onDistance: translation.y)
-            
-            case .TopRightCorner:
-                
-                moveEdge(.Top, onDistance: translation.y)
-                moveEdge(.Right, onDistance: translation.x)
-            
-            case .RightEdge:
-                
-                moveEdge(.Right, onDistance: translation.x)
+      let pointInEdge = abs(CGRectGetMaxX(cropRectBeforeMoving) - touchBeforeMoving.x)
+      
+      let maxFrameX = CGRectGetMaxX(frame) - rightEdgeRect().size.width
+      
+      // Min point if crop rectangle edge will move up
 
-            case .BottomRightCorner:
-                
-                moveEdge(.Bottom, onDistance: translation.y)
-                moveEdge(.Right, onDistance: translation.x)
-            
-            case .BottomEdge:
-                
-                moveEdge(.Bottom, onDistance: translation.y)
-            
-            case .BottomLeftCorner:
-                
-                moveEdge(.Bottom, onDistance: translation.y)
-                moveEdge(.Left, onDistance: translation.x)
-            
-            case .LeftEdge:
-                
-                moveEdge(.Left, onDistance: translation.x)
-            
-            default: ()
-        }
-        
-        cropperView.setCropRect(cropRectMoved)
+      let minStickPoint = CGRectGetMinX(cropRectBeforeMoving) + pointInEdge + minimumSize.width
+      
+      // Max point if crop rectangle edge will move down
+      
+      let maxStickPoint = maxFrameX + pointInEdge
+      
+      // Moving
+
+      if  touchMoved.x > maxStickPoint || CGRectGetMaxX(cropRectMoved) > maxFrameX {
+        cropRectMoved.size.width = maxFrameX - cropRectMoved.origin.x
+      }
+      if touchMoved.x < minStickPoint || CGRectGetWidth(cropRectMoved) < minimumSize.width {
+        cropRectMoved.size.width = minimumSize.width
+      }
+    case .Bottom :
+      
+      // Update sizes
+
+      cropRectMoved.size.height += distance
+      
+      // Save point if moved touch over touch view.First touched point in bottom edge
+
+      let pointInEdge = abs(CGRectGetMaxY(cropRectBeforeMoving) - touchBeforeMoving.y)
+      
+      let maxFrameY = CGRectGetMaxY(frame) - bottomEdgeRect().size.height
+      
+      // Min point if crop rectangle edge will move left
+
+      let minStickPoint = CGRectGetMinY(cropRectBeforeMoving) + pointInEdge + minimumSize.height
+      
+      // Max point if crop rectangle edge will move right
+
+      let maxStickPoint = maxFrameY + pointInEdge
+      
+      // Moving
+
+      if  touchMoved.y > maxStickPoint || CGRectGetMaxY(cropRectMoved) > maxFrameY {
+        cropRectMoved.size.height = maxFrameY - cropRectMoved.origin.y
+      }
+      if touchMoved.y < minStickPoint || CGRectGetHeight(cropRectMoved) < minimumSize.height {
+        cropRectMoved.size.height = minimumSize.height
+      }
+    case .Left :
+      
+      // Update sizes
+
+      cropRectMoved.origin.x += distance
+      cropRectMoved.size.width -= distance
+      
+      // Save point if moved touch over touch view. First touched point in top edge
+
+      let pointInEdge = touchBeforeMoving.x - CGRectGetMinX(cropRectBeforeMoving)
+      
+      // Min point if crop rectangle edge will move left
+
+      let minStickPoint = pointInEdge
+      
+      // Max point if crop rectangle edge will move right
+
+      let maxStickPoint = CGRectGetMaxX(cropRectBeforeMoving) - minimumSize.width + pointInEdge
+      
+      // Moving
+
+      if touchMoved.x < minStickPoint || CGRectGetMinX(cropRectMoved) < CGRectGetMinX(frame) {
+        cropRectMoved.origin.x = 0
+        cropRectMoved.size.width = CGRectGetMaxX(cropRectBeforeMoving)
+      }
+      if  touchMoved.x > maxStickPoint || CGRectGetWidth(cropRectMoved) < minimumSize.width {
+        cropRectMoved.origin.x = CGRectGetMaxX(cropRectBeforeMoving) - minimumSize.width
+        cropRectMoved.size.width = minimumSize.width
+      }
     }
     
-    func moveEdge(edge: Edge, onDistance distance: CGFloat) {
-        
-        switch edge {
-            case .Top :
-                
-                // Update sizes
-                cropRectMoved.origin.y += distance
-                cropRectMoved.size.height -= distance
-                
-                // Save point if moved touch over touch view
-                /// First touched point in top edge
-                let pointInEdge = touchBeforeMoving.y - CGRectGetMinY(cropRectBeforeMoving)
-                
-                /// Min point if crop rectangle edge will move up
-                let minStickPoint = pointInEdge
-                
-                /// Max point if crop rectangle edge will move down
-                let maxStickPoint = CGRectGetMaxY(cropRectBeforeMoving) - cropRectMinSize.height + pointInEdge
-            
-                // Process
-                if touchMoved.y < minStickPoint || CGRectGetMinY(cropRectMoved) < CGRectGetMinY(frame) {
+    // Checks for new moved rectangle
+
+    cropRectMoved.origin.y = max(0, cropRectMoved.origin.y)
+    cropRectMoved.origin.y = min(cropRectMoved.origin.y, CGRectGetMaxY(cropRectBeforeMoving) - bottomEdgeRect().size.height)
     
-                    cropRectMoved.origin.y = 0
-                    cropRectMoved.size.height = CGRectGetMaxY(cropRectBeforeMoving)
-                }
-                if  touchMoved.y > maxStickPoint || CGRectGetHeight(cropRectMoved) < cropRectMinSize.height {
-                    
-                    cropRectMoved.origin.y = CGRectGetMaxY(cropRectBeforeMoving) - cropRectMinSize.height
-                    cropRectMoved.size.height = cropRectMinSize.height
-                }
-            
-            case .Right :
-                
-                // Update size
-                cropRectMoved.size.width += distance
-                
-                // Save point if moved touch over touch view
-                /// First touched point in bottom edge
-                let pointInEdge = abs(CGRectGetMaxX(cropRectBeforeMoving) - touchBeforeMoving.x)
-                
-                let maxFrameX = CGRectGetMaxX(frame) - rightEdgeRect().size.width
-                
-                /// Min point if crop rectangle edge will move up
-                let minStickPoint = CGRectGetMinX(cropRectBeforeMoving) + pointInEdge + cropRectMinSize.width
-                
-                /// Max point if crop rectangle edge will move down
-                let maxStickPoint = maxFrameX + pointInEdge
-                
-                if  touchMoved.x > maxStickPoint || CGRectGetMaxX(cropRectMoved) > maxFrameX {
-                    
-                    cropRectMoved.size.width = maxFrameX - cropRectMoved.origin.x
-                }
-                if touchMoved.x < minStickPoint || CGRectGetWidth(cropRectMoved) < cropRectMinSize.width {
-                    
-                    cropRectMoved.size.width = cropRectMinSize.width
-                }
-            
-            case .Bottom :
-                
-                // Update size
-                cropRectMoved.size.height += distance
-            
-                // Save point if moved touch over touch view
-                /// First touched point in bottom edge
-                let pointInEdge = abs(CGRectGetMaxY(cropRectBeforeMoving) - touchBeforeMoving.y)
-     
-                let maxFrameY = CGRectGetMaxY(frame) - bottomEdgeRect().size.height
-                
-                /// Min point if crop rectangle edge will move left
-                let minStickPoint = CGRectGetMinY(cropRectBeforeMoving) + pointInEdge + cropRectMinSize.height
-                
-                /// Max point if crop rectangle edge will move right
-                let maxStickPoint = maxFrameY + pointInEdge
-                
-                if  touchMoved.y > maxStickPoint || CGRectGetMaxY(cropRectMoved) > maxFrameY {
-                        
-                    cropRectMoved.size.height = maxFrameY - cropRectMoved.origin.y
-                }
-                if touchMoved.y < minStickPoint || CGRectGetHeight(cropRectMoved) < cropRectMinSize.height {
-                    
-                    cropRectMoved.size.height = cropRectMinSize.height
-                }
-            case .Left :
-                
-                // Update sizes
-                cropRectMoved.origin.x += distance
-                cropRectMoved.size.width -= distance
-            
-                // Save point if moved touch over touch view
-                /// First touched point in top edge
-                let pointInEdge = touchBeforeMoving.x - CGRectGetMinX(cropRectBeforeMoving)
-                
-                /// Min point if crop rectangle edge will move left
-                let minStickPoint = pointInEdge
-                
-                /// Max point if crop rectangle edge will move right
-                let maxStickPoint = CGRectGetMaxX(cropRectBeforeMoving) - cropRectMinSize.width + pointInEdge
-                
-                // Process
-                if touchMoved.x < minStickPoint || CGRectGetMinX(cropRectMoved) < CGRectGetMinX(frame) {
-                    
-                    cropRectMoved.origin.x = 0
-                    cropRectMoved.size.width = CGRectGetMaxX(cropRectBeforeMoving)
-                }
-                if  touchMoved.x > maxStickPoint || CGRectGetWidth(cropRectMoved) < cropRectMinSize.width {
-                    
-                    cropRectMoved.origin.x = CGRectGetMaxX(cropRectBeforeMoving) - cropRectMinSize.width
-                    cropRectMoved.size.width = cropRectMinSize.width
-                }
-        }
-       
-        // Another test crop rectangle sizes
-        cropRectMoved.origin.y = max(0, cropRectMoved.origin.y)
-        cropRectMoved.origin.y = min(cropRectMoved.origin.y, CGRectGetMaxY(cropRectBeforeMoving) - bottomEdgeRect().size.height)
-        
-        cropRectMoved.size.height = max(cropRectMinSize.height, cropRectMoved.size.height)
-        cropRectMoved.size.height = min(CGRectGetHeight(frame) - fingerSize, cropRectMoved.size.height)
-        
-        cropRectMoved.origin.x = max(0, cropRectMoved.origin.x)
-        cropRectMoved.origin.x = min(cropRectMoved.origin.x, CGRectGetMaxX(cropRectBeforeMoving) - rightEdgeRect().size.width)
-        
-        cropRectMoved.size.width = max(cropRectMinSize.width, cropRectMoved.size.width)
-        cropRectMoved.size.width = min(CGRectGetWidth(frame) - fingerSize, cropRectMoved.size.width)
-    }
-}
-
-// MARK: - Translation
-//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-extension AKImageCropperTouchView {
+    cropRectMoved.size.height = max(minimumSize.height, cropRectMoved.size.height)
+    cropRectMoved.size.height = min(CGRectGetHeight(frame) - touchArea, cropRectMoved.size.height)
     
-    override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
-            
-        if (pointInside(point, withEvent: event)) {
-            
-            if isCropRect(point) != .No {
-                
-                flagScrollViewGesture = false
-                
-                return self
-            }
-
-            return receiver
-        }
-        
-        return nil
-    }
-}
-
-
-// MARK: - Touches
-//         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-extension AKImageCropperTouchView {
+    cropRectMoved.origin.x = max(0, cropRectMoved.origin.x)
+    cropRectMoved.origin.x = min(cropRectMoved.origin.x, CGRectGetMaxX(cropRectBeforeMoving) - rightEdgeRect().size.width)
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        
-        if let touch = touches.first {
-            
-            touchBeforeMoving = touch.locationInView(self)
-            
-            cropRectBeforeMoving = cropRect
-            
-            isCropRect = isCropRect(touchBeforeMoving)
-        }
+    cropRectMoved.size.width = max(minimumSize.width, cropRectMoved.size.width)
+    cropRectMoved.size.width = min(CGRectGetWidth(frame) - touchArea, cropRectMoved.size.width)
+  }
+  
+  //  MARK: - Touches
+  
+  override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    if let touch = touches.first {
+      
+      touchBeforeMoving = touch.locationInView(self)
+      
+      cropRectBeforeMoving = cropperView.cropRect
+      
+      isCropRect = isCropRect(touchBeforeMoving)
     }
+  }
+  
+  override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    if let touch = touches.first {
+      
+      touchMoved = touch.locationInView(self)
+      
+      let prevTouchMoved = touch.previousLocationInView(self)
+      
+      if isCropRect != .No {
+        moveRect(isCropRect, onTranslation: CGPointMake(touchMoved.x - prevTouchMoved.x, touchMoved.y - prevTouchMoved.y))
+      }
+    }
+  }
+  
+  override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
     
-    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        
-        if let touch = touches.first {
-            
-            touchMoved = touch.locationInView(self)
-            
-            let prevTouchMoved = touch.previousLocationInView(self)
-            
-            if isCropRect != .No {
-                
-                moveRect(isCropRect, onTranslation: CGPointMake(touchMoved.x - prevTouchMoved.x, touchMoved.y - prevTouchMoved.y))
-            }
-        }
-    }
+    // Reset
+    touchBeforeMoving = nil
+    cropRectBeforeMoving = nil
+    isCropRect = .No
     
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    flagScrollViewGesture = true
+  }
+  
+  //  MARK: - Translation
+
+  override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
+    if (pointInside(point, withEvent: event)) {
+      
+      if isCropRect(point) != .No {
         
-        // Reset
-        touchBeforeMoving = nil
-        cropRectBeforeMoving = nil
-        isCropRect = .No
+        flagScrollViewGesture = false
         
-        flagScrollViewGesture = true
+        return self
+      }
+      return receiver
     }
+    return nil
+  }
 }
