@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayViewConfigurationOverlay.swift
+//  AKImageCropperCropViewConfigurationOverlay.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -24,7 +24,7 @@
 import UIKit
 
 /// Overlay configuration struct.
-public struct AKImageCropperOverlayViewConfigurationOverlay {
+public struct AKImageCropperCropViewConfigurationOverlay {
     
     /// The view’s background color.
     public var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.5)

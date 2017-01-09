@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayViewConfigurationCorner.swift
+//  AKImageCropperCropViewConfigurationCorner.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -24,7 +24,7 @@
 import UIKit
 
 /// Corners configuration struct.
-public struct AKImageCropperOverlayViewConfigurationCorner {
+public struct AKImageCropperCropViewConfigurationCorner {
 
     /// A Boolean value that determines whether the corner view is hidden.
     public var isHidden: Bool = false

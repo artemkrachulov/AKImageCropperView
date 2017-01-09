@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayViewConfiguration.swift
+//  AKImageCropperCropViewConfiguration.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -24,7 +24,7 @@
 import UIKit
 
 /// Overlay view configuration struct.
-public struct AKImageCropperOverlayViewConfiguration {
+public struct AKImageCropperCropViewConfiguration {
     
     public init() {}
     
@@ -65,14 +65,14 @@ public struct AKImageCropperOverlayViewConfiguration {
     //  MARK: Visual Appearance
     
     /// Overlay visual configuration.
-    public var overlay = AKImageCropperOverlayViewConfigurationOverlay()
+    public var overlay = AKImageCropperCropViewConfigurationOverlay()
     
     /// Edges visual configuration.
-    public var edge = AKImageCropperOverlayViewConfigurationEdge()
+    public var edge = AKImageCropperCropViewConfigurationEdge()
     
     /// Corners visual configuration.
-    public var corner = AKImageCropperOverlayViewConfigurationCorner()
+    public var corner = AKImageCropperCropViewConfigurationCorner()
     
     /// Grid visual configuration.    
-    public var grid = AKImageCropperOverlayViewConfigurationGrid()
+    public var grid = AKImageCropperCropViewConfigurationGrid()
 }

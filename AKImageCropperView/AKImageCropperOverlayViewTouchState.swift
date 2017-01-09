@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayViewTouchState.swift
+//  AKImageCropperCropViewTouchState.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -22,7 +22,7 @@
 //
 
 /// User interaction state for edge or corner.
-public enum AKImageCropperOverlayViewTouchState {
+public enum AKImageCropperCropViewTouchState {
 
     /// Default, relase
     case normal

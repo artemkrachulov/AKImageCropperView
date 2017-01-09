@@ -15,12 +15,13 @@
 		016E5EF41DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EE91DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift */; };
 		016E5EF61DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EEB1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift */; };
 		016E5EF71DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EEC1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift */; };
-		016E5EF81DFFDD8300662D31 /* AKImageCropperOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */; };
+		016E5EF81DFFDD8300662D31 /* AKImageCropperCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EED1DFFDD8300662D31 /* AKImageCropperCropView.swift */; };
 		016E5EFA1DFFDD8300662D31 /* AKImageCropperUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EEF1DFFDD8300662D31 /* AKImageCropperUtility.swift */; };
 		016E5EFB1DFFDD8300662D31 /* AKImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EF01DFFDD8300662D31 /* AKImageCropperView.swift */; };
 		016E5EFE1DFFE77400662D31 /* AKImageCropperView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 011028A71DFFDD24002AA94E /* AKImageCropperView.framework */; };
 		016E5EFF1DFFE77400662D31 /* AKImageCropperView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 011028A71DFFDD24002AA94E /* AKImageCropperView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01C48FBC1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C48FBB1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift */; };
+		01D215681E1CC50100316FA4 /* ovelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D215671E1CC50100316FA4 /* ovelay.swift */; };
 		01FA13EF1DDF0C6E006B8C3A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FA13EE1DDF0C6E006B8C3A /* Constants.swift */; };
 		4356D6141B8F3DE90033FDBD /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4356D6131B8F3DE90033FDBD /* ImageViewController.swift */; };
 		43CBB4031B870EBC00C8F9AE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4021B870EBC00C8F9AE /* AppDelegate.swift */; };
@@ -67,10 +68,11 @@
 		016E5EE91DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfiguration.swift; sourceTree = "<group>"; };
 		016E5EEB1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfigurationEdge.swift; sourceTree = "<group>"; };
 		016E5EEC1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfigurationGrid.swift; sourceTree = "<group>"; };
-		016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayView.swift; sourceTree = "<group>"; };
+		016E5EED1DFFDD8300662D31 /* AKImageCropperCropView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperCropView.swift; sourceTree = "<group>"; };
 		016E5EEF1DFFDD8300662D31 /* AKImageCropperUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperUtility.swift; sourceTree = "<group>"; };
 		016E5EF01DFFDD8300662D31 /* AKImageCropperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperView.swift; sourceTree = "<group>"; };
 		01C48FBB1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomImageCropperOverlayView.swift; sourceTree = "<group>"; };
+		01D215671E1CC50100316FA4 /* ovelay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ovelay.swift; sourceTree = "<group>"; };
 		01FA13EE1DDF0C6E006B8C3A /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		4356D6131B8F3DE90033FDBD /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		43CBB3FD1B870EBC00C8F9AE /* AKImageCropperViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AKImageCropperViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,7 +111,8 @@
 				011028A91DFFDD24002AA94E /* AKImageCropperView.h */,
 				011028AA1DFFDD24002AA94E /* Info.plist */,
 				016E5EF01DFFDD8300662D31 /* AKImageCropperView.swift */,
-				016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */,
+				016E5EED1DFFDD8300662D31 /* AKImageCropperCropView.swift */,
+				01D215671E1CC50100316FA4 /* ovelay.swift */,
 				0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */,
 				016E5EE71DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift */,
 				016E5EE91DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift */,
@@ -277,9 +280,10 @@
 			files = (
 				016E5EF41DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift in Sources */,
 				0166B68F1E03E1560081B751 /* AKImageCropperOverlayViewConfigurationOverlay.swift in Sources */,
-				016E5EF81DFFDD8300662D31 /* AKImageCropperOverlayView.swift in Sources */,
+				016E5EF81DFFDD8300662D31 /* AKImageCropperCropView.swift in Sources */,
 				016E5EFB1DFFDD8300662D31 /* AKImageCropperView.swift in Sources */,
 				016E5EF31DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift in Sources */,
+				01D215681E1CC50100316FA4 /* ovelay.swift in Sources */,
 				016E5EFA1DFFDD8300662D31 /* AKImageCropperUtility.swift in Sources */,
 				016E5EF21DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift in Sources */,
 				0141AF1D1E052BF6007C5672 /* AKImageCropperScrollView.swift in Sources */,

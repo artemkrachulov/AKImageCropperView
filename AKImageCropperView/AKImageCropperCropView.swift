@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayView.swift
+//  AKImageCropperCropView.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -23,37 +23,64 @@
 
 import UIKit
 
-//  MARK: - AKImageCropperOverlayViewDelegate
+//  MARK: - AKImageCropperCropViewDelegate
 
-protocol AKImageCropperOverlayViewDelegate : class {
+protocol AKImageCropperCropViewDelegate : class {
     
-    func overlayViewDidTouchCropRect(_ overlayView: AKImageCropperOverlayView,  _ rect: CGRect)
+    func cropViewDidTouchCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect)
     
-    func overlayViewDidChangeCropRect(_ overlayView: AKImageCropperOverlayView,  _ rect: CGRect)
+    func cropViewDidChangeCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect)
     
-    func overlayViewDidEndTouchCropRect(_ overlayView: AKImageCropperOverlayView,  _ rect: CGRect)
+    func cropViewDidEndTouchCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect)
 }
 
-//  MARK: - AKImageCropperOverlayView
+//  MARK: - AKImageCropperCropView
 
 /**
  
- Overlay view represented as AKImageCropperOverlayView open class. 
+ Overlay view represented as AKImageCropperCropView open class. 
  
  Base configuration and behavior can be set or changed with **AKImageCropperOverlayConfiguration** structure. For deep visual changes create the children class and make the necessary configuration in the overrided methods.
  
  */
-open class AKImageCropperOverlayView: UIView {
-
+open class AKImageCropperCropView: UIView {
+    
+    fileprivate (set) lazy var overlayView: UIView! = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black
+        view.clipsToBounds = true
+        view.isHidden = true
+        return view
+    }()
+    
+    open lazy var foregroundContainerImageView: UIView! = {
+        let view = UIView()
+        view.backgroundColor = UIColor.brown
+        view.clipsToBounds = true
+        view.isUserInteractionEnabled = false
+        view.isHidden = true
+        return view
+    }()
+    
+    open lazy var foregroundImageView: UIImageView! = {
+        let view = UIImageView()
+        view.alpha = 0.5
+        return view
+    }()
+    
     /// Configuration structure for the Overlay View appearance and behavior.
-    open var configuraiton = AKImageCropperOverlayViewConfiguration()
+    open var configuraiton = AKImageCropperCropViewConfiguration()
 
     /// Parent (main) class to translate some properties and objects.    
     weak var cropperView: AKImageCropperView!
 
     //  MARK: Crop rectangle
     
-    open var cropRect: CGRect!
+    open var cropRect: CGRect! {
+        return cropperView.cropRect
+    }
+    
+    fileprivate var cropRectMoving: CGRect!
     
     /// Saved crop rectangle state
     fileprivate var cropRectBeforeMoving: CGRect!
@@ -115,14 +142,14 @@ open class AKImageCropperOverlayView: UIView {
     
     //  MARK: Managing the Delegate
     
-    weak var delegate: AKImageCropperOverlayViewDelegate?
+    weak var delegate: AKImageCropperCropViewDelegate?
     
     //  MARK: Touch & Parts views
     
-    fileprivate var topOverlayView: UIView!
-    fileprivate var rightOverlayView: UIView!
-    fileprivate var bottomOverlayView: UIView!
-    fileprivate var leftOverlayView: UIView!
+    fileprivate var topcropView: UIView!
+    fileprivate var rightcropView: UIView!
+    fileprivate var bottomcropView: UIView!
+    fileprivate var leftcropView: UIView!
     fileprivate var topEdgeTouchView: UIView!
     fileprivate var topEdgeView: UIView!
     fileprivate var rightEdgeTouchView: UIView!
@@ -153,7 +180,16 @@ open class AKImageCropperOverlayView: UIView {
      
      */
     
-    public init(configuraiton: AKImageCropperOverlayViewConfiguration? = nil) {
+    init() {
+        super.init(frame: CGRect.zero)
+        
+        backgroundColor = UIColor.clear
+        alpha = 0
+        
+        initialize()
+    }
+    
+    public init(configuraiton: AKImageCropperCropViewConfiguration? = nil) {
         super.init(frame: CGRect.zero)
         
         if configuraiton != nil {
@@ -161,10 +197,9 @@ open class AKImageCropperOverlayView: UIView {
         }
         
         backgroundColor = UIColor.clear
-        isHidden = true
         alpha = 0
         
-        createCropRectFrame()
+        initialize()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -176,10 +211,8 @@ open class AKImageCropperOverlayView: UIView {
     override open func layoutSubviews() {
         super.layoutSubviews()
         
-        topOverlayView.frame = topOverlayViewFrame
-        bottomOverlayView.frame = bottomOverlayViewFrame
-        leftOverlayView.frame = leftOverlayViewFrame
-        rightOverlayView.frame = rightOverlayViewFrame
+        overlayView.frame = frame
+        foregroundContainerImageView.frame = cropRect
         
         topEdgeTouchView.frame = cropAreaTopEdgeFrame
         layoutTopEdgeView(topEdgeView,
@@ -242,49 +275,7 @@ open class AKImageCropperOverlayView: UIView {
     }
     
     //  MARK: Crop rectangle parts rects
-    
-    fileprivate var topOverlayViewFrame: CGRect {
-        return CGRect(
-            origin: CGPoint.zero,
-            size: CGSize(
-                width   : frame.size.width,
-                height  : cropRect.origin.y
-        ))
-    }
-    
-    fileprivate var bottomOverlayViewFrame: CGRect {
-        return CGRect(
-            origin: CGPoint(
-                x: 0,
-                y: cropRect.maxY),
-            size: CGSize(
-                width   : frame.size.width,
-                height  : frame.size.height - cropRect.maxY
-        ))
-    }
-    
-    fileprivate var leftOverlayViewFrame: CGRect {
-        return CGRect(
-            origin: CGPoint(
-                x: 0,
-                y: cropRect.origin.y),
-            size: CGSize(
-                width   : cropRect.origin.x,
-                height  : cropRect.size.height
-        ))
-    }
-    
-    fileprivate var rightOverlayViewFrame: CGRect {
-        return CGRect(
-            origin: CGPoint(
-                x:  cropRect.maxX,
-                y: cropRect.origin.y),
-            size: CGSize(
-                width   : frame.size.width - cropRect.maxX,
-                height  : cropRect.size.height
-        ))
-    }
-    
+
     fileprivate var cropAreaTopLeftCornerFrame: CGRect {
         return CGRect(
             origin: CGPoint(
@@ -373,7 +364,7 @@ open class AKImageCropperOverlayView: UIView {
     
     // MARK: Other methods
     final func blurVisibility(visible: Bool, completion: ((Bool) -> Void)? = nil) {
-
+/*
         UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: configuraiton.animation.options, animations: {
             
             for view: UIView in [self.topOverlayView, self.rightOverlayView, self.bottomOverlayView, self.leftOverlayView] {
@@ -382,7 +373,7 @@ open class AKImageCropperOverlayView: UIView {
 
         }, completion: { isComplete in
             completion?(isComplete)
-        })
+        })*/
     }
     
     final func gridVisibility(visible: Bool, completion: ((Bool) -> Void)? = nil) {
@@ -402,20 +393,26 @@ open class AKImageCropperOverlayView: UIView {
     
     // MARK: - Draving Crop rect frame
     
-    fileprivate func createCropRectFrame() {
+    fileprivate func initialize() {
         
-        //  Overlays
+        /**
+         
+         2. Overlay view ‹‹ Image view
+         
+         */
         
-        topOverlayView = UIView()
-        rightOverlayView = UIView()
-        bottomOverlayView = UIView()
-        leftOverlayView = UIView()
+        addSubview(overlayView)
         
-        for overlayView: UIView in [topOverlayView, rightOverlayView, bottomOverlayView, leftOverlayView] {
-            
-            overlayView.backgroundColor = configuraiton.overlay.backgroundColor
-            addSubview(overlayView)
-        }
+        /**
+         
+         3. Foreground container view ‹‹ (copy) Image view
+         
+         */
+        
+        foregroundContainerImageView.addSubview(foregroundImageView)
+        addSubview(foregroundContainerImageView)
+        
+        
         
         //  Edges
         
@@ -540,7 +537,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutTopEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutTopEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
         var width: CGFloat
@@ -570,7 +567,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutRightEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutRightEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
         var width: CGFloat
@@ -600,7 +597,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutBottomEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutBottomEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
         var width: CGFloat
@@ -630,7 +627,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutLeftEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutLeftEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
         var width: CGFloat
@@ -660,7 +657,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutTopLeftCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutTopLeftCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
         let layer: CAShapeLayer = view.layer.sublayers!.first as! CAShapeLayer
@@ -703,7 +700,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutTopRightCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutTopRightCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
         let layer: CAShapeLayer = view.layer.sublayers!.first as! CAShapeLayer
@@ -746,7 +743,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutBottomRightCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutBottomRightCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
         let layer: CAShapeLayer = view.layer.sublayers!.first as! CAShapeLayer
@@ -789,7 +786,7 @@ open class AKImageCropperOverlayView: UIView {
      -  parameter state: User interaction state.
      
      */
-    open func layoutBottomLeftCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperOverlayViewTouchState) {
+    open func layoutBottomLeftCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
         let layer: CAShapeLayer = view.layer.sublayers!.first as! CAShapeLayer
@@ -858,13 +855,14 @@ open class AKImageCropperOverlayView: UIView {
         //  Save
 
         cropRectBeforeMoving = cropRect
+        cropRectMoving = cropRect
         
         touchBeforeMoving = firstTouch.location(in: self)
 
         // Crop Rect touched area
         activeCropAreaPart = getCropAreaPartContainsPoint(touchBeforeMoving)
         
-        delegate?.overlayViewDidTouchCropRect(self, cropRect)
+        delegate?.cropViewDidTouchCropRect(self, cropRect)
     }
     
     override open func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -886,75 +884,75 @@ open class AKImageCropperOverlayView: UIView {
 
         if moveEdges.contains(.TopEdge) {
             
-            cropRect.origin.y += translationPoint.y
-            cropRect.size.height -= translationPoint.y
+            cropRectMoving.origin.y += translationPoint.y
+            cropRectMoving.size.height -= translationPoint.y
             
             let pointInEdge = touchBeforeMoving.y - cropRectBeforeMoving.minY
             let minStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.minY
             let maxStickPoint = pointInEdge + cropRectBeforeMoving.maxY - configuraiton.minCropRectSize.height
             
-            if point.y > maxStickPoint || cropRect.height < configuraiton.minCropRectSize.height {
-                cropRect.origin.y = cropRectBeforeMoving.maxY - configuraiton.minCropRectSize.height
-                cropRect.size.height = configuraiton.minCropRectSize.height
+            if point.y > maxStickPoint || cropRectMoving.height < configuraiton.minCropRectSize.height {
+                cropRectMoving.origin.y = cropRectBeforeMoving.maxY - configuraiton.minCropRectSize.height
+                cropRectMoving.size.height = configuraiton.minCropRectSize.height
             }
             
             if point.y < minStickPoint {
-                cropRect.origin.y = cropperView.scrollViewInsetFrame.minY
-                cropRect.size.height = cropRectBeforeMoving.maxY - cropperView.scrollViewInsetFrame.minY
+                cropRectMoving.origin.y = cropperView.scrollViewInsetFrame.minY
+                cropRectMoving.size.height = cropRectBeforeMoving.maxY - cropperView.scrollViewInsetFrame.minY
             }
         }
         
         if moveEdges.contains(.RightEdge) {
             
-            cropRect.size.width += translationPoint.x
+            cropRectMoving.size.width += translationPoint.x
             
             let pointInEdge = touchBeforeMoving.x - cropRectBeforeMoving.maxX
             let minStickPoint = pointInEdge + cropRectBeforeMoving.minX + configuraiton.minCropRectSize.width
             let maxStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.maxX
             
             if  point.x > maxStickPoint {
-                cropRect.size.width =  cropperView.scrollViewInsetFrame.maxX - cropRect.origin.x
+                cropRectMoving.size.width =  cropperView.scrollViewInsetFrame.maxX - cropRectMoving.origin.x
             }
             
-            if point.x < minStickPoint || cropRect.width < configuraiton.minCropRectSize.width {
-                cropRect.size.width = configuraiton.minCropRectSize.width
+            if point.x < minStickPoint || cropRectMoving.width < configuraiton.minCropRectSize.width {
+                cropRectMoving.size.width = configuraiton.minCropRectSize.width
             }
         }
         
         if moveEdges.contains(.BottomEdge) {
 
-            cropRect.size.height += translationPoint.y
+            cropRectMoving.size.height += translationPoint.y
             
             let pointInEdge = touchBeforeMoving.y - cropRectBeforeMoving.maxY
             let minStickPoint = pointInEdge + cropRectBeforeMoving.minY + configuraiton.minCropRectSize.height
             let maxStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.maxY
             
             if  point.y > maxStickPoint {
-                cropRect.size.height = cropperView.scrollViewInsetFrame.maxY - cropRect.origin.y
+                cropRectMoving.size.height = cropperView.scrollViewInsetFrame.maxY - cropRectMoving.origin.y
             }
             
-            if point.y < minStickPoint || cropRect.height < configuraiton.minCropRectSize.height {
-                cropRect.size.height = configuraiton.minCropRectSize.height
+            if point.y < minStickPoint || cropRectMoving.height < configuraiton.minCropRectSize.height {
+                cropRectMoving.size.height = configuraiton.minCropRectSize.height
             }
         }
         
         if moveEdges.contains(.LeftEdge) {
             
-            cropRect.origin.x += translationPoint.x
-            cropRect.size.width -= translationPoint.x
+            cropRectMoving.origin.x += translationPoint.x
+            cropRectMoving.size.width -= translationPoint.x
             
             let pointInEdge = touchBeforeMoving.x - cropRectBeforeMoving.minX
             let minStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.minX
             let maxStickPoint = pointInEdge + cropRectBeforeMoving.maxX - configuraiton.minCropRectSize.width
             
-            if  point.x > maxStickPoint || cropRect.width < configuraiton.minCropRectSize.width {
-                cropRect.origin.x = cropRectBeforeMoving.maxX - configuraiton.minCropRectSize.width
-                cropRect.size.width = configuraiton.minCropRectSize.width
+            if  point.x > maxStickPoint || cropRectMoving.width < configuraiton.minCropRectSize.width {
+                cropRectMoving.origin.x = cropRectBeforeMoving.maxX - configuraiton.minCropRectSize.width
+                cropRectMoving.size.width = configuraiton.minCropRectSize.width
             }
             
             if point.x < minStickPoint {
-                cropRect.origin.x = cropperView.scrollViewInsetFrame.minX
-                cropRect.size.width = cropRectBeforeMoving.maxX - cropperView.scrollViewInsetFrame.minX
+                cropRectMoving.origin.x = cropperView.scrollViewInsetFrame.minX
+                cropRectMoving.size.width = cropRectBeforeMoving.maxX - cropperView.scrollViewInsetFrame.minX
             }
         }
         
@@ -962,20 +960,21 @@ open class AKImageCropperOverlayView: UIView {
 
         layoutSubviews()
         
-        delegate?.overlayViewDidChangeCropRect(self, cropRect)
+        delegate?.cropViewDidChangeCropRect(self, cropRectMoving)
+        
     }
     
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         activeCropAreaPart = .None
-        delegate?.overlayViewDidEndTouchCropRect(self, cropRect)
+        delegate?.cropViewDidEndTouchCropRect(self, cropRectMoving)
     }
     
     // MARK: - Instance Method to detect and translate point
     
     override open func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-  
-        guard !isHidden else {
+
+        guard alpha == 1 else {
             return cropperView.scrollView
         }
         
@@ -983,4 +982,32 @@ open class AKImageCropperOverlayView: UIView {
             ? self
             : cropperView.scrollView
     }
+    
+   
+    open var image: UIImage? {
+        didSet {
+            foregroundImageView.image = image
+        }
+    }
+    
+    
+    func matchForegroundToScrollView(scrollView: UIScrollView) {
+    
+        
+        
+        let p = scrollView.contentOffset
+        
+       
+        
+        let origin = CGPoint(
+            x: -(p.x + foregroundContainerImageView.frame.origin.x),
+            y: -(p.y + foregroundContainerImageView.frame.origin.y))
+        
+        foregroundImageView.frame.origin = origin
+        foregroundImageView.frame.size = scrollView.contentSize
+        
+    }
+    
+    
+    
 }

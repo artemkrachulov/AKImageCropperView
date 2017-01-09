@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayViewConfigurationEdge.swift
+//  AKImageCropperCropViewConfigurationEdge.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -24,7 +24,7 @@
 import UIKit
 
 /// Edges configuration struct.
-public struct AKImageCropperOverlayViewConfigurationEdge {
+public struct AKImageCropperCropViewConfigurationEdge {
    
     /// A Boolean value that determines whether the edge view is hidden.
     public var isHidden: Bool = false

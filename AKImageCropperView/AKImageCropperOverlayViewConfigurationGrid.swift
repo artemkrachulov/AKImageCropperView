@@ -1,5 +1,5 @@
 //
-//  AKImageCropperOverlayViewConfigurationGrid.swift
+//  AKImageCropperCropViewConfigurationGrid.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -24,7 +24,7 @@
 import UIKit
 
 /// Grid visual configuration struct.
-public struct AKImageCropperOverlayViewConfigurationGrid {
+public struct AKImageCropperCropViewConfigurationGrid {
     
     /// A Boolean value that determines whether the edge view is hidden.
     public var isHidden: Bool = false
