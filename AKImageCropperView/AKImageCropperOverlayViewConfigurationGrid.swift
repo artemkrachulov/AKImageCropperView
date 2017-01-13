@@ -30,7 +30,7 @@ public struct AKImageCropperCropViewConfigurationGrid {
     public var isHidden: Bool = false
     
     /// Hide grid after user interaction.
-    public var autoHideGrid: Bool = true
+    public var alwaysShowGrid: Bool = false
     
     /**
      

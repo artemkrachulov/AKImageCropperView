@@ -47,9 +47,9 @@ open class AKImageCropperCropView: UIView {
     
     fileprivate (set) lazy var overlayView: UIView! = {
         let view = UIView()
-        view.backgroundColor = UIColor.black
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         view.clipsToBounds = true
-        view.isHidden = true
+//        view.isHidden = true
         return view
     }()
     
@@ -90,7 +90,7 @@ open class AKImageCropperCropView: UIView {
     
     /// Current active crop area part
     fileprivate var activeCropAreaPart: AKCropAreaPart = .None {
-        didSet {  layoutSubviews() }
+        didSet { layoutSubviews() }
     }
     
     fileprivate struct AKCropAreaPart: OptionSet {
@@ -364,31 +364,37 @@ open class AKImageCropperCropView: UIView {
     
     // MARK: Other methods
     final func blurVisibility(visible: Bool, completion: ((Bool) -> Void)? = nil) {
-/*
+
         UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: configuraiton.animation.options, animations: {
-            
-            for view: UIView in [self.topOverlayView, self.rightOverlayView, self.bottomOverlayView, self.leftOverlayView] {
-                view.subviews.first?.alpha = visible ? self.configuraiton.overlay.blurAlpha: 0.0
-            }
+           
+                self.overlayView.subviews.first?.alpha = visible ? self.configuraiton.overlay.blurAlpha : 0.0
 
         }, completion: { isComplete in
             completion?(isComplete)
-        })*/
+        })
     }
     
     final func gridVisibility(visible: Bool, completion: ((Bool) -> Void)? = nil) {
         
-        if isHidden && configuraiton.grid.autoHideGrid {
+        if configuraiton.grid.alwaysShowGrid {
              completion?(true)
             return
         }
         
-        UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: configuraiton.animation.options, animations: {
-            
+        let animations: () -> Void = { _ in
             self.gridView.alpha = visible ? 1 : 0
-        }, completion: { isComplete in
-            completion?(isComplete)
-        })
+        }
+        
+        if configuraiton.animation.duration == 0 {
+            
+            animations()
+            
+        } else {
+        
+            UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: configuraiton.animation.options, animations: animations, completion: { isComplete in
+                completion?(isComplete)
+            })
+        }
     }
     
     // MARK: - Draving Crop rect frame
@@ -402,6 +408,12 @@ open class AKImageCropperCropView: UIView {
          */
         
         addSubview(overlayView)
+        
+        let blurEffect = UIBlurEffect(style: configuraiton.overlay.blurStyle)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = overlayView.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlayView.addSubview(blurEffectView)
         
         /**
          
@@ -523,7 +535,10 @@ open class AKImageCropperCropView: UIView {
         
         gridView.isHidden = configuraiton.grid.isHidden
         
-        if configuraiton.grid.autoHideGrid {
+        
+        if configuraiton.grid.alwaysShowGrid {
+            gridView.alpha = 1
+        } else {
             gridView.alpha = 0
         }
     }
@@ -888,7 +903,7 @@ open class AKImageCropperCropView: UIView {
             cropRectMoving.size.height -= translationPoint.y
             
             let pointInEdge = touchBeforeMoving.y - cropRectBeforeMoving.minY
-            let minStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.minY
+            let minStickPoint = pointInEdge + cropperView.cropRectMaxFrame.minY
             let maxStickPoint = pointInEdge + cropRectBeforeMoving.maxY - configuraiton.minCropRectSize.height
             
             if point.y > maxStickPoint || cropRectMoving.height < configuraiton.minCropRectSize.height {
@@ -897,8 +912,8 @@ open class AKImageCropperCropView: UIView {
             }
             
             if point.y < minStickPoint {
-                cropRectMoving.origin.y = cropperView.scrollViewInsetFrame.minY
-                cropRectMoving.size.height = cropRectBeforeMoving.maxY - cropperView.scrollViewInsetFrame.minY
+                cropRectMoving.origin.y = cropperView.cropRectMaxFrame.minY
+                cropRectMoving.size.height = cropRectBeforeMoving.maxY - cropperView.cropRectMaxFrame.minY
             }
         }
         
@@ -908,10 +923,10 @@ open class AKImageCropperCropView: UIView {
             
             let pointInEdge = touchBeforeMoving.x - cropRectBeforeMoving.maxX
             let minStickPoint = pointInEdge + cropRectBeforeMoving.minX + configuraiton.minCropRectSize.width
-            let maxStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.maxX
+            let maxStickPoint = pointInEdge + cropperView.cropRectMaxFrame.maxX
             
             if  point.x > maxStickPoint {
-                cropRectMoving.size.width =  cropperView.scrollViewInsetFrame.maxX - cropRectMoving.origin.x
+                cropRectMoving.size.width =  cropperView.cropRectMaxFrame.maxX - cropRectMoving.origin.x
             }
             
             if point.x < minStickPoint || cropRectMoving.width < configuraiton.minCropRectSize.width {
@@ -925,10 +940,10 @@ open class AKImageCropperCropView: UIView {
             
             let pointInEdge = touchBeforeMoving.y - cropRectBeforeMoving.maxY
             let minStickPoint = pointInEdge + cropRectBeforeMoving.minY + configuraiton.minCropRectSize.height
-            let maxStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.maxY
+            let maxStickPoint = pointInEdge + cropperView.cropRectMaxFrame.maxY
             
             if  point.y > maxStickPoint {
-                cropRectMoving.size.height = cropperView.scrollViewInsetFrame.maxY - cropRectMoving.origin.y
+                cropRectMoving.size.height = cropperView.cropRectMaxFrame.maxY - cropRectMoving.origin.y
             }
             
             if point.y < minStickPoint || cropRectMoving.height < configuraiton.minCropRectSize.height {
@@ -942,7 +957,7 @@ open class AKImageCropperCropView: UIView {
             cropRectMoving.size.width -= translationPoint.x
             
             let pointInEdge = touchBeforeMoving.x - cropRectBeforeMoving.minX
-            let minStickPoint = pointInEdge + cropperView.scrollViewInsetFrame.minX
+            let minStickPoint = pointInEdge + cropperView.cropRectMaxFrame.minX
             let maxStickPoint = pointInEdge + cropRectBeforeMoving.maxX - configuraiton.minCropRectSize.width
             
             if  point.x > maxStickPoint || cropRectMoving.width < configuraiton.minCropRectSize.width {
@@ -951,8 +966,8 @@ open class AKImageCropperCropView: UIView {
             }
             
             if point.x < minStickPoint {
-                cropRectMoving.origin.x = cropperView.scrollViewInsetFrame.minX
-                cropRectMoving.size.width = cropRectBeforeMoving.maxX - cropperView.scrollViewInsetFrame.minX
+                cropRectMoving.origin.x = cropperView.cropRectMaxFrame.minX
+                cropRectMoving.size.width = cropRectBeforeMoving.maxX - cropperView.cropRectMaxFrame.minX
             }
         }
         
@@ -974,6 +989,10 @@ open class AKImageCropperCropView: UIView {
     
     override open func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
 
+        print("ZZZ")
+        print(event!.type.rawValue)
+        debugPrint(event!.type)
+        
         guard alpha == 1 else {
             return cropperView.scrollView
         }

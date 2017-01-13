@@ -38,5 +38,5 @@ public struct AKImageCropperCropViewConfigurationOverlay {
     public var blurStyle: UIBlurEffectStyle = .dark
     
     /// The blur effect alpha value.
-    public var blurAlpha: CGFloat = 1.0
+    public var blurAlpha: CGFloat = 0.6
 }
