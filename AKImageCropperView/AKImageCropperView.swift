@@ -25,36 +25,19 @@ import UIKit
 
 typealias CGPointPercentage = CGPoint
 
-open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizerDelegate, AKImageCropperCropViewDelegate {
+open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizerDelegate, AKImageCropperOverlayViewDelegate {
     
-    // MARK: Initialization OBJECTS(VIEWS) & theirs parameters
+    /** Current rotation angle */
     
-    // MARK: ** Rotate view **
+    fileprivate var angle: Double = 0.0
     
-    fileprivate (set) lazy var rotateView: UIView! = {
-        let view = UIView()
-        view.clipsToBounds = true
-        return view
-    }()
+    /** Scroll view minimum edge insets (current value) */
     
-    // MARK: ** Scroll view **
-    /*
-    open lazy var scrollView: UIScrollView! = {
-        let view = UIScrollView()
-        view.delegate = self
-        view.alwaysBounceVertical = true
-        view.alwaysBounceHorizontal = true
-        view.showsVerticalScrollIndicator = false
-        view.showsHorizontalScrollIndicator = false
-        return view
-    }()*/
+    fileprivate var minEdgeInsets: UIEdgeInsets = .zero
     
-    var scrollView: AKImageCropperScrollView!
+    /** Reversed frame direct to current rotation angle */
     
-    
-
-
-    private var scrollViewFrame: CGRect {
+    fileprivate var reversedRect: CGRect {
         return CGRect(
             origin  : .zero,
             size    : ((angle / M_PI_2).truncatingRemainder(dividingBy: 2)) == 1
@@ -62,237 +45,178 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
                 : frame.size)
     }
     
-    /// Scroll view minimum edge insets depending on
+    /** Reversed minimum edge insets direct to current rotation angle */
     
-    private var scrollViewMinEdgeInsets: UIEdgeInsets {
-        guard let cropView = cropView else {
-            return .zero
-        }
-        return cropView.alpha == 0 ? .zero : cropView.configuraiton.cropRectInsets
-    }
-
-    /// Max crop view frame reversed by angle with currect instest.
-    
-    open var cropRectMaxFrame: CGRect {
+    fileprivate var reversedEdgeInsets: UIEdgeInsets {
         
-        var reversedInsets: UIEdgeInsets
+        var newEdgeInsets: UIEdgeInsets
         
         switch angle {
         case M_PI_2:
-            reversedInsets = UIEdgeInsetsMake(scrollViewMinEdgeInsets.right, scrollViewMinEdgeInsets.top, scrollViewMinEdgeInsets.left, scrollViewMinEdgeInsets.bottom)
+            newEdgeInsets = UIEdgeInsetsMake(
+                minEdgeInsets.right,
+                minEdgeInsets.top,
+                minEdgeInsets.left,
+                minEdgeInsets.bottom)
         case M_PI:
-            reversedInsets = UIEdgeInsetsMake(scrollViewMinEdgeInsets.bottom, scrollViewMinEdgeInsets.right, scrollViewMinEdgeInsets.top, scrollViewMinEdgeInsets.left)
+            newEdgeInsets = UIEdgeInsetsMake(
+                minEdgeInsets.bottom,
+                minEdgeInsets.right,
+                minEdgeInsets.top,
+                minEdgeInsets.left)
         case M_PI_2 * 3:
-            reversedInsets = UIEdgeInsetsMake(scrollViewMinEdgeInsets.left, scrollViewMinEdgeInsets.bottom, scrollViewMinEdgeInsets.right, scrollViewMinEdgeInsets.top)
+            newEdgeInsets = UIEdgeInsetsMake(
+                minEdgeInsets.left,
+                minEdgeInsets.bottom,
+                minEdgeInsets.right,
+                minEdgeInsets.top)
         default:
-            reversedInsets = scrollViewMinEdgeInsets
+            newEdgeInsets = minEdgeInsets
         }
         
-        return CGRect(
-            x       : reversedInsets.left,
-            y       : reversedInsets.top,
-            width   : scrollViewFrame.size.width - (reversedInsets.left + reversedInsets.right),
-            height  : scrollViewFrame.size.height - (reversedInsets.top + reversedInsets.bottom))
+        return newEdgeInsets
     }
     
-    // MARK: ** Overlay crop view **
+    /** Reversed frame + edgeInsets direct to current rotation angle */
     
-    open var cropView: AKImageCropperCropView? {
+    var reversedFrameWithInsets: CGRect {
+        return UIEdgeInsetsInsetRect(reversedRect, reversedEdgeInsets)
+    }
+    
+    // MARK: -
+    // MARK: ** Saved properties **
+    
+    fileprivate struct SavedProperty {
+        
+        var scaleAspectRatio: CGFloat!
+        var contentOffset: CGPoint!
+        var contentOffsetPercentage: CGPoint!
+        var cropRectSize: CGSize!
+        
+        init() {
+            scaleAspectRatio = 1.0
+            contentOffset = .zero
+            contentOffsetPercentage = .zero
+            cropRectSize = .zero
+        }
+        
+        mutating func save(scrollView: AKImageCropperScrollView) {
+            
+            scaleAspectRatio = scrollView.zoomScale / scrollView.minimumZoomScale
+            
+            contentOffset = CGPoint(
+                x: scrollView.contentOffset.x + scrollView.contentInset.left,
+                y: scrollView.contentOffset.y + scrollView.contentInset.top)
+
+            let contentSize = CGSize(
+                width   : (scrollView.contentSize.width - scrollView.visibleRect.width).ic_roundTo(precision: 3),
+                height  : (scrollView.contentSize.height - scrollView.visibleRect.height).ic_roundTo(precision: 3))
+
+            contentOffsetPercentage = CGPointPercentage(
+                x: (contentOffset.x > 0 && contentSize.width != 0)
+                    ? ic_round(x: contentOffset.x / contentSize.width, multiplier: 0.005)
+                    : 0,
+                y: (contentOffset.y > 0 && contentSize.height != 0)
+                    ? ic_round(x: contentOffset.y / contentSize.height, multiplier: 0.005)
+                    : 0)
+            
+            cropRectSize = scrollView.visibleRect.size
+        }
+    }
+    
+    /** Saved Scroll View parameters before complex layout animation */
+    
+    fileprivate var savedProperty = SavedProperty()
+    
+    // MARK: Accessing the Displayed Images
+    
+    /** The image displayed in the image cropper view. Default is nil. */
+    
+    open var image: UIImage? {
         didSet {
             
-            cropView?.cropperView = self
-            cropView?.delegate = self
-            
-            if cropView != nil && rotateView != nil {
-                rotateView.addSubview(cropView!)
+            guard let image = image else {
+                return
             }
+            
+            scrollView.image = image
+            overlayView?.image = image
+            
+            reset()
         }
     }
-  
-    /// Determines the overlay view current state. Default is false.
-    open var isOverlayCropViewActive: Bool = false
     
-    ///
+    /** Cropperd image in the specified crop rectangle */
+    
+    open var croppedImage: UIImage? {
+        return image?.ic_imageInRect(scrollView.scaledVisibleRect)?.ic_rotateByAngle(angle)
+    }
+    
+    // MARK: States
+    
+    /** Returns the image edited state flag. */
+    
+    open var isEdited: Bool {
+        
+        guard let image = image else {
+            return false
+        }
+
+        let fitScaleMultiplier = ic_CGSizeFitScaleMultiplier(image.size, relativeToSize: reversedFrameWithInsets.size)
+        
+        return angle != 0 || fitScaleMultiplier != scrollView.minimumZoomScale || fitScaleMultiplier != scrollView.zoomScale
+    }
+    
+    /** Determines the overlay view current state. Default is false. */
+    
+    open private(set) var isoverlayViewActive: Bool = false
+    
+    private var layoutByImage: Bool = true
+    
+    /** Сompletion blocker. */
+    
     fileprivate var isAnimation: Bool = false
-
-    /**
-     
-     Show the overlay view with crop rectangle.
-     
-     - parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
-     - parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
-     - parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
-     
-     */
     
-    open func showOverlayCropView(animationDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
-        
-        
-        guard cropView != nil && !isOverlayCropViewActive && !isAnimation else {
-            return
-        }
-        
-        updateScrollViewSavedVariables()
-        
-        cancelZoomingToFitTimer()
-
-        if duration == 0 {
-            
-            /* Before actions */
-            
-            isAnimation = true
-            
-            cropView?.alpha = 1
-            
-            layoutSubviews()
-
-            /* After actions */
-            
-            isAnimation = false
-            
-            /* Completion */
-            
-            isOverlayCropViewActive = true
-            
-            completion?(true)
-            
-        } else {
-            
-            /* Before actions */
-            
-            isAnimation = true
-            
-            let savedContentOffsetPercentage = self.savedContentOffsetPercentage(from: scrollView.contentOffset)
-
-            UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-                
-                self.layoutSubviews()
-
-                /**
-                 
-                 Update scroll view content offsets 
-                 using active zooming scale and insets.
-                 
-                 */
-
-                self.scrollView.contentOffset = self.contentOffset(from: savedContentOffsetPercentage)
-                
-            }, completion: { _ in
-
-                UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-                    
-                    self.cropView?.alpha = 1
-
-                }, completion: { isFinished in
-                    
-                    /* After actions */
-                    
-                    self.isAnimation = false
-                    
-                    /* Completion */
-                    
-                    self.isOverlayCropViewActive = true
-                    
-                    completion?(isFinished)
-                })
-            })
-        }
-    }
+    // MARK: Managing the Delegate
     
-    /**
-     
-     Hide the overlay view with crop rectangle.
-     
-     - parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
-     - parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
-     - parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
-     
-     */
+    weak open var delegate: AKImageCropperViewDelegate?
+
+    // MARK: - 
+    // MARK: ** Initialization OBJECTS(VIEWS) & theirs parameters **
     
-    open func hideOverlayCropView(animationDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
-        
-        guard cropView != nil && isOverlayCropViewActive && !isAnimation else {
-            return
-        }
-
-        updateScrollViewSavedVariables()
-            
-        cancelZoomingToFitTimer()
-        
-        if duration == 0 {
-            
-            /* Before actions */
-            
-            isAnimation = true
-            
-            cropView?.alpha = 0
-            
-            layoutSubviews()
-            
-            /* After actions */
-            
-            isAnimation = false
-            
-            /* Completion */
-            
-            isOverlayCropViewActive = false
-            
-            completion?(true)
-            
-        } else {
-            
-            /* Before actions */
-            
-            isAnimation = true
-            
-            
-            let savedContentOffsetPercentage = self.savedContentOffsetPercentage(from: CGPoint(
-                x: scrollView.contentOffset.x + scrollView.contentInset.left,
-                y: scrollView.contentOffset.y + scrollView.contentInset.top))
-            
-            UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-                
-                self.cropView?.alpha = 0
-                
-            }, completion: { _ in
-
-                UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-                    
-                    self.layoutSubviews()
-                    
-                    /**
-                     
-                     Update scroll view content offsets
-                     using active zooming scale and insets.
-                     
-                     */
-                    
-                    self.scrollView.contentOffset = self.contentOffset(from: savedContentOffsetPercentage)
-                    
-                }, completion: { isFinished in
-                    
-                    /* After actions */
-                    
-                    self.isAnimation = false
-                    
-                    /* Completion */
-                    
-                    self.isOverlayCropViewActive = false
-                    
-                    completion?(isFinished)
-                })
-            })
-        }
-    }
+    // MARK: Rotate view
     
-    // MARK: ** Image view **
-
-    fileprivate (set) lazy var imageView: UIImageView! = {
-        let view = UIImageView()
+    fileprivate lazy var rotateView: UIView! = {
+        let view = UIView()
+        view.clipsToBounds = true
         return view
     }()
     
-    // MARK: Initializing an Image Cropper View
+    // MARK: Scroll view
+
+    var scrollView: AKImageCropperScrollView!
+    
+    // MARK: Overlay Crop view
+    
+    open var overlayView: AKImageCropperOverlayView? {
+        willSet  {
+            
+            if overlayView != nil {
+                overlayView?.removeFromSuperview()
+            }
+            
+            if newValue != nil {
+//                newValue?.touchDelegate = self
+                newValue?.delegate = self
+                newValue?.cropperView = self
+                rotateView.addSubview(newValue!)
+            }
+            
+            layoutSubviews()
+        }
+    }
+    
+    // MARK: - Initializing an Image Cropper View
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -307,11 +231,9 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     }
     
     /**
-     
      Returns an image cropper view initialized with the specified image.
      
-     - parameter image: The initial image to display in the image cropper view.     
-     
+     - Parameter image: The initial image to display in the image cropper view.
      */
     
     public init(image: UIImage?) {
@@ -324,35 +246,73 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     
     fileprivate func initialize() {
         
-        /**
-         
-         Create views layout
+        /*
+         Create views layout.
          Step by step
          
          1. Scroll view ‹‹ Image view
-         
          */
 
-        scrollView.addSubview(imageView)
+        scrollView = AKImageCropperScrollView()
+//        scrollView.touchDelegate = self
+        scrollView.delegate = self
         rotateView.addSubview(scrollView)
-
-        /* Crop view with crop rectangle */
         
-        cropView = AKImageCropperCropView()
+        /* 2. Overlay view with crop rectangle */
         
-        /* Main rotate view container */
+        overlayView = AKImageCropperOverlayView()
+        
+        /* 3. Rotate view */
         
         addSubview(rotateView)
         
-        /* Observers */
+        /**
+         Add Observers
+         To controll all parameters changing and pass them to foreground image view
+         */
         
-        for forKeyPath in ["frame", "contentSize", "contentOffset", "contentInset"] {
-            scrollView.addObserver(self, forKeyPath: forKeyPath, options: [.new], context: nil)
+        initObservers()
+        
+        let pressGesture = UILongPressGestureRecognizer(target: self, action: #selector(pressGestureAction(_ :)))
+        pressGesture.minimumPressDuration = 0
+        pressGesture.cancelsTouchesInView = false
+        pressGesture.delegate = self
+        addGestureRecognizer(pressGesture)
+    }
+    
+    
+    @objc fileprivate func pressGestureAction(_ gesture: UITapGestureRecognizer) {
+        if gesture.state == .began {
+            beforeInteraction()
+        } else if gesture.state == .cancelled || gesture.state == .ended {
+            afterInteraction()
+        }
+    }
+    
+    // MARK: - UIGestureRecognizerDelegate
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+ 
+    deinit {
+        removeObservers()
+        
+        #if AKImageCropperViewDEBUG
+            print("deinit AKImageCropperView")
+        #endif
+    }
+    
+    // MARK: - Observe Scroll view values
+    
+    fileprivate func initObservers() {
+        for forKeyPath in ["contentOffset", "contentSize"] {
+            scrollView.addObserver(self, forKeyPath: forKeyPath, options: [.new, .old], context: nil)
         }
     }
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-
+        
         guard let keyPath = keyPath  else {
             return
         }
@@ -360,194 +320,284 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
         switch keyPath {
         case "frame":
             if let _ = change![NSKeyValueChangeKey.newKey] {
-                cropView?.matchForegroundToScrollView(scrollView: scrollView)
+//                overlayView?.matchForegroundToBackgroundScrollView()
+//                overlayView?.layoutSubviews()
             }
             
         case "contentInset":
             if let _ = change![NSKeyValueChangeKey.newKey] {
-                cropView?.matchForegroundToScrollView(scrollView: scrollView)
-                cropView?.layoutSubviews()
+//                overlayView?.matchForegroundToBackgroundScrollView2()
+//                overlayView?.layoutSubviews()
             }
         case "contentOffset":
             if let _ = change![NSKeyValueChangeKey.newKey] {
-                cropView?.matchForegroundToScrollView(scrollView: scrollView)
+                 overlayView?.matchForegroundToBackgroundScrollViewOffset()
             }
         case "contentSize":
-            if let _ = change![NSKeyValueChangeKey.newKey] {}
+            if let _ = change![NSKeyValueChangeKey.newKey] {
+                overlayView?.matchForegroundToBackgroundScrollViewSize()
+//                overlayView?.matchForegroundToBackgroundScrollView()
+//                overlayView?.layoutSubviews()
+            }
+        case "zoomScale":
+            if let _ = change![NSKeyValueChangeKey.newKey] {
+//                                overlayView?.matchForegroundToBackgroundScrollView()
+                //                overlayView?.layoutSubviews()
+            }
         default: ()
         }
     }
     
-
-    // MARK: Accessing the Displayed Images
-
-    /// The image displayed in the image cropper view. Default is nil.
-    open var image: UIImage? {
-        didSet {
-
-            guard let image = image else {
-                return
-            }
-            
-            //  Prepare scroll view to changing image
-            
-            scrollView.maximumZoomScale = 1
-            scrollView.minimumZoomScale = 1
-            scrollView.zoomScale = 1
-            
-            //  Reset Image View
-            
-            imageView.image = image
-            imageView.frame.size = image.size
-            
-            cropView?.image = image
-           
-            
-            angle = 0
-            rotateView.transform = CGAffineTransform.identity
-            
-            resetScrollViewSavedVariables()
-            cancelZoomingToFitTimer()
-            
-            scrollView.contentSize = image.size
-            
-            layoutSubviews()
+    fileprivate func removeObservers() {
+        for forKeyPath in ["contentOffset", "contentSize"] {
+            scrollView.removeObserver(self, forKeyPath: forKeyPath)
         }
     }
-    
-    var cropRect: CGRect {
-        
-        let f =  CGRect(x: scrollView.contentInset.left,
-                        y: scrollView.contentInset.top,
-                        width: scrollView.frame.size.width  - scrollView.contentInset.left - scrollView.contentInset.right,
-                        height: scrollView.frame.size.height - scrollView.contentInset.top - scrollView.contentInset.bottom)
-        
-        return f
-        
-        /*
-        let size = self.size(
-            size    : scrollView.contentSize,
-            minSize : CGSize.zero,
-            maxSize : reversedInsetFrame.size)
-        
-        
-        let origin = center(size: size)
-        
-        */
-        
-//        return CGRect(origin: origin, size: size)
-    }
-    
-    /// Cropperd image in the specified crop rectangle.
-    open var croppedImage: UIImage? {
-        
-        let cropRectScaled = CGRect(
-            x       : scrollView.contentOffset.x / scrollView.zoomScale,
-            y       : scrollView.contentOffset.y / scrollView.zoomScale,
-            width   : scrollView.frame.size.width / scrollView.zoomScale,
-            height  : scrollView.frame.size.height / scrollView.zoomScale)
-        
-        return AKImageCropperUtility.rotateImage(AKImageCropperUtility.cropImage(image, inRect: cropRectScaled), by: angle)
-    }
-   
-    /// Returns the image edited state flag.
-    open var isEdited: Bool {
-        
-        guard let image = image else {
-            return false
-        }
-        
-        let fitScaleMultiplier = AKImageCropperUtility.getFitScaleMultiplier(image.size, relativeToSize: cropRectMaxFrame.size)
-        
-        return angle != 0 || fitScaleMultiplier != scrollView.minimumZoomScale || fitScaleMultiplier != scrollView.zoomScale
-    }
-    
-    // MARK: Managing the Delegate
-    
-    weak open var delegate: AKImageCropperViewDelegate?
     
     // MARK: - Life cycle
     
     override open func layoutSubviews() {
         super.layoutSubviews()
-
+     
+        layoutSubviews(byImage: layoutByImage)
+    }
+    
+    func layoutSubviews(byImage: Bool) {
+        
         rotateView.frame = CGRect(origin: .zero, size: self.frame.size)
         
-        if cropView?.alpha == 1 {
+        let frame = reversedRect
+        
+        let reversedFrameWithInsetsSize = reversedFrameWithInsets.size
+        
+        if byImage {
+            
+            let fitScaleMultiplier = image == nil
+                ? 1
+                : ic_CGSizeFitScaleMultiplier(image!.size, relativeToSize: reversedFrameWithInsetsSize)
+            
+            
+            scrollView.maximumZoomScale = fitScaleMultiplier * 1000
+            scrollView.minimumZoomScale = fitScaleMultiplier
+            scrollView.zoomScale        = fitScaleMultiplier * savedProperty.scaleAspectRatio
+            
+  
+            
+        } else {
             
             /* Zoom */
             
-            let fitScaleMultiplier = AKImageCropperUtility.getFitScaleMultiplier(cropRect.size, relativeToSize: cropRectMaxFrame.size)
-
+            let fitScaleMultiplier = ic_CGSizeFitScaleMultiplier(scrollView.visibleRect.size, relativeToSize: reversedFrameWithInsetsSize)
+            
             scrollView.maximumZoomScale     *= fitScaleMultiplier
             scrollView.minimumZoomScale     *= fitScaleMultiplier
             scrollView.zoomScale            *= fitScaleMultiplier
             
             /* Content inset */
             
-            let size = CGSize(
-                width   : cropRect.size.width * fitScaleMultiplier,
-                height  : cropRect.size.height * fitScaleMultiplier)
+            var size: CGSize
             
-            scrollView.contentInset = centeredInsets(from: size, to: cropRectMaxFrame.size)
+            if overlayView?.alpha == 1 {
+                
+                size = CGSize(
+                    width   : scrollView.visibleRect.size.width * fitScaleMultiplier,
+                    height  : scrollView.visibleRect.size.height * fitScaleMultiplier)
+                
+            } else {
+                
+                size = ic_CGSizeFits(scrollView.contentSize, minSize: .zero, maxSize: reversedFrameWithInsetsSize)
+            }
+            
+            scrollView.contentInset = centeredInsets(from: size, to: reversedFrameWithInsetsSize)
+       
             
             /* Content offset */
             
-            let savedFitScaleMultiplier = AKImageCropperUtility.getFitScaleMultiplier(scrollViewSaved.cropRectSize, relativeToSize: cropRectMaxFrame.size)
-
+            let savedFitScaleMultiplier = ic_CGSizeFitScaleMultiplier(savedProperty.cropRectSize, relativeToSize: reversedFrameWithInsetsSize)
             
             var contentOffset = CGPoint(
-                x: scrollViewSaved.contentOffset.x * savedFitScaleMultiplier,
-                y: scrollViewSaved.contentOffset.y * savedFitScaleMultiplier)
+                x: savedProperty.contentOffset.x * savedFitScaleMultiplier,
+                y: savedProperty.contentOffset.y * savedFitScaleMultiplier)
             
             contentOffset.x -= scrollView.contentInset.left
             contentOffset.y -= scrollView.contentInset.top
             
             scrollView.contentOffset = contentOffset
-        
-        } else {
             
-            let fitScaleMultiplier = image == nil
-                ? 1
-                : AKImageCropperUtility.getFitScaleMultiplier(image!.size, relativeToSize: cropRectMaxFrame.size)
             
-            scrollView.maximumZoomScale = fitScaleMultiplier * 1000
-            scrollView.minimumZoomScale = fitScaleMultiplier
-            scrollView.zoomScale        = fitScaleMultiplier * scrollViewSaved.scaleAspectRatio
+
+            
         }
-
-        scrollView?.frame = scrollViewFrame
         
-        cropView?.frame = scrollViewFrame
-        cropView?.layoutSubviews()   
-    }
-    
+        scrollView.frame = frame
+        
+        overlayView?.frame = frame
+        
 
+        
+        overlayView?.cropRect = scrollView.visibleRect
+        overlayView?.layoutSubviews()
     
-
-    
-    deinit {
-        #if AKImageCropperViewDEBUG
-            print("deinit AKImageCropperView")
-        #endif
     }
+
+    // MARK: -
+    // MARK: ** Actions **
     
-    // MARK: - Rotate
-    
-    /// Current rotation angle
-    fileprivate var angle: Double = 0
+    // MARK: Overlay actions
     
     /**
+     Show the overlay view with crop rectangle.
      
+     - Parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
+     
+     - Parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
+     
+     - Parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
+     */
+    
+    open func showOverlayView(animationDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
+        
+        guard let image = image, let overlayView = overlayView, !isoverlayViewActive && !isAnimation else {
+            return
+        }
+        
+        minEdgeInsets = overlayView.configuraiton.cropRectInsets
+
+//        saveProperties()        
+        savedProperty.save(scrollView: scrollView)
+        
+        cancelZoomingTimer()
+        
+        let _animations: () -> Void = { _ in
+            
+            self.layoutSubviews()
+            
+            /* Update scroll view content offsets using active zooming scale and insets. */
+            
+            self.scrollView.contentOffset = self.contentOffset(from: self.savedProperty.contentOffsetPercentage)
+        }
+        
+        let _completion: (Bool) -> Void = { isFinished in
+            
+            /* Update zoom relative to crop rext */
+            
+            let fillScaleMultiplier = ic_CGSizeFillScaleMultiplier(image.size, relativeToSize: overlayView.cropRect.size)
+            
+            self.scrollView.maximumZoomScale = fillScaleMultiplier * 1000
+            self.scrollView.minimumZoomScale = fillScaleMultiplier
+            
+            /* */
+            
+            self.isAnimation = false
+            self.isoverlayViewActive = true
+            
+            completion?(isFinished)
+        }
+        
+        /* Show */
+        
+        layoutByImage = false
+        
+        isAnimation = true
+        
+        if duration == 0 {
+            _animations()
+            overlayView.alpha = 1
+            _completion(true)
+        } else {
+            UIView.animate(withDuration: duration, delay: 0, options: options, animations: _animations, completion: { _ in
+                UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+                    overlayView.alpha = 1
+                }, completion: _completion)
+            })
+        }
+    }
+    
+    /**
+     Hide the overlay view with crop rectangle.
+     
+     - Parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
+     
+     - Parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
+     
+     - Parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
+     */
+    
+    open func hideOverlayView(animationDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
+        
+        guard let image = image, let overlayView = overlayView, isoverlayViewActive && !isAnimation else {
+            return
+        }
+        
+//        saveProperties()
+        savedProperty.save(scrollView: scrollView)
+        minEdgeInsets = .zero
+        cancelZoomingTimer()
+   
+        isAnimation = true
+        
+        let _animations: () -> Void = { _ in
+            
+            self.layoutSubviews()
+            
+            /**
+             Update scroll view content offsets
+             using active zooming scale and insets.
+             */
+            
+            self.scrollView.contentOffset = self.contentOffset(from: self.savedProperty.contentOffsetPercentage)
+        }
+        
+        let _completion: (Bool) -> Void = { isFinished in
+
+            /* Update zoom relative to crop rext */
+            
+            let fitScaleMultiplier = ic_CGSizeFitScaleMultiplier(image.size, relativeToSize: self.reversedFrameWithInsets.size)
+ 
+            self.scrollView.maximumZoomScale = fitScaleMultiplier * 1000
+            self.scrollView.minimumZoomScale = fitScaleMultiplier
+            
+            /* */
+            
+            self.isAnimation = false
+            self.isoverlayViewActive = false
+            self.layoutByImage = false
+            
+            completion?(isFinished)
+            
+        }
+        
+        if duration == 0 {
+
+            overlayView.alpha = 0
+            _animations()
+            _completion(true)
+            
+        } else {
+
+            UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+                overlayView.alpha = 0
+            }, completion: { _ in
+                UIView.animate(withDuration: duration, delay: 0, options: options, animations: _animations, completion: _completion)
+            })
+        }
+    }
+    
+    // MARK: Rotate
+    
+    /**
      Rotate the image on the angle in multiples of 90 degrees (M_PI_2).
      
-     - parameter angle: Rotation angle. The angle a multiple of 90 degrees (M_PI_2).
-     - parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
-     - parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
-     - parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
+     - Parameter angle: Rotation angle. The angle a multiple of 90 degrees (M_PI_2).
      
+     - Parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
+     
+     - Parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
+     
+     - Parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
      */
-    open func rotateImage(_ angle: Double, withDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
+    
+    open func rotate(_ angle: Double, withDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
         
         guard angle.truncatingRemainder(dividingBy: M_PI_2) == 0 else {
             return
@@ -555,261 +605,197 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
         
         self.angle = angle
         
-        updateScrollViewSavedVariables()
-        
-        let animations: () -> Void = { _ in
+//        saveProperties()
+        savedProperty.save(scrollView: scrollView)
+        let _animations: () -> Void = { _ in
             
             self.rotateView.transform = CGAffineTransform(rotationAngle: CGFloat(angle))
             self.layoutSubviews()
         }
         
-        if duration == 0 {
-            animations()
-            completion?(true)
-        } else {
-            UIView.animate(withDuration: duration, delay: 0, options: options, animations: animations, completion: { isFinished in
-                
-                self.updateScrollViewSavedVariables()
-                
-                completion?(isFinished)
-            })
-        }
-    }
-    
-    /// Return AKImageCropperView to initial state.
-    open func resetImage(animationDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
-    
-        angle = 0
-        resetScrollViewSavedVariables()
-        
-        let animations: () -> Void = { _ in
+        let _completion: (Bool) -> Void = { isFinished in
             
-            self.rotateView.transform = CGAffineTransform.identity
-            self.layoutSubviews()
+//            self.saveProperties()
+            completion?(isFinished)
         }
         
         if duration == 0 {
-            animations()
-            completion?(true)
+            _animations()
+            _completion(true)
         } else {
-            UIView.animate(withDuration: duration, delay: 0, options: options, animations: animations, completion: { isFinished in
-                completion?(isFinished)
-            })
+            UIView.animate(withDuration: duration, delay: 0, options: options, animations: _animations, completion: _completion)
         }
     }
     
-    // MARK: - Touch
-    /*
-    @objc fileprivate func pressGestureAction(_ gesture: UITapGestureRecognizer) {
-        
-        if gesture.state == .began {
-            beganGestureActions()
-        } else if gesture.state == .ended || gesture.state == .cancelled {
-            endedGestureActions()
-        }
-    }
-    */
+    // MARK: Reset
     
-    fileprivate func cropViewBeforeActions() {
-        
-        cropView?.gridVisibility(visible: true)
-        cropView?.blurVisibility(visible: false)
-        
-        cancelZoomingToFitTimer()
-    }
+    /**
+     Return Cropper view to the initial state.
+     
+     - Parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
+     
+     - Parameter options: A mask of options indicating how you want to perform the animations. For a list of valid constants, see UIViewAnimationOptions. Default value is .curveEaseInOut.
+     
+     - Parameter completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is 0, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
+     */
     
-    fileprivate func cropViewAfterActions() {
-        startZoomingToFitTimer()
-    }
-    
-    // MARK: - Zooming to tit
-    
-    fileprivate var zoomingToFitTimer: Timer?
-    
-    fileprivate func startZoomingToFitTimer() {
+    open func reset(animationDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
         
-        cancelZoomingToFitTimer()
-        
-        guard let zoomingToFitDelay = cropView?.configuraiton.zoomingToFitDelay else {
+        guard !isAnimation else {
             return
         }
         
-        zoomingToFitTimer = Timer.scheduledTimer(timeInterval: zoomingToFitDelay, target: self, selector: #selector(zoomToFitAction), userInfo: nil, repeats: false)
-    }
-    
-    fileprivate func cancelZoomingToFitTimer() {
-        
-        zoomingToFitTimer?.invalidate()
-        zoomingToFitTimer = nil
-    }
-    
-    @objc fileprivate func zoomToFitAction() {
-        
-        updateScrollViewSavedVariables()        
+//        resetProperties()
+        savedProperty = SavedProperty()
+        angle = 0
+        cancelZoomingTimer()
 
-        cropView?.gridVisibility(visible: false)
-        cropView?.blurVisibility(visible: true)
         
-        UIView.animate(withDuration: self.cropView!.configuraiton.animation.duration, delay: 0, options: self.cropView!.configuraiton.animation.options, animations: {
+        let _animations: () -> Void = { _ in
+            
+            self.rotateView.transform = CGAffineTransform.identity
+            
+            let _layoutByImage = self.layoutByImage
+            self.layoutByImage = true
+            self.layoutSubviews()
+            self.layoutByImage = _layoutByImage
+            
+        }
+        
+        let _completion: (Bool) -> Void = { isFinished in
+            
+            self.isAnimation = false
+            
+            completion?(isFinished)
+        }
+        
+        isAnimation = true
+        if duration == 0 {
+            _animations()
+            _completion(true)
+        } else {
+            UIView.animate(withDuration: duration, delay: 0, options: options, animations: _animations, completion: _completion)
+        }
+    }
+
+    // MARK: - Edge insets zooming
+    
+    fileprivate var zoomingTimer: Timer?
+    
+    fileprivate func startZoomingTimer() {
+        
+        guard let overlayView = overlayView else {
+            return
+        }
+        
+        
+        cancelZoomingTimer()
+        
+        zoomingTimer = Timer.scheduledTimer(timeInterval: overlayView.configuraiton.zoomingToFitDelay, target: self, selector: #selector(zoomAction), userInfo: nil, repeats: false)
+    }
+    
+    @objc fileprivate func zoomAction() {
+        
+        guard let overlayView = overlayView else {
+            return
+        }
+        
+//        saveProperties()
+        savedProperty.save(scrollView: scrollView)
+        
+        overlayView.showGrid(false)
+        overlayView.showOverlayBlur(true)
+        
+        print(layoutByImage)
+        
+        UIView.animate(withDuration: overlayView.configuraiton.animation.duration, delay: 0, options: overlayView.configuraiton.animation.options, animations: {
             
             self.layoutSubviews()
-            
-        }, completion: { isDone in
-            
-//            self.delegate?.imageCropperViewDidChangeCropRect(view: self, cropRect: self.cropView!.cropRect)
         })
+    }
+    
+    fileprivate func cancelZoomingTimer() {
+        zoomingTimer?.invalidate()
+        zoomingTimer = nil
+    }
+    
+    // MARK: - After interaction actions    
+    
+    fileprivate func beforeInteraction() {
+        
+        guard let overlayView = overlayView, overlayView.alpha == 1.0  else {
+            return
+        }
+        
+        cancelZoomingTimer()
+        
+        overlayView.showGrid(true)
+        overlayView.showOverlayBlur(false)
+    }
+    
+    fileprivate func afterInteraction() {
+        
+        guard let overlayView = overlayView, overlayView.alpha == 1.0  else {
+            return
+        }
+        
+        startZoomingTimer()
+
+        savedProperty.save(scrollView: scrollView)
     }
     
     // MARK: - Helper methods
     
-    private func updateScrollViewSavedVariables() {
-        scrollViewSaved.scaleAspectRatio    = scrollView.zoomScale / scrollView.minimumZoomScale
-        scrollViewSaved.contentOffset       = CGPoint(
-            x: scrollView.contentOffset.x + scrollView.contentInset.left,
-            y: scrollView.contentOffset.y + scrollView.contentInset.top)
-        scrollViewSaved.cropRectSize        = cropRect.size
-    }
-    
-    private func resetScrollViewSavedVariables() {
-        scrollViewSaved = ScrollViewSaved(
-            scaleAspectRatio    : 1.0,
-            contentOffset       : CGPoint.zero,
-            cropRectSize        : CGSize.zero)
-    }
-    
     private func centeredInsets(from size: CGSize, to relativeSize: CGSize) -> UIEdgeInsets {
         
-        let center = AKImageCropperUtility.centers(size, relativeToSize: relativeSize)
+        let center = ic_CGPointCenters(size, relativeToSize: relativeSize)
         
         /* Fix insets direct to orientation */
         
         return UIEdgeInsetsMake(
-            center.y + scrollViewMinEdgeInsets.top,
-            center.x + scrollViewMinEdgeInsets.left,
-            center.y + scrollViewMinEdgeInsets.bottom,
-            center.x + scrollViewMinEdgeInsets.right)
-    }
-    
-    private func size(size: CGSize, minSize: CGSize, maxSize: CGSize) -> CGSize {
-        
-        var size = size
-        
-        if size.width > maxSize.width {
-            size.width = maxSize.width
-        }
-        
-        if size.height > maxSize.height {
-            size.height = maxSize.height
-        }
-        
-        if size.width < minSize.width {
-            size.width = minSize.width
-        }
-        
-        if size.height < minSize.height {
-            size.height = minSize.height
-        }
-        
-        return size
-    }
-    
-    
-    private func savedContentOffsetPercentage(from contentOffset: CGPoint) -> CGPointPercentage {
-        
-        var contentOffsetPercentage = CGPointPercentage(x: 0, y: 0)
-        let contentSize = CGSize(
-            width   : scrollView.contentSize.width - cropRect.width,
-            height  : scrollView.contentSize.height - cropRect.height)
-        
-        if contentOffset.x > 0 && contentSize.width != 0 {
-            contentOffsetPercentage.x = contentOffset.x / contentSize.width
-        }
-        
-        if contentOffset.y > 0 && contentSize.height != 0  {
-            contentOffsetPercentage.y = contentOffset.y / contentSize.height
-        }
-        
-        return contentOffsetPercentage
+            center.y + minEdgeInsets.top,
+            center.x + minEdgeInsets.left,
+            center.y + minEdgeInsets.bottom,
+            center.x + minEdgeInsets.right)
     }
     
     private func contentOffset(from savedContentOffsetPercentage: CGPointPercentage) -> CGPoint {
-        
+
         var contentOffset = CGPoint(
-            x: scrollView.contentInset.left > scrollViewMinEdgeInsets.left
+            x: scrollView.contentInset.left > minEdgeInsets.left
                 ? 0
-                : ((scrollView.contentSize.width - cropRectMaxFrame.size.width) * savedContentOffsetPercentage.x),
-            y: scrollView.contentInset.top > scrollViewMinEdgeInsets.left
+                : ((scrollView.contentSize.width - reversedFrameWithInsets.size.width) * savedContentOffsetPercentage.x),
+            y: scrollView.contentInset.top > minEdgeInsets.left
                 ? 0
-                : ((scrollView.contentSize.height - cropRectMaxFrame.size.height) * savedContentOffsetPercentage.y))
+                : ((scrollView.contentSize.height - reversedFrameWithInsets.size.height) * savedContentOffsetPercentage.y))
         
         contentOffset.x -= scrollView.contentInset.left
         contentOffset.y -= scrollView.contentInset.top
-    
+        
         return contentOffset
     }
+ 
+    // MARK: - AKImageCropperTouchDelegate
     
+    /*
+    public func viewDidTouch(_ view: UIView, _ touches: Set<UITouch>, with event: UIEvent?) {}
+    public func viewDidMoveTouch(_ view: UIView, _ touches: Set<UITouch>, with event: UIEvent?) {}
+    public func viewDidEndTouch(_ view: UIView, _ touches: Set<UITouch>, with event: UIEvent?) {}
+   */
     
+    //  MARK: - AKImageCropperOverlayViewDelegate
     
-    // MARK: - UIScrollViewDelegate
-    
-    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
-    }
-    
-    public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-        cropViewAfterActions()
-    }
-    
-    public func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        cropViewAfterActions()
-    }
-    
-    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        cropViewAfterActions()
-    }
-    
-    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        
-        guard cropView?.alpha == 0 else {
-            return
-        }
-        
-        let size = self.size(size: scrollView.contentSize, minSize: CGSize.zero, maxSize: cropRectMaxFrame.size)
-        
-        scrollView.contentInset = centeredInsets(from: size, to: cropRectMaxFrame.size)
-    }
-    
-    public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        cropViewAfterActions()
-    }
-    
-    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        cropViewAfterActions()
-    }
-    
-    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        cropViewAfterActions()
-    }
-    
-    public func scrollViewDidScroll(_ scrollView: UIScrollView) {}
-
-    // MARK: - AKImageCropperCropViewDelegate
-
-    public func cropViewDidTouchCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect) {
-        cropViewBeforeActions()
-    }
-    
-    public func cropViewDidChangeCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect) {
+    func cropperOverlayViewDidChangeCropRect(_ view: AKImageCropperOverlayView, _ cropRect: CGRect) {
         
         scrollView.contentInset = UIEdgeInsetsMake(
-            rect.origin.y,
-            rect.origin.x,
-            cropView.frame.size.height - rect.maxY, // rect.size.height - rect.origin.y
-            cropView.frame.size.width - rect.maxX) // rect.size.width - rect.origin.x
+            cropRect.origin.y,
+            cropRect.origin.x,
+            view.frame.size.height - cropRect.size.height - cropRect.origin.y,
+            view.frame.size.width - cropRect.size.width - cropRect.origin.x)
         
-        if rect.size.height > scrollView.contentSize.height || rect.size.width > scrollView.contentSize.width {
+        if cropRect.size.height > scrollView.contentSize.height || cropRect.size.width > scrollView.contentSize.width {
             
-            let fillScaleMultiplier = AKImageCropperUtility.getFillScaleMultiplier(scrollView.contentSize, relativeToSize: rect.size)
+            let fillScaleMultiplier = ic_CGSizeFillScaleMultiplier(scrollView.contentSize, relativeToSize: cropRect.size)
             
             scrollView.maximumZoomScale *= fillScaleMultiplier
             scrollView.minimumZoomScale *= fillScaleMultiplier
@@ -817,8 +803,38 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
         }
     }
     
-    public func cropViewDidEndTouchCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect) {
-        cropViewAfterActions()
+    // MARK: - UIScrollViewDelegate
+    
+    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        
+        return scrollView.subviews.first
+    }
+    
+    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        
+        guard layoutByImage else {
+            return
+        }
+  
+        let size = ic_CGSizeFits(scrollView.contentSize, minSize: .zero, maxSize: reversedFrameWithInsets.size)
+        
+        scrollView.contentInset = centeredInsets(from: size, to: reversedFrameWithInsets.size)
+    }
+    
+    public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+        beforeInteraction()
+    }
+    
+    public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+        afterInteraction()
+    }
+    
+    public func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        beforeInteraction()
+    }
+    
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        afterInteraction()
     }
 }
 
@@ -827,12 +843,11 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
 public protocol AKImageCropperViewDelegate : class {
     
     /**
-     
      Tells the delegate that crop frame was changed.
      
-     - parameter view : The image cropper view.
-     - parameter rect : New crop rectangle origin and size.
+     - Parameter view : The image cropper view.
      
+     - Parameter rect : New crop rectangle origin and size.
      */
     
     func imageCropperViewDidChangeCropRect(view: AKImageCropperView, cropRect rect: CGRect)

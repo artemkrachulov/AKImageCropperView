@@ -9,19 +9,22 @@
 /* Begin PBXBuildFile section */
 		011028AB1DFFDD24002AA94E /* AKImageCropperView.h in Headers */ = {isa = PBXBuildFile; fileRef = 011028A91DFFDD24002AA94E /* AKImageCropperView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0141AF1D1E052BF6007C5672 /* AKImageCropperScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */; };
+		014D3CDB1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D3CDA1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift */; };
+		0155304A1E28F2C500961922 /* IC_UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015530491E28F2C500961922 /* IC_UIImageExtensions.swift */; };
+		0155304C1E28FDB800961922 /* IC_CGSizeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0155304B1E28FDB800961922 /* IC_CGSizeExtensions.swift */; };
+		0155304E1E28FEC600961922 /* IC_CGPointExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0155304D1E28FEC600961922 /* IC_CGPointExtension.swift */; };
 		0166B68F1E03E1560081B751 /* AKImageCropperOverlayViewConfigurationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0166B68E1E03E1560081B751 /* AKImageCropperOverlayViewConfigurationOverlay.swift */; };
 		016E5EF21DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EE71DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift */; };
 		016E5EF31DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EE81DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift */; };
 		016E5EF41DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EE91DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift */; };
 		016E5EF61DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EEB1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift */; };
 		016E5EF71DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EEC1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift */; };
-		016E5EF81DFFDD8300662D31 /* AKImageCropperCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EED1DFFDD8300662D31 /* AKImageCropperCropView.swift */; };
-		016E5EFA1DFFDD8300662D31 /* AKImageCropperUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EEF1DFFDD8300662D31 /* AKImageCropperUtility.swift */; };
+		016E5EF81DFFDD8300662D31 /* AKImageCropperOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */; };
 		016E5EFB1DFFDD8300662D31 /* AKImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E5EF01DFFDD8300662D31 /* AKImageCropperView.swift */; };
 		016E5EFE1DFFE77400662D31 /* AKImageCropperView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 011028A71DFFDD24002AA94E /* AKImageCropperView.framework */; };
 		016E5EFF1DFFE77400662D31 /* AKImageCropperView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 011028A71DFFDD24002AA94E /* AKImageCropperView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01C48FBC1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C48FBB1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift */; };
-		01D215681E1CC50100316FA4 /* ovelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D215671E1CC50100316FA4 /* ovelay.swift */; };
+		01F61BE51E4DC7B800977E33 /* IC_CGFloatExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F61BE41E4DC7B800977E33 /* IC_CGFloatExtension.swift */; };
 		01FA13EF1DDF0C6E006B8C3A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FA13EE1DDF0C6E006B8C3A /* Constants.swift */; };
 		4356D6141B8F3DE90033FDBD /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4356D6131B8F3DE90033FDBD /* ImageViewController.swift */; };
 		43CBB4031B870EBC00C8F9AE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CBB4021B870EBC00C8F9AE /* AppDelegate.swift */; };
@@ -62,17 +65,21 @@
 		011028A91DFFDD24002AA94E /* AKImageCropperView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AKImageCropperView.h; sourceTree = "<group>"; };
 		011028AA1DFFDD24002AA94E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperScrollView.swift; sourceTree = "<group>"; };
+		014D3CDA1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperTouchDelegate.swift; sourceTree = "<group>"; };
+		015530451E28B8C600961922 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
+		015530491E28F2C500961922 /* IC_UIImageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_UIImageExtensions.swift; sourceTree = "<group>"; };
+		0155304B1E28FDB800961922 /* IC_CGSizeExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_CGSizeExtensions.swift; sourceTree = "<group>"; };
+		0155304D1E28FEC600961922 /* IC_CGPointExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_CGPointExtension.swift; sourceTree = "<group>"; };
 		0166B68E1E03E1560081B751 /* AKImageCropperOverlayViewConfigurationOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfigurationOverlay.swift; sourceTree = "<group>"; };
 		016E5EE71DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewTouchState.swift; sourceTree = "<group>"; };
 		016E5EE81DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfigurationCorner.swift; sourceTree = "<group>"; };
 		016E5EE91DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfiguration.swift; sourceTree = "<group>"; };
 		016E5EEB1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfigurationEdge.swift; sourceTree = "<group>"; };
 		016E5EEC1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayViewConfigurationGrid.swift; sourceTree = "<group>"; };
-		016E5EED1DFFDD8300662D31 /* AKImageCropperCropView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperCropView.swift; sourceTree = "<group>"; };
-		016E5EEF1DFFDD8300662D31 /* AKImageCropperUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperUtility.swift; sourceTree = "<group>"; };
+		016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperOverlayView.swift; sourceTree = "<group>"; };
 		016E5EF01DFFDD8300662D31 /* AKImageCropperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperView.swift; sourceTree = "<group>"; };
 		01C48FBB1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomImageCropperOverlayView.swift; sourceTree = "<group>"; };
-		01D215671E1CC50100316FA4 /* ovelay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ovelay.swift; sourceTree = "<group>"; };
+		01F61BE41E4DC7B800977E33 /* IC_CGFloatExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_CGFloatExtension.swift; sourceTree = "<group>"; };
 		01FA13EE1DDF0C6E006B8C3A /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		4356D6131B8F3DE90033FDBD /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		43CBB3FD1B870EBC00C8F9AE /* AKImageCropperViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AKImageCropperViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,23 +118,43 @@
 				011028A91DFFDD24002AA94E /* AKImageCropperView.h */,
 				011028AA1DFFDD24002AA94E /* Info.plist */,
 				016E5EF01DFFDD8300662D31 /* AKImageCropperView.swift */,
-				016E5EED1DFFDD8300662D31 /* AKImageCropperCropView.swift */,
-				01D215671E1CC50100316FA4 /* ovelay.swift */,
 				0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */,
+				016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */,
 				016E5EE71DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift */,
+				014D3CDA1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift */,
+				01F61BE61E4DC89300977E33 /* configuration */,
+				015530461E28EF5A00961922 /* extensions */,
+			);
+			path = AKImageCropperView;
+			sourceTree = "<group>";
+		};
+		015530461E28EF5A00961922 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				015530491E28F2C500961922 /* IC_UIImageExtensions.swift */,
+				0155304B1E28FDB800961922 /* IC_CGSizeExtensions.swift */,
+				0155304D1E28FEC600961922 /* IC_CGPointExtension.swift */,
+				01F61BE41E4DC7B800977E33 /* IC_CGFloatExtension.swift */,
+			);
+			name = extensions;
+			sourceTree = "<group>";
+		};
+		01F61BE61E4DC89300977E33 /* configuration */ = {
+			isa = PBXGroup;
+			children = (
 				016E5EE91DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift */,
 				0166B68E1E03E1560081B751 /* AKImageCropperOverlayViewConfigurationOverlay.swift */,
 				016E5EEB1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationEdge.swift */,
 				016E5EE81DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift */,
 				016E5EEC1DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift */,
-				016E5EEF1DFFDD8300662D31 /* AKImageCropperUtility.swift */,
 			);
-			path = AKImageCropperView;
+			name = configuration;
 			sourceTree = "<group>";
 		};
 		43CBB3F41B870EBC00C8F9AE = {
 			isa = PBXGroup;
 			children = (
+				015530451E28B8C600961922 /* MyPlayground.playground */,
 				011028A81DFFDD24002AA94E /* AKImageCropperView */,
 				43CBB3FF1B870EBC00C8F9AE /* AKImageCropperViewExample */,
 				43CBB3FE1B870EBC00C8F9AE /* Products */,
@@ -220,7 +247,7 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Artem Krachulov";
 				TargetAttributes = {
 					011028A61DFFDD24002AA94E = {
@@ -280,11 +307,14 @@
 			files = (
 				016E5EF41DFFDD8300662D31 /* AKImageCropperOverlayViewConfiguration.swift in Sources */,
 				0166B68F1E03E1560081B751 /* AKImageCropperOverlayViewConfigurationOverlay.swift in Sources */,
-				016E5EF81DFFDD8300662D31 /* AKImageCropperCropView.swift in Sources */,
+				0155304C1E28FDB800961922 /* IC_CGSizeExtensions.swift in Sources */,
+				016E5EF81DFFDD8300662D31 /* AKImageCropperOverlayView.swift in Sources */,
+				0155304A1E28F2C500961922 /* IC_UIImageExtensions.swift in Sources */,
+				014D3CDB1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift in Sources */,
 				016E5EFB1DFFDD8300662D31 /* AKImageCropperView.swift in Sources */,
 				016E5EF31DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift in Sources */,
-				01D215681E1CC50100316FA4 /* ovelay.swift in Sources */,
-				016E5EFA1DFFDD8300662D31 /* AKImageCropperUtility.swift in Sources */,
+				01F61BE51E4DC7B800977E33 /* IC_CGFloatExtension.swift in Sources */,
+				0155304E1E28FEC600961922 /* IC_CGPointExtension.swift in Sources */,
 				016E5EF21DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift in Sources */,
 				0141AF1D1E052BF6007C5672 /* AKImageCropperScrollView.swift in Sources */,
 				016E5EF71DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationGrid.swift in Sources */,
@@ -345,7 +375,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
@@ -377,7 +407,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
@@ -436,7 +466,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -477,7 +507,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";

@@ -23,16 +23,10 @@
 
 import UIKit
 
-//  MARK: - AKImageCropperCropViewDelegate
-
-protocol AKImageCropperCropViewDelegate : class {
-    
-    func cropViewDidTouchCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect)
-    
-    func cropViewDidChangeCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect)
-    
-    func cropViewDidEndTouchCropRect(_ cropView: AKImageCropperCropView,  _ rect: CGRect)
+protocol AKImageCropperOverlayViewDelegate : class {
+    func cropperOverlayViewDidChangeCropRect(_ view: AKImageCropperOverlayView, _ cropRect: CGRect)
 }
+
 
 //  MARK: - AKImageCropperCropView
 
@@ -43,53 +37,27 @@ protocol AKImageCropperCropViewDelegate : class {
  Base configuration and behavior can be set or changed with **AKImageCropperOverlayConfiguration** structure. For deep visual changes create the children class and make the necessary configuration in the overrided methods.
  
  */
-open class AKImageCropperCropView: UIView {
+
+open class AKImageCropperOverlayView: UIView {
     
-    fileprivate (set) lazy var overlayView: UIView! = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        view.clipsToBounds = true
-//        view.isHidden = true
-        return view
-    }()
-    
-    open lazy var foregroundContainerImageView: UIView! = {
-        let view = UIView()
-        view.backgroundColor = UIColor.brown
-        view.clipsToBounds = true
-        view.isUserInteractionEnabled = false
-        view.isHidden = true
-        return view
-    }()
-    
-    open lazy var foregroundImageView: UIImageView! = {
-        let view = UIImageView()
-        view.alpha = 0.5
-        return view
-    }()
-    
-    /// Configuration structure for the Overlay View appearance and behavior.
+    // MARK: -
+    // MARK: ** Properties **
+
+    /** Configuration structure for the Overlay View appearance and behavior. */
+
     open var configuraiton = AKImageCropperCropViewConfiguration()
+    
+    /** Crop rectangle */
+    
+    internal var cropRect: CGRect = .zero
+    
+    /** Saved crop rectangle state */
+    
+    fileprivate var touchesBegan: (touch: CGPoint, cropRect: CGRect)!
 
-    /// Parent (main) class to translate some properties and objects.    
-    weak var cropperView: AKImageCropperView!
-
-    //  MARK: Crop rectangle
+    /** Current active crop area part */
     
-    open var cropRect: CGRect! {
-        return cropperView.cropRect
-    }
-    
-    fileprivate var cropRectMoving: CGRect!
-    
-    /// Saved crop rectangle state
-    fileprivate var cropRectBeforeMoving: CGRect!
-    
-    /// Saved first touch
-    fileprivate var touchBeforeMoving: CGPoint!
-    
-    /// Current active crop area part
-    fileprivate var activeCropAreaPart: AKCropAreaPart = .None {
+    fileprivate var activeCropAreaPart: AKCropAreaPart = .none {
         didSet { layoutSubviews() }
     }
     
@@ -101,48 +69,24 @@ open class AKImageCropperCropView: UIView {
             self.rawValue = rawValue
         }
         
-        static let None                 = AKCropAreaPart(rawValue: 0)
-        static let All                  = AKCropAreaPart(rawValue: 1)
-        static let TopEdge              = AKCropAreaPart(rawValue: 2)
-        static let LeftEdge             = AKCropAreaPart(rawValue: 3)
-        static let BottomEdge           = AKCropAreaPart(rawValue: 4)
-        static let RightEdge            = AKCropAreaPart(rawValue: 5)
-        static let TopLeftCorner        = AKCropAreaPart(rawValue: 6)
-        static let TopRightCorner       = AKCropAreaPart(rawValue: 7)
-        static let BottomRightCorner    = AKCropAreaPart(rawValue: 8)
-        static let BottomLeftCorner     = AKCropAreaPart(rawValue: 9)
+        static let none                 = AKCropAreaPart(rawValue: 1 << 0)
+        static let topEdge              = AKCropAreaPart(rawValue: 1 << 1)
+        static let leftEdge             = AKCropAreaPart(rawValue: 1 << 2)
+        static let bottomEdge           = AKCropAreaPart(rawValue: 1 << 3)
+        static let rightEdge            = AKCropAreaPart(rawValue: 1 << 4)
+
+        static let all: AKCropAreaPart = [.topEdge, .rightEdge, .bottomEdge, .leftEdge]
         
-        /// Active parts in moving
-        
-        func move() -> [AKCropAreaPart] {
-            switch self {
-            case AKCropAreaPart.TopEdge:
-                return [AKCropAreaPart.TopEdge]
-            case AKCropAreaPart.LeftEdge:
-                return [AKCropAreaPart.LeftEdge]
-            case AKCropAreaPart.BottomEdge:
-                return [AKCropAreaPart.BottomEdge]
-            case AKCropAreaPart.RightEdge:
-                return [AKCropAreaPart.RightEdge]
-            case AKCropAreaPart.TopLeftCorner:
-                return [AKCropAreaPart.TopEdge, AKCropAreaPart.LeftEdge]
-            case AKCropAreaPart.TopRightCorner:
-                return [AKCropAreaPart.TopEdge, AKCropAreaPart.RightEdge]
-            case AKCropAreaPart.BottomRightCorner:
-                return [AKCropAreaPart.BottomEdge, AKCropAreaPart.RightEdge]
-            case AKCropAreaPart.BottomLeftCorner:
-                return [AKCropAreaPart.BottomEdge, AKCropAreaPart.LeftEdge]
-            case AKCropAreaPart.All:
-                return [AKCropAreaPart.TopEdge, AKCropAreaPart.RightEdge, AKCropAreaPart.BottomEdge, AKCropAreaPart.LeftEdge]
-            default:
-                return []
-            }
-        }
+        static let topLeftCorner: AKCropAreaPart        = [.topEdge, .leftEdge]
+        static let topRightCorner: AKCropAreaPart       = [.topEdge, .rightEdge]
+        static let bottomRightCorner: AKCropAreaPart    = [.bottomEdge, .rightEdge]
+        static let bottomLeftCorner: AKCropAreaPart     = [.bottomEdge, .leftEdge]
     }
     
     //  MARK: Managing the Delegate
-    
-    weak var delegate: AKImageCropperCropViewDelegate?
+
+    weak var delegate: AKImageCropperOverlayViewDelegate?
+    weak var touchDelegate: AKImageCropperTouchDelegate?
     
     //  MARK: Touch & Parts views
     
@@ -169,21 +113,55 @@ open class AKImageCropperCropView: UIView {
     fileprivate var gridView: UIView!
     fileprivate var gridViewVerticalLines: [UIView]!
     fileprivate var gridViewHorizontalLines: [UIView]!
+    
+    // MARK: -
+    // MARK: ** Initialization OBJECTS(VIEWS) & theirs parameters **
+    
+    /** Parent (main) class to translate some properties and objects. */
+    
+    weak var cropperView: AKImageCropperView!
 
+    fileprivate (set) lazy var overlayView: UIView! = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.clipsToBounds = true
+//        view.isHidden = true
+        return view
+    }()
+    
+    fileprivate lazy var containerImageView: UIView! = {
+        let view = UIView()
+        view.backgroundColor = UIColor.brown
+        view.clipsToBounds = true
+        view.isUserInteractionEnabled = false
+//        view.isHidden = true
+        return view
+    }()
+    
+    fileprivate lazy var imageView: UIImageView! = {
+        let view = UIImageView()
+        view.alpha = 0.5
+        return view
+    }()
+    
+    open var image: UIImage! {
+        didSet {
+            imageView.image = image
+        }
+    }
+    
     //  MARK: - Initialization
 
     /**
-     
      Returns an overlay view initialized with the specified configuraiton.
      
-     - parameter configuraiton: Configuration structure for the Overlay View appearance and behavior.
-     
+     - Parameter configuraiton: Configuration structure for the Overlay View appearance and behavior.
      */
     
     init() {
-        super.init(frame: CGRect.zero)
+        super.init(frame: .zero)
         
-        backgroundColor = UIColor.clear
+        backgroundColor = .clear
         alpha = 0
         
         initialize()
@@ -206,67 +184,208 @@ open class AKImageCropperCropView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Draving Crop rect frame
+    
+    fileprivate func initialize() {
+        
+        /*
+         Create views layout.
+         Step by step
+         
+         1. OverlayView
+         */
+        
+        addSubview(overlayView)
+        
+        let blurEffect = UIBlurEffect(style: configuraiton.overlay.blurStyle)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.alpha = self.configuraiton.overlay.blurAlpha
+        
+        blurEffectView.frame = overlayView.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlayView.addSubview(blurEffectView)
+        
+        /* 2. Container view ‹‹ Image view */
+        
+        containerImageView.addSubview(imageView)
+        addSubview(containerImageView)
+        
+        /* 3. Crop rectangle */
+        
+        //  Edges
+        
+        topEdgeTouchView = UIView()
+        addSubview(topEdgeTouchView)
+        
+        topEdgeView = UIView()
+        topEdgeTouchView.addSubview(topEdgeView)
+        
+        rightEdgeTouchView = UIView()
+        addSubview(rightEdgeTouchView)
+        
+        rightEdgeView = UIView()
+        rightEdgeTouchView.addSubview(rightEdgeView)
+        
+        bottomEdgeTouchView = UIView()
+        addSubview(bottomEdgeTouchView)
+        
+        bottomEdgeView = UIView()
+        bottomEdgeTouchView.addSubview(bottomEdgeView)
+        
+        leftEdgeTouchView = UIView()
+        addSubview(leftEdgeTouchView)
+        
+        leftEdgeView = UIView()
+        leftEdgeTouchView.addSubview(leftEdgeView)
+        
+        if configuraiton.edge.isHidden {
+            topEdgeView.isHidden = true
+            rightEdgeView.isHidden = true
+            bottomEdgeView.isHidden = true
+            leftEdgeView.isHidden = true
+        }
+        
+        //  Corners
+        
+        topLeftCornerTouchView  = UIView()
+        addSubview(topLeftCornerTouchView)
+        
+        topLeftCornerView = UIView()
+        topLeftCornerView.layer.addSublayer(CAShapeLayer())
+        topLeftCornerTouchView.addSubview(topLeftCornerView)
+        
+        topRightCornerTouchView  = UIView()
+        addSubview(topRightCornerTouchView)
+        
+        topRightCornerView = UIView()
+        topRightCornerView.layer.addSublayer(CAShapeLayer())
+        topRightCornerTouchView.addSubview(topRightCornerView)
+        
+        bottomRightCornerTouchView  = UIView()
+        addSubview(bottomRightCornerTouchView)
+        
+        bottomRightCornerView = UIView()
+        bottomRightCornerView.layer.addSublayer(CAShapeLayer())
+        bottomRightCornerTouchView.addSubview(bottomRightCornerView)
+        
+        bottomLeftCornerTouchView  = UIView()
+        addSubview(bottomLeftCornerTouchView)
+        
+        bottomLeftCornerView = UIView()
+        bottomLeftCornerView.layer.addSublayer(CAShapeLayer())
+        bottomLeftCornerTouchView.addSubview(bottomLeftCornerView)
+        
+        if configuraiton.corner.isHidden {
+            topLeftCornerView.isHidden = true
+            topRightCornerView.isHidden = true
+            bottomRightCornerView.isHidden = true
+            bottomLeftCornerView.isHidden = true
+        }
+        
+        //  Grid
+        
+        gridView = UIView()
+        
+        gridViewVerticalLines = []
+        gridViewHorizontalLines = []
+        
+        for _ in 0..<configuraiton.grid.linesCount.vertical {
+            
+            let view = UIView()
+            
+            view.frame.size.width = configuraiton.grid.linesWidth
+            view.backgroundColor = configuraiton.grid.linesColor
+            
+            gridViewVerticalLines.append(view)
+            gridView.addSubview(view)
+        }
+        
+        for _ in 0..<configuraiton.grid.linesCount.horizontal {
+            
+            let view = UIView()
+            
+            view.frame.size.height = configuraiton.grid.linesWidth
+            view.backgroundColor = configuraiton.grid.linesColor
+            
+            gridViewHorizontalLines.append(view)
+            gridView.addSubview(view)
+        }
+        
+        addSubview(gridView)
+        
+        gridView.isHidden = configuraiton.grid.isHidden
+        
+        if configuraiton.grid.alwaysShowGrid {
+            gridView.alpha = 1
+        } else {
+            gridView.alpha = 0
+        }
+
+    }
+    
     //  MARK: - Life cycle
     
     override open func layoutSubviews() {
         super.layoutSubviews()
         
         overlayView.frame = frame
-        foregroundContainerImageView.frame = cropRect
+        containerImageView.frame = cropRect
+        matchForegroundToBackgroundScrollViewOffset()
+        matchForegroundToBackgroundScrollViewSize()
         
         topEdgeTouchView.frame = cropAreaTopEdgeFrame
         layoutTopEdgeView(topEdgeView,
                           inTouchView: topEdgeTouchView,
-                          forState: activeCropAreaPart == .TopEdge
+                          forState: activeCropAreaPart == .topEdge
                             ? .highlighted
                             : .normal)
         
         rightEdgeTouchView.frame = cropAreaRightEdgeFrame
         layoutRightEdgeView(rightEdgeView,
                             inTouchView: rightEdgeTouchView,
-                            forState: activeCropAreaPart == .RightEdge
+                            forState: activeCropAreaPart == .rightEdge
                                 ? .highlighted
                                 : .normal)
         
         bottomEdgeTouchView.frame = cropAreaBottomEdgeFrame
         layoutBottomEdgeView(bottomEdgeView,
                              inTouchView: bottomEdgeTouchView,
-                             forState: activeCropAreaPart == .BottomEdge
+                             forState: activeCropAreaPart == .bottomEdge
                                 ? .highlighted
                                 : .normal)
         
         leftEdgeTouchView.frame = cropAreaLeftEdgeFrame
         layoutLeftEdgeView(leftEdgeView,
                            inTouchView: leftEdgeTouchView,
-                           forState: activeCropAreaPart == .LeftEdge
+                           forState: activeCropAreaPart == .leftEdge
                             ? .highlighted
                             : .normal)
         
         topLeftCornerTouchView.frame = cropAreaTopLeftCornerFrame
         layoutTopLeftCornerView(topLeftCornerView,
                                 inTouchView: topLeftCornerTouchView,
-                                forState: activeCropAreaPart == .TopLeftCorner
+                                forState: activeCropAreaPart == .topLeftCorner
                                     ? .highlighted
                                     : .normal)
         
         topRightCornerTouchView.frame = cropAreaTopRightCornerFrame
         layoutTopRightCornerView(topRightCornerView,
                                  inTouchView: topRightCornerTouchView,
-                                 forState: activeCropAreaPart == .TopRightCorner
+                                 forState: activeCropAreaPart == .topRightCorner
                                     ? .highlighted
                                     : .normal)
         
         bottomRightCornerTouchView.frame = cropAreaBottomRightCornerFrame
         layoutBottomRightCornerView(bottomRightCornerView,
                                     inTouchView: bottomRightCornerTouchView,
-                                    forState: activeCropAreaPart == .BottomRightCorner
+                                    forState: activeCropAreaPart == .bottomRightCorner
                                         ? .highlighted
                                         : .normal)
         
         bottomLeftCornerTouchView.frame = cropAreaBottomLeftCornerFrame
         layoutBottomLeftCornerView(bottomLeftCornerView,
                                    inTouchView: bottomLeftCornerTouchView,
-                                   forState: activeCropAreaPart == .BottomLeftCorner
+                                   forState: activeCropAreaPart == .bottomLeftCorner
                                     ? .highlighted
                                     : .normal)
         
@@ -342,39 +461,40 @@ open class AKImageCropperCropView: UIView {
     
     fileprivate func getCropAreaPartContainsPoint(_ point: CGPoint) -> AKCropAreaPart {
         if cropAreaTopEdgeFrame.contains(point) {
-            return .TopEdge
+            return .topEdge
         } else if cropAreaBottomEdgeFrame.contains(point) {
-            return .BottomEdge
+            return .bottomEdge
         } else if cropAreaRightEdgeFrame.contains(point) {
-            return .RightEdge
+            return .rightEdge
         } else if cropAreaLeftEdgeFrame.contains(point) {
-            return .LeftEdge
+            return .leftEdge
         } else if cropAreaTopLeftCornerFrame.contains(point) {
-            return .TopLeftCorner
+            return .topLeftCorner
         } else if cropAreaTopRightCornerFrame.contains(point) {
-            return .TopRightCorner
+            return .topRightCorner
         } else if cropAreaBottomLeftCornerFrame.contains(point) {
-            return .BottomLeftCorner
+            return .bottomLeftCorner
         } else if cropAreaBottomRightCornerFrame.contains(point) {
-            return .BottomRightCorner
+            return .bottomRightCorner
         } else {
-            return .None
+            return .none
         }
     }
     
     // MARK: Other methods
-    final func blurVisibility(visible: Bool, completion: ((Bool) -> Void)? = nil) {
+    
+    final func showOverlayBlur(_ show: Bool, completion: ((Bool) -> Void)? = nil) {
 
-        UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: configuraiton.animation.options, animations: {
+        UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: [], animations: {
            
-                self.overlayView.subviews.first?.alpha = visible ? self.configuraiton.overlay.blurAlpha : 0.0
+                self.overlayView.subviews.first?.alpha = show ? self.configuraiton.overlay.blurAlpha : 0.0
 
         }, completion: { isComplete in
             completion?(isComplete)
         })
     }
     
-    final func gridVisibility(visible: Bool, completion: ((Bool) -> Void)? = nil) {
+    final func showGrid(_ show: Bool, completion: ((Bool) -> Void)? = nil) {
         
         if configuraiton.grid.alwaysShowGrid {
              completion?(true)
@@ -382,7 +502,7 @@ open class AKImageCropperCropView: UIView {
         }
         
         let animations: () -> Void = { _ in
-            self.gridView.alpha = visible ? 1 : 0
+            self.gridView.alpha = show ? 1 : 0
         }
         
         if configuraiton.animation.duration == 0 {
@@ -391,167 +511,22 @@ open class AKImageCropperCropView: UIView {
             
         } else {
         
-            UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: configuraiton.animation.options, animations: animations, completion: { isComplete in
+            UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: [], animations: animations, completion: { isComplete in
                 completion?(isComplete)
             })
         }
     }
     
-    // MARK: - Draving Crop rect frame
-    
-    fileprivate func initialize() {
-        
-        /**
-         
-         2. Overlay view ‹‹ Image view
-         
-         */
-        
-        addSubview(overlayView)
-        
-        let blurEffect = UIBlurEffect(style: configuraiton.overlay.blurStyle)
-        let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.frame = overlayView.bounds
-        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        overlayView.addSubview(blurEffectView)
-        
-        /**
-         
-         3. Foreground container view ‹‹ (copy) Image view
-         
-         */
-        
-        foregroundContainerImageView.addSubview(foregroundImageView)
-        addSubview(foregroundContainerImageView)
-        
-        
-        
-        //  Edges
-        
-        topEdgeTouchView = UIView()
-//        topEdgeTouchView.backgroundColor = UIColor.red.withAlphaComponent(0.5)
-        addSubview(topEdgeTouchView)
-        
-        topEdgeView = UIView()
-        topEdgeTouchView.addSubview(topEdgeView)
-        
-        rightEdgeTouchView = UIView()
-//        rightEdgeTouchView.backgroundColor = UIColor.red.withAlphaComponent(0.5)
-        addSubview(rightEdgeTouchView)
-        
-        rightEdgeView = UIView()
-        rightEdgeTouchView.addSubview(rightEdgeView)
-        
-        bottomEdgeTouchView = UIView()
-//        bottomEdgeTouchView.backgroundColor = UIColor.red.withAlphaComponent(0.5)
-        addSubview(bottomEdgeTouchView)
-        
-        bottomEdgeView = UIView()
-        bottomEdgeTouchView.addSubview(bottomEdgeView)
-        
-        leftEdgeTouchView = UIView()
-//        leftEdgeTouchView.backgroundColor = UIColor.red.withAlphaComponent(0.5)
-        addSubview(leftEdgeTouchView)
-        
-        leftEdgeView = UIView()
-        leftEdgeTouchView.addSubview(leftEdgeView)
-        
-        if configuraiton.edge.isHidden {
-            topEdgeView.isHidden = true
-            rightEdgeView.isHidden = true
-            bottomEdgeView.isHidden = true
-            leftEdgeView.isHidden = true
-        }
-        
-        //  Corners
-        
-        topLeftCornerTouchView  = UIView()
-//        topLeftCornerTouchView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
-        addSubview(topLeftCornerTouchView)
-        
-        topLeftCornerView = UIView()
-        topLeftCornerView.layer.addSublayer(CAShapeLayer())
-        topLeftCornerTouchView.addSubview(topLeftCornerView)
-        
-        topRightCornerTouchView  = UIView()
-//        topRightCornerTouchView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
-        addSubview(topRightCornerTouchView)
-        
-        topRightCornerView = UIView()
-        topRightCornerView.layer.addSublayer(CAShapeLayer())
-        topRightCornerTouchView.addSubview(topRightCornerView)
-        
-        bottomRightCornerTouchView  = UIView()
-//        bottomRightCornerTouchView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
-        addSubview(bottomRightCornerTouchView)
-        
-        bottomRightCornerView = UIView()
-        bottomRightCornerView.layer.addSublayer(CAShapeLayer())
-        bottomRightCornerTouchView.addSubview(bottomRightCornerView)
-        
-        bottomLeftCornerTouchView  = UIView()
-//        bottomLeftCornerTouchView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
-        addSubview(bottomLeftCornerTouchView)
-        
-        bottomLeftCornerView = UIView()
-        bottomLeftCornerView.layer.addSublayer(CAShapeLayer())
-        bottomLeftCornerTouchView.addSubview(bottomLeftCornerView)
-        
-        if configuraiton.corner.isHidden {
-            topLeftCornerView.isHidden = true
-            topRightCornerView.isHidden = true
-            bottomRightCornerView.isHidden = true
-            bottomLeftCornerView.isHidden = true
-        }
-        
-        //  Grid
-        gridView = UIView()
-        
-        gridViewVerticalLines = []
-        gridViewHorizontalLines = []
-        
-        for _ in 0..<configuraiton.grid.linesCount.vertical {
-            
-            let view = UIView()
-            
-            view.frame.size.width = configuraiton.grid.linesWidth
-            view.backgroundColor = configuraiton.grid.linesColor
-            
-            gridViewVerticalLines.append(view)
-            gridView.addSubview(view)
-        }
-        
-        for _ in 0..<configuraiton.grid.linesCount.horizontal {
-            
-            let view = UIView()
-            
-            view.frame.size.height = configuraiton.grid.linesWidth
-            view.backgroundColor = configuraiton.grid.linesColor
-            
-            gridViewHorizontalLines.append(view)
-            gridView.addSubview(view)
-        }
-        addSubview(gridView)
-        
-        gridView.isHidden = configuraiton.grid.isHidden
-        
-        
-        if configuraiton.grid.alwaysShowGrid {
-            gridView.alpha = 1
-        } else {
-            gridView.alpha = 0
-        }
-    }
-    
     /**
-     
      Visual representation for top edge view in current user interaction state.
      
-     -  parameter view: Top edge view.
-     -  parameter touchView: Touch area view where added top edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Top edge view.
      
+     - Parameter touchView: Touch area view where added top edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutTopEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
@@ -574,14 +549,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for right edge view in current user interaction state.
      
-     -  parameter view: Right edge view.
-     -  parameter touchView: Touch area view where added right edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Right edge view.
      
+     - Parameter touchView: Touch area view where added right edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutRightEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
@@ -604,14 +580,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for bottom edge view in current user interaction state.
      
-     -  parameter view: Bottom edge view.
-     -  parameter touchView: Touch area view where added bottom edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Bottom edge view.
      
+     - Parameter touchView: Touch area view where added bottom edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutBottomEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
@@ -634,14 +611,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for left edge view in current user interaction state.
      
-     -  parameter view: Left edge view.
-     -  parameter touchView: Touch area view where added left edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Left edge view.
      
+     - Parameter touchView: Touch area view where added left edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutLeftEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var color: UIColor
@@ -664,14 +642,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for top left corner view in current user interaction state. Drawing going with added shape layer.
      
-     -  parameter view: Top left corner view.
-     -  parameter touchView: Touch area view where added top left edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Top left corner view.
      
+     - Parameter touchView: Touch area view where added top left edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutTopLeftCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
@@ -707,14 +686,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for top right corner view in current user interaction state. Drawing going with added shape layer.
      
-     -  parameter view: Top right corner view.
-     -  parameter touchView: Touch area view where added top right edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Top right corner view.
      
+     - Parameter touchView: Touch area view where added top right edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutTopRightCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
@@ -750,14 +730,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for bottom right corner view in current user interaction state. Drawing going with added shape layer.
      
-     -  parameter view: Bottom right corner view.
-     -  parameter touchView: Touch area view where added bottom right edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Bottom right corner view.
      
+     - Parameter touchView: Touch area view where added bottom right edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutBottomRightCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
@@ -793,14 +774,15 @@ open class AKImageCropperCropView: UIView {
     }
     
     /**
-     
      Visual representation for bottom left corner view in current user interaction state. Drawing going with added shape layer.
      
-     -  parameter view: Bottom left corner view.
-     -  parameter touchView: Touch area view where added bottom left edge view.
-     -  parameter state: User interaction state.
+     - Parameter view: Bottom left corner view.
      
+     - Parameter touchView: Touch area view where added bottom left edge view.
+     
+     - Parameter state: User interaction state.
      */
+    
     open func layoutBottomLeftCornerView(_ view: UIView, inTouchView touchView: UIView, forState state: AKImageCropperCropViewTouchState) {
         
         var lineWidth: CGFloat
@@ -839,11 +821,13 @@ open class AKImageCropperCropView: UIView {
      
      Visual representation for grid view.
      
-     -  parameter view: Grid view.
-     -  parameter gridViewHorizontalLines: Horizontal line view`s array.
-     -  parameter gridViewVerticalLines: Vertical line view`s array.
+     - Parameter view: Grid view.
      
+     - Parameter gridViewHorizontalLines: Horizontal line view`s array.
+     
+     - Parameter gridViewVerticalLines: Vertical line view`s array.
      */
+    
     open func layoutGridView(_ view: UIView, gridViewHorizontalLines: [UIView], gridViewVerticalLines: [UIView]) {
         
         for (i, line) in gridViewHorizontalLines.enumerated() {
@@ -859,174 +843,156 @@ open class AKImageCropperCropView: UIView {
         }
     }
     
-    // MARK: Touches
+    // MARK: - Touches
     
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
-        guard let firstTouch = touches.first else {
-            return
-        }
+        guard let touch = touches.first else {  return }
         
-        //  Save
+        /* Save */
+        
+        touchesBegan = (touch.location(in: self), cropRect)
 
-        cropRectBeforeMoving = cropRect
-        cropRectMoving = cropRect
+        /* Active part */
         
-        touchBeforeMoving = firstTouch.location(in: self)
+        activeCropAreaPart = getCropAreaPartContainsPoint(touchesBegan.touch)
 
-        // Crop Rect touched area
-        activeCropAreaPart = getCropAreaPartContainsPoint(touchBeforeMoving)
+        /* Delegate */
         
-        delegate?.cropViewDidTouchCropRect(self, cropRect)
+        touchDelegate?.viewDidTouch(self, touches, with: event)
     }
     
     override open func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+  
+        guard let touch = touches.first else { return }
 
-        let moveEdges = activeCropAreaPart.move()
-        
-        guard let touch = touches.first, !moveEdges.isEmpty else  {
-            return
-        }
-
-        // GET TRANSLATION POINT
+        /* GET TRANSLATION POINT */
    
         let point = touch.location(in: self)
         let previousPoint = touch.previousLocation(in: self)
         
         let translationPoint = CGPoint(x: point.x - previousPoint.x, y: point.y - previousPoint.y)
         
-        // MOVE FRAME
-
-        if moveEdges.contains(.TopEdge) {
+        /* MOVE FRAME */
+        
+        let cropRectMaxFrame = cropperView.reversedFrameWithInsets
+        
+        if activeCropAreaPart.contains(.topEdge) {
             
-            cropRectMoving.origin.y += translationPoint.y
-            cropRectMoving.size.height -= translationPoint.y
+            cropRect.origin.y += translationPoint.y
+            cropRect.size.height -= translationPoint.y
             
-            let pointInEdge = touchBeforeMoving.y - cropRectBeforeMoving.minY
-            let minStickPoint = pointInEdge + cropperView.cropRectMaxFrame.minY
-            let maxStickPoint = pointInEdge + cropRectBeforeMoving.maxY - configuraiton.minCropRectSize.height
+            let pointInEdge = touchesBegan.touch.y - touchesBegan.cropRect.minY
+            let minStickPoint = pointInEdge + cropRectMaxFrame.minY
+            let maxStickPoint = pointInEdge + touchesBegan.cropRect.maxY - configuraiton.minCropRectSize.height
             
-            if point.y > maxStickPoint || cropRectMoving.height < configuraiton.minCropRectSize.height {
-                cropRectMoving.origin.y = cropRectBeforeMoving.maxY - configuraiton.minCropRectSize.height
-                cropRectMoving.size.height = configuraiton.minCropRectSize.height
+            if point.y > maxStickPoint || cropRect.height < configuraiton.minCropRectSize.height {
+                cropRect.origin.y = touchesBegan.cropRect.maxY - configuraiton.minCropRectSize.height
+                cropRect.size.height = configuraiton.minCropRectSize.height
             }
             
             if point.y < minStickPoint {
-                cropRectMoving.origin.y = cropperView.cropRectMaxFrame.minY
-                cropRectMoving.size.height = cropRectBeforeMoving.maxY - cropperView.cropRectMaxFrame.minY
+                cropRect.origin.y = cropRectMaxFrame.minY
+                cropRect.size.height = touchesBegan.cropRect.maxY - cropRectMaxFrame.minY
             }
         }
         
-        if moveEdges.contains(.RightEdge) {
+        if activeCropAreaPart.contains(.rightEdge) {
             
-            cropRectMoving.size.width += translationPoint.x
+            cropRect.size.width += translationPoint.x
             
-            let pointInEdge = touchBeforeMoving.x - cropRectBeforeMoving.maxX
-            let minStickPoint = pointInEdge + cropRectBeforeMoving.minX + configuraiton.minCropRectSize.width
-            let maxStickPoint = pointInEdge + cropperView.cropRectMaxFrame.maxX
+            let pointInEdge = touchesBegan.touch.x - touchesBegan.cropRect.maxX
+            let minStickPoint = pointInEdge + touchesBegan.cropRect.minX + configuraiton.minCropRectSize.width
+            let maxStickPoint = pointInEdge + cropRectMaxFrame.maxX
             
             if  point.x > maxStickPoint {
-                cropRectMoving.size.width =  cropperView.cropRectMaxFrame.maxX - cropRectMoving.origin.x
+                cropRect.size.width =  cropRectMaxFrame.maxX - cropRect.origin.x
             }
             
-            if point.x < minStickPoint || cropRectMoving.width < configuraiton.minCropRectSize.width {
-                cropRectMoving.size.width = configuraiton.minCropRectSize.width
+            if point.x < minStickPoint || cropRect.width < configuraiton.minCropRectSize.width {
+                cropRect.size.width = configuraiton.minCropRectSize.width
             }
         }
         
-        if moveEdges.contains(.BottomEdge) {
+        if activeCropAreaPart.contains(.bottomEdge) {
 
-            cropRectMoving.size.height += translationPoint.y
+            cropRect.size.height += translationPoint.y
             
-            let pointInEdge = touchBeforeMoving.y - cropRectBeforeMoving.maxY
-            let minStickPoint = pointInEdge + cropRectBeforeMoving.minY + configuraiton.minCropRectSize.height
-            let maxStickPoint = pointInEdge + cropperView.cropRectMaxFrame.maxY
+            let pointInEdge = touchesBegan.touch.y - touchesBegan.cropRect.maxY
+            let minStickPoint = pointInEdge + touchesBegan.cropRect.minY + configuraiton.minCropRectSize.height
+            let maxStickPoint = pointInEdge + cropRectMaxFrame.maxY
             
             if  point.y > maxStickPoint {
-                cropRectMoving.size.height = cropperView.cropRectMaxFrame.maxY - cropRectMoving.origin.y
+                cropRect.size.height = cropRectMaxFrame.maxY - cropRect.origin.y
             }
             
-            if point.y < minStickPoint || cropRectMoving.height < configuraiton.minCropRectSize.height {
-                cropRectMoving.size.height = configuraiton.minCropRectSize.height
+            if point.y < minStickPoint || cropRect.height < configuraiton.minCropRectSize.height {
+                cropRect.size.height = configuraiton.minCropRectSize.height
             }
         }
         
-        if moveEdges.contains(.LeftEdge) {
+        if activeCropAreaPart.contains(.leftEdge) {
             
-            cropRectMoving.origin.x += translationPoint.x
-            cropRectMoving.size.width -= translationPoint.x
+            cropRect.origin.x += translationPoint.x
+            cropRect.size.width -= translationPoint.x
             
-            let pointInEdge = touchBeforeMoving.x - cropRectBeforeMoving.minX
-            let minStickPoint = pointInEdge + cropperView.cropRectMaxFrame.minX
-            let maxStickPoint = pointInEdge + cropRectBeforeMoving.maxX - configuraiton.minCropRectSize.width
+            let pointInEdge = touchesBegan.touch.x - touchesBegan.cropRect.minX
+            let minStickPoint = pointInEdge + cropRectMaxFrame.minX
+            let maxStickPoint = pointInEdge + touchesBegan.cropRect.maxX - configuraiton.minCropRectSize.width
             
-            if  point.x > maxStickPoint || cropRectMoving.width < configuraiton.minCropRectSize.width {
-                cropRectMoving.origin.x = cropRectBeforeMoving.maxX - configuraiton.minCropRectSize.width
-                cropRectMoving.size.width = configuraiton.minCropRectSize.width
+            if  point.x > maxStickPoint || cropRect.width < configuraiton.minCropRectSize.width {
+                cropRect.origin.x = touchesBegan.cropRect.maxX - configuraiton.minCropRectSize.width
+                cropRect.size.width = configuraiton.minCropRectSize.width
             }
             
             if point.x < minStickPoint {
-                cropRectMoving.origin.x = cropperView.cropRectMaxFrame.minX
-                cropRectMoving.size.width = cropRectBeforeMoving.maxX - cropperView.cropRectMaxFrame.minX
+                cropRect.origin.x = cropRectMaxFrame.minX
+                cropRect.size.width = touchesBegan.cropRect.maxX - cropRectMaxFrame.minX
             }
         }
-        
-        // Send new crop rectangle frame to main class
 
+        /* Update UI for the crop rectange */
+        
         layoutSubviews()
         
-        delegate?.cropViewDidChangeCropRect(self, cropRectMoving)
+        /* Delegates */
         
+        delegate?.cropperOverlayViewDidChangeCropRect(self, cropRect)
+        touchDelegate?.viewDidMoveTouch(self, touches, with: event)
     }
     
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         
-        activeCropAreaPart = .None
-        delegate?.cropViewDidEndTouchCropRect(self, cropRectMoving)
+        /* Active part */
+        
+        activeCropAreaPart = .none
+        
+        /* Delegates */
+        
+        touchDelegate?.viewDidEndTouch(self, touches, with: event)
+        print("touchesEnded overlay")
     }
     
-    // MARK: - Instance Method to detect and translate point
+    // MARK: - Instance Method
     
     override open func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-
-        print("ZZZ")
-        print(event!.type.rawValue)
-        debugPrint(event!.type)
+                
+        guard alpha == 1 else { return cropperView.scrollView }
         
-        guard alpha == 1 else {
-            return cropperView.scrollView
-        }
-        
-        return self.point(inside: point, with: event) && getCropAreaPartContainsPoint(point) != .None
+        return self.point(inside: point, with: event) && getCropAreaPartContainsPoint(point) != .none
             ? self
             : cropperView.scrollView
     }
     
-   
-    open var image: UIImage? {
-        didSet {
-            foregroundImageView.image = image
-        }
+    // MARK: - Match Foreground To Background
+    
+    func matchForegroundToBackgroundScrollViewOffset() {
+        imageView.frame.origin = CGPoint(
+            x: -(cropperView.scrollView.contentOffset.x + containerImageView.frame.origin.x),
+            y: -(cropperView.scrollView.contentOffset.y + containerImageView.frame.origin.y))
     }
     
-    
-    func matchForegroundToScrollView(scrollView: UIScrollView) {
-    
-        
-        
-        let p = scrollView.contentOffset
-        
-       
-        
-        let origin = CGPoint(
-            x: -(p.x + foregroundContainerImageView.frame.origin.x),
-            y: -(p.y + foregroundContainerImageView.frame.origin.y))
-        
-        foregroundImageView.frame.origin = origin
-        foregroundImageView.frame.size = scrollView.contentSize
-        
+    func matchForegroundToBackgroundScrollViewSize() {
+        imageView.frame.size = cropperView.scrollView.contentSize
     }
-    
-    
-    
 }

@@ -8,69 +8,94 @@
 
 import UIKit
 
-
-class AKImageCropperScrollView: UIScrollView {
-
-    /// Parent (main) class to translate some properties and objects.
-    weak var cropperView: AKImageCropperView!
+final class AKImageCropperScrollView: UIScrollView {
     
-    open var image: UIImage? {
+    // MARK: -
+    // MARK: ** Properties **
+    
+    /** Return visible rect of an UIScrollView's content */
+    
+    open var visibleRect: CGRect {
+        return CGRect(
+            x       : contentInset.left,
+            y       : contentInset.top,
+            width   : frame.size.width  - contentInset.left - contentInset.right,
+            height  : frame.size.height - contentInset.top - contentInset.bottom)
+    }
+    
+    /** Returns scaled visible rect of an UIScrollView's content  */
+    
+    open var scaledVisibleRect: CGRect {
+        return CGRect(
+            x       : contentOffset.x / zoomScale,
+            y       : contentOffset.y / zoomScale,
+            width   : frame.size.width / zoomScale,
+            height  : frame.size.height / zoomScale)
+    }
+    
+    //  MARK: Managing the Delegate
+    
+    /** All touches events */
+    
+    weak var touchDelegate: AKImageCropperTouchDelegate?
+    
+    // MARK: -
+    // MARK: ** Initialization OBJECTS(VIEWS) & theirs parameters **
+    
+    fileprivate lazy var imageView: UIImageView! = {
+        let view = UIImageView()
+        return view
+    }()
+    
+    open var image: UIImage! {
         didSet {
             
+            /* Prepare scroll view to changing the image */
+            
+            maximumZoomScale = 1
+            minimumZoomScale = 1
+            zoomScale = 1
+            
+            /* Update an image view */
+            
+            imageView.image = image
+            imageView.frame.size = image.size
+            
+            contentSize = image.size
         }
     }
     
-    override open func layoutSubviews() {
-        super.layoutSubviews()
-    
-    
-    }
-    
-    /// Scroll view saved parameters
-    
-    private struct ScrollViewSaved {
-        var scaleAspectRatio: CGFloat
-        var contentOffset: CGPoint
-        var cropRectSize: CGSize
-    }
-    
-    
-    /// Saved parameters before complex layout animation
-    
-    private var scrollViewSaved = ScrollViewSaved(
-        scaleAspectRatio    : 1.0,
-        contentOffset       : .zero,
-        cropRectSize        : .zero)
-    
-    /// Reversed frame value have fixed frame sizes direct to currect device orientation or by rotation angle.
-    
-    
-    
     //  MARK: - Initialization
     
-    /**
-     
-     Returns an overlay view initialized with the specified configuraiton.
-     
-     - parameter configuraiton: Configuration structure for the Overlay View appearance and behavior.
-     
-     */
+    /** Returns an scroll view initialized object. */
     
     init() {
-        super.init(frame: CGRect.zero)
+        super.init(frame: .zero)
         
-       //        delegate = self
         alwaysBounceVertical = true
         alwaysBounceHorizontal = true
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
         
-        initialize()
+        addSubview(imageView)
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-
+    
+    // MARK: - Touches
+    
+    override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchDelegate?.viewDidTouch(self, touches, with: event)
+    }
+    
+    open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchDelegate?.viewDidMoveTouch(self, touches, with: event)
+    }
+    
+    override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("touchesEnded scroll")
+        touchDelegate?.viewDidEndTouch(self, touches, with: event)
+    }
 }
