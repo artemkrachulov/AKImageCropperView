@@ -31,34 +31,31 @@ public struct AKImageCropperCropViewConfiguration {
     //  MARK: Crop rectangle
     
     /// Delay before the crop rectangle will scale to fit cropper view frame edges.
-    public var zoomingToFitDelay: TimeInterval = 2.0
+    public var zoomingToFitDelay: TimeInterval = 1.0
 
     /**
-     
      Animation options for layout transitions.
      
      -  duration: The duration of the transition animation, measured in seconds.     
      -  options: Specifies the supported animation curves.
-     
      */
     public var animation: (duration: TimeInterval, options: UIViewAnimationOptions) = (duration: 0.3, options: .curveEaseInOut)
 
-    /// Edges insets for crop rectangle. Static values on rotation.
-    public var cropRectInsets = UIEdgeInsetsMake(50, 50, 50, 50)
+    /// Edges insets for crop rectangle. Static values for programmatically rotation.
     
-    /// The smallest value for the crop rectangle sizes. Initial value of this property is 30 pixels width and 30 pixels height.
+    public var cropRectInsets = UIEdgeInsetsMake(20, 20, 20, 20)
+    
+    /// The smallest value for the crop rectangle sizes. Initial value of this property is 60 pixels width and 60 pixels height.
     public var minCropRectSize: CGSize = CGSize(width: 60, height: 60)
     
     /// Touch view where will be drawn the corner.
     public var cornerTouchSize: CGSize = CGSize(width: 30.0, height: 30.0)
     
     /**
-     
      Thickness for edges touch area. This touch view is centered on the edge line.
      
      -  vertical: Thickness for vertical edges: Left, Right.
      -  horizontal: Thickness for horizontal edges: Top, Bottom.
-     
      */
     public var edgeTouchThickness: (vertical: CGFloat, horizontal: CGFloat) = (vertical: 20.0, horizontal: 20.0)
 

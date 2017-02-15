@@ -42,8 +42,8 @@ public struct AKImageCropperCropViewConfigurationCorner {
     public var highlightedSize: CGSize = CGSize(width: 30, height: 30)
     
     /// Line color for normal corner state.
-    public var normalLineColor: UIColor = UIColor.white
+    public var normalLineColor: UIColor = .white
     
     /// Line color for highlighted corner state.    
-    public var highlightedLineColor: UIColor = UIColor.white
+    public var highlightedLineColor: UIColor = .white
 }

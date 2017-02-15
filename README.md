@@ -1,5 +1,6 @@
 # AKImageCropper
-> Image cropping plugin with a lot features...
+
+> Responsive image cropper
 
 [![Carthage compatible][carthage-bage]][carthage-bage] 
 [![CocoaPods Compatible][pods-bage]][pods-bage]
@@ -24,10 +25,7 @@
 
 Image cropping plugin which supported different devices orientation. Easy to set up and configure. Has many settings for flexible integration into your project. Behavior is similar to native iOS photo cropper.
 
-
-
-
-![](header.png)
+![](header.gif)
 
 ## Features
 
@@ -53,10 +51,10 @@ Image cropping plugin which supported different devices orientation. Easy to set
 
  2. Update your Podfile to include the following:
 
-	``` ruby
-	use_frameworks!
-	pod 'AKImageCropperView'
-	```
+``` ruby
+use_frameworks!
+pod 'AKImageCropperView'
+```
 
  3. Run `pod install`.
 
@@ -145,7 +143,8 @@ Returns an image cropper view initialized with the specified image.
 var image: UIImage? { get set }
 ```	
 
-The image displayed in the image cropper view. Default is nil.
+The image displayed in the image cropper view. 
+Default value of this property is `nil`.
 
 ```swift
 var croppedImage: UIImage? { get }
@@ -167,9 +166,9 @@ Returns the image edited state flag.
 weak var delegate: AKImageCropperViewDelegate? { get set }
 ```	
 
-The delegate of the cropper-view object.
+The delegate of the cropper view object.
 
-## AKImageCropperViewDelegate
+### Delegate methods
 
 ```swift
 optional func imageCropperViewDidChangeCropRect(view: AKImageCropperView, cropRect rect: CGRect)
@@ -182,13 +181,17 @@ Parameters:
 - **`view`**: The image cropper view.
 - **`rect`**: New crop rectangle origin and size.
 
-# Overlay View
+## Customizing an Overlay View
+
+```swift
+var overlayView: AKImageCropperOverlayView? { get set }
+```	
 
 Overlay view represented as AKImageCropperOverlayView open class. 
 
 Base configuration and behavior can be set or changed with **AKImageCropperOverlayConfiguration** structure. For deep visual changes create the children class and make the necessary configuration in the overrided methods.
 
-## Initializing an Overlay View
+### Initializing an Overlay View
 
 ```swift
 init(configuraiton: AKImageCropperOverlayConfiguration? = default)
@@ -196,21 +199,22 @@ init(configuraiton: AKImageCropperOverlayConfiguration? = default)
 
 Returns an overlay view initialized with the specified configuraiton.
 
-## Base configuration 
+### Base configuration 
 
 ```swift
-var configuraiton = AKImageCropperOverlayConfiguration() { get set }
+var configuraiton: AKImageCropperOverlayConfiguration { get set }
 ```	
 
 Configuration structure for the Overlay View appearance and behavior.
 
-### AKImageCropperOverlayConfiguration
+#### AKImageCropperOverlayConfiguration
 
 ```swift
 var zoomingToFitDelay: TimeInterval { get set }
 ```	
 
-Delay before the crop rectangle will scale to fit cropper view frame. The default value is `2`.
+Delay before the crop rectangle will scale to fit cropper view frame. 
+Default value of this property is `2`.
 
 ```swift
 var animation: (duration: TimeInterval, options: UIViewAnimationOptions) { get set }
@@ -225,19 +229,22 @@ Animation options for layout transitions. Values:
 var cropRectInsets: UIEdgeInsets { get set }
 ```	
 
-Edges insets for crop rectangle. Static values on rotation. The default value is `15`.
+Edges insets for crop rectangle. Static values for programmatically rotation. 
+Default value of this property is `20` px for each edge.
 
 ```swift
 var minCropRectSize: CGSize { get set }
 ```	
 
-The smallest value for the crop rectangle size. The default value is `60` pixels width and `60` pixels height.
+The smallest value for the crop rectangle size. 
+Default value of this property is `60` pixels width and `60` pixels height.
 
 ```swift
 var cornerTouchSize: CGSize { get set }
 ```	
 
-Touch view where will be drawn the corner. The default value is `30` pixels width and `30` pixels height.
+Touch view where will be drawn the corner. 
+Default value of this property is `30` pixels width and `30` pixels height.
 
 ```swift
 var edgeThickness: (vertical: CGFloat, horizontal: CGFloat) { get set }
@@ -249,118 +256,163 @@ Thickness for edges touch area. This touch view is centered on the edge line.
 - **`horizontal`** : Thickness for horizontal edges: Top, Bottom. The default value is `.curveEaseInOut`.
 
 ```swift
-var backgroundColor: UIColor { get set }
+var edge: AKImageCropperCropViewConfigurationOverlay { get set }
 ```	
 
-The view’s background color. The default value is `. black` with alpha `0.5`.
+Overlay visual configuration.
 
 ```swift
-var edge: AKImageCropperEdgeConfiguration { get set }
+var edge: AKImageCropperCropViewConfigurationEdge { get set }
 ```	
 
 Edges visual configuration. Check this struct below.
 
 ```swift
-var corner: AKImageCropperCornerConfiguration { get set }
+var corner: AKImageCropperCropViewConfigurationCorner { get set }
 ```	
 
 Corners visual configuration. Check this struct below.
 
 ```swift
-var grid: AKImageCropperGridConfiguration { get set }
+var grid: AKImageCropperCropViewConfigurationGrid { get set }
 ```
 
-Grid visual configuration. Check this struct below. 	
+Grid visual configuration. Check this struct below. 
 
-### AKImageCropperEdgeConfiguration
+#### AKImageCropperCropViewConfigurationOverlay
+
+```swift
+var backgroundColor: UIColor { get set }
+```	
+
+The view’s background color. 
+Default value is `. black` with alpha `0.5`.
+
+```swift
+var isBlurEnabled: Bool { get set }
+```	
+
+A Boolean value that determines whether the blur effect is enable.
+The blur effect added over overlay view. The effect will disappear before user interaction will start. After manipulations, the effect will revert to the initial state.
+Default value is `true`.
+
+```swift
+var blurStyle: Bool { get set }
+```	
+
+The intensity of the blur effect.
+Default value is `.dark`.
+
+```swift
+var blurAlpha: Bool { get set }
+```	
+
+The blur effect alpha value.
+Default value is `0.6`.
+
+#### AKImageCropperCropViewConfigurationEdge
 
 ```swift
 var isHidden: Bool { get set }
 ```	
 
-A Boolean value that determines whether the edge view is hidden. The default value is `false`.
+A Boolean value that determines whether the edge view is hidden. 
+Default value is `false`.
 
 ```swift
 var normalLineWidth: CGFloat { get set }
 ```	
 
-Line width for normal edge state. The default value is `1.0`.
+Line width for normal edge state. 
+Default value is `1.0`.
 
 ```swift
 var highlightedLineWidth: CGFloat { get set }
 ```	
 
-Line width for highlighted edge state. The default value is `3.0`.
+Line width for highlighted edge state. 
+Default value is `3.0`.
 
 ```swift
 var normalLineColor: UIColor { get set }
 ```	
 
-Line color for normal edge state. The default value is `white`.
+Line color for normal edge state. 
+Default value is `.white`.
 
 ```swift
 var highlightedLineColor: UIColor { get set }
 ```	
 
-Line color for highlighted edge state. The default value is `white`.
+Line color for highlighted edge state. 
+Default value is `white`.
 
-### AKImageCropperCornerConfiguration
+#### AKImageCropperCropViewConfigurationCorner
 
 ```swift
 var isHidden: Bool { get set }
 ```	
 
-A Boolean value that determines whether the corner view is hidden. The default value is `false`.
+A Boolean value that determines whether the corner view is hidden. 
+Default value is `false`.
 
 ```swift
 var normalLineWidth: CGFloat { get set }
 ```	
 
-Line width for normal corner state. The default value is `3.0`.
+Line width for normal corner state. 
+Default value is `3.0`.
 
 ```swift
 var highlightedLineWidth: CGFloat { get set }
 ```	
 
-Line width for highlighted corner state. The default value is `3.0`.
+Line width for highlighted corner state. 
+Default value is `3.0`.
 
 ```swift    
 var normaSize: CGSize { get set }
 ```	
 
-Size for normal corner state. The default value is `20` pixels width and `20` pixels height.
+Size for normal corner state. 
+Default value is `20` pixels width and `20` pixels height.
 
 ```swift
 var highlightedSize: CGSize { get set }
 ```	
     
-Size for highlighted corner state. The default value is `30` pixels width and `30` pixels height.
+Size for highlighted corner state. 
+Default value is `30` pixels width and `30` pixels height.
 
 ```swift
 var normalLineColor: UIColor { get set }
 ```	
 
-Line color for normal corner state. The default value is `white`.
+Line color for normal corner state. 
+Default value is `.white`.
 
 ```swift
 var highlightedLineColor: UIColor { get set }
 ```	
 
-Line color for highlighted corner state. The default value is `white`.
+Line color for highlighted corner state. 
+Default value is `.white`.
 
-### AKImageCropperGridConfiguration
+#### AKImageCropperCropViewConfigurationGrid
 
 ```swift
 var isHidden: Bool { get set }
 ```	
 
-A Boolean value that determines whether the grid views is hidden. The default value is `false`.
+A Boolean value that determines whether the grid views is hidden. 
+Default value is `false`.
 
 ```swift
 var autoHideGrid: Bool { get set }
 ```	
 
-Hide grid after user interaction. The default value is `true`.
+Hide grid after user interaction. 
+Default value is `true`.
 
 ```swift
 var linesCount: (vertical: Int, horizontal: Int) { get set }
@@ -375,16 +427,17 @@ The number of vertical and horizontal lines inside the crop rectangle.
 var linesWidth: CGFloat { get set }
 ```	
 
-Vertical and horizontal lines width. The default value is `1.0`.
+Vertical and horizontal lines width.
+Default value is `1.0`.
 
 ```swift
 var linesColor: UIColor { get set }
 ```	
 
-Vertical and horizontal lines color. The default value is `white` with alpha `0.5`. 
+Vertical and horizontal lines color. 
+Default value is `white` with alpha `0.5`. 
 
-
-## Visual Appearance
+#### Visual Appearance
 
 ```swift
 func layoutTopEdgeView(_ view: UIView, inTouchView touchView: UIView, forState state: AKCropAreaPartState)
@@ -493,7 +546,6 @@ Parameters:
 - **`view`**: Grid view.
 - **`gridViewHorizontalLines`**: Horizontal line view`s array.
 - **`gridViewVerticalLines `**: Vertical line view`s array.
-
 
 ## Contribute
 

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		011028AB1DFFDD24002AA94E /* AKImageCropperView.h in Headers */ = {isa = PBXBuildFile; fileRef = 011028A91DFFDD24002AA94E /* AKImageCropperView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0141AF1D1E052BF6007C5672 /* AKImageCropperScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */; };
-		014D3CDB1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D3CDA1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift */; };
 		0155304A1E28F2C500961922 /* IC_UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015530491E28F2C500961922 /* IC_UIImageExtensions.swift */; };
 		0155304C1E28FDB800961922 /* IC_CGSizeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0155304B1E28FDB800961922 /* IC_CGSizeExtensions.swift */; };
 		0155304E1E28FEC600961922 /* IC_CGPointExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0155304D1E28FEC600961922 /* IC_CGPointExtension.swift */; };
@@ -65,8 +64,6 @@
 		011028A91DFFDD24002AA94E /* AKImageCropperView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AKImageCropperView.h; sourceTree = "<group>"; };
 		011028AA1DFFDD24002AA94E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperScrollView.swift; sourceTree = "<group>"; };
-		014D3CDA1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKImageCropperTouchDelegate.swift; sourceTree = "<group>"; };
-		015530451E28B8C600961922 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		015530491E28F2C500961922 /* IC_UIImageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_UIImageExtensions.swift; sourceTree = "<group>"; };
 		0155304B1E28FDB800961922 /* IC_CGSizeExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_CGSizeExtensions.swift; sourceTree = "<group>"; };
 		0155304D1E28FEC600961922 /* IC_CGPointExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IC_CGPointExtension.swift; sourceTree = "<group>"; };
@@ -121,7 +118,6 @@
 				0141AF1C1E052BF6007C5672 /* AKImageCropperScrollView.swift */,
 				016E5EED1DFFDD8300662D31 /* AKImageCropperOverlayView.swift */,
 				016E5EE71DFFDD8300662D31 /* AKImageCropperOverlayViewTouchState.swift */,
-				014D3CDA1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift */,
 				01F61BE61E4DC89300977E33 /* configuration */,
 				015530461E28EF5A00961922 /* extensions */,
 			);
@@ -154,7 +150,6 @@
 		43CBB3F41B870EBC00C8F9AE = {
 			isa = PBXGroup;
 			children = (
-				015530451E28B8C600961922 /* MyPlayground.playground */,
 				011028A81DFFDD24002AA94E /* AKImageCropperView */,
 				43CBB3FF1B870EBC00C8F9AE /* AKImageCropperViewExample */,
 				43CBB3FE1B870EBC00C8F9AE /* Products */,
@@ -182,8 +177,8 @@
 				43CBB4041B870EBC00C8F9AE /* HomeViewController.swift */,
 				43CBB43F1B8739B100C8F9AE /* ImagesTableViewController.swift */,
 				43CBB4231B8716EA00C8F9AE /* CropperViewController.swift */,
-				01C48FBB1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift */,
 				4356D6131B8F3DE90033FDBD /* ImageViewController.swift */,
+				01C48FBB1DEC250100FBBE34 /* CustomImageCropperOverlayView.swift */,
 			);
 			path = AKImageCropperViewExample;
 			sourceTree = "<group>";
@@ -257,6 +252,7 @@
 					};
 					43CBB3FC1B870EBC00C8F9AE = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = 5JV4U8LEZ8;
 						LastSwiftMigration = 0810;
 					};
 				};
@@ -310,7 +306,6 @@
 				0155304C1E28FDB800961922 /* IC_CGSizeExtensions.swift in Sources */,
 				016E5EF81DFFDD8300662D31 /* AKImageCropperOverlayView.swift in Sources */,
 				0155304A1E28F2C500961922 /* IC_UIImageExtensions.swift in Sources */,
-				014D3CDB1E30A5B400A9247D /* AKImageCropperTouchDelegate.swift in Sources */,
 				016E5EFB1DFFDD8300662D31 /* AKImageCropperView.swift in Sources */,
 				016E5EF31DFFDD8300662D31 /* AKImageCropperOverlayViewConfigurationCorner.swift in Sources */,
 				01F61BE51E4DC7B800977E33 /* IC_CGFloatExtension.swift in Sources */,
@@ -521,7 +516,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 5JV4U8LEZ8;
 				INFOPLIST_FILE = AKImageCropperViewExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -537,7 +532,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 5JV4U8LEZ8;
 				INFOPLIST_FILE = AKImageCropperViewExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

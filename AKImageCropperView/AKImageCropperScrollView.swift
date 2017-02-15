@@ -27,17 +27,11 @@ final class AKImageCropperScrollView: UIScrollView {
     
     open var scaledVisibleRect: CGRect {
         return CGRect(
-            x       : contentOffset.x / zoomScale,
-            y       : contentOffset.y / zoomScale,
-            width   : frame.size.width / zoomScale,
-            height  : frame.size.height / zoomScale)
+            x       : (contentOffset.x + contentInset.left) / zoomScale,
+            y       : (contentOffset.y + contentInset.top) / zoomScale,
+            width   : visibleRect.size.width / zoomScale,
+            height  : visibleRect.size.height / zoomScale)
     }
-    
-    //  MARK: Managing the Delegate
-    
-    /** All touches events */
-    
-    weak var touchDelegate: AKImageCropperTouchDelegate?
     
     // MARK: -
     // MARK: ** Initialization OBJECTS(VIEWS) & theirs parameters **
@@ -82,20 +76,5 @@ final class AKImageCropperScrollView: UIScrollView {
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - Touches
-    
-    override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchDelegate?.viewDidTouch(self, touches, with: event)
-    }
-    
-    open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touchDelegate?.viewDidMoveTouch(self, touches, with: event)
-    }
-    
-    override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print("touchesEnded scroll")
-        touchDelegate?.viewDidEndTouch(self, touches, with: event)
     }
 }

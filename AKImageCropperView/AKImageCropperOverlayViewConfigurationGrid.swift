@@ -33,13 +33,11 @@ public struct AKImageCropperCropViewConfigurationGrid {
     public var alwaysShowGrid: Bool = false
     
     /**
-     
      The number of vertical and horizontal lines inside the crop rectangle.
      
      -  vertical: Vertical lines count.     
      -  horizontal: Horizontal lines count.
-     
-     */
+     */    
     public var linesCount: (vertical: Int, horizontal: Int) = (vertical: 2, horizontal: 2)
     
     /// Vertical and horizontal lines width.

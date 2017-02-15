@@ -1,5 +1,5 @@
 //
-//  AKImageCropperCropView.swift
+//  AKImageCropperOverlayView.swift
 //
 //  Created by Artem Krachulov.
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
@@ -26,17 +26,6 @@ import UIKit
 protocol AKImageCropperOverlayViewDelegate : class {
     func cropperOverlayViewDidChangeCropRect(_ view: AKImageCropperOverlayView, _ cropRect: CGRect)
 }
-
-
-//  MARK: - AKImageCropperCropView
-
-/**
- 
- Overlay view represented as AKImageCropperCropView open class. 
- 
- Base configuration and behavior can be set or changed with **AKImageCropperOverlayConfiguration** structure. For deep visual changes create the children class and make the necessary configuration in the overrided methods.
- 
- */
 
 open class AKImageCropperOverlayView: UIView {
     
@@ -86,7 +75,6 @@ open class AKImageCropperOverlayView: UIView {
     //  MARK: Managing the Delegate
 
     weak var delegate: AKImageCropperOverlayViewDelegate?
-    weak var touchDelegate: AKImageCropperTouchDelegate?
     
     //  MARK: Touch & Parts views
     
@@ -125,22 +113,20 @@ open class AKImageCropperOverlayView: UIView {
         let view = UIView()
         view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         view.clipsToBounds = true
-//        view.isHidden = true
         return view
     }()
     
     fileprivate lazy var containerImageView: UIView! = {
         let view = UIView()
-        view.backgroundColor = UIColor.brown
+        view.backgroundColor = UIColor.clear
         view.clipsToBounds = true
         view.isUserInteractionEnabled = false
-//        view.isHidden = true
         return view
     }()
     
     fileprivate lazy var imageView: UIImageView! = {
         let view = UIImageView()
-        view.alpha = 0.5
+        view.backgroundColor = UIColor.clear
         return view
     }()
     
@@ -856,10 +842,6 @@ open class AKImageCropperOverlayView: UIView {
         /* Active part */
         
         activeCropAreaPart = getCropAreaPartContainsPoint(touchesBegan.touch)
-
-        /* Delegate */
-        
-        touchDelegate?.viewDidTouch(self, touches, with: event)
     }
     
     override open func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -958,7 +940,6 @@ open class AKImageCropperOverlayView: UIView {
         /* Delegates */
         
         delegate?.cropperOverlayViewDidChangeCropRect(self, cropRect)
-        touchDelegate?.viewDidMoveTouch(self, touches, with: event)
     }
     
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -966,11 +947,6 @@ open class AKImageCropperOverlayView: UIView {
         /* Active part */
         
         activeCropAreaPart = .none
-        
-        /* Delegates */
-        
-        touchDelegate?.viewDidEndTouch(self, touches, with: event)
-        print("touchesEnded overlay")
     }
     
     // MARK: - Instance Method
