@@ -86,7 +86,7 @@ final class CropperViewController: UIViewController {
     
     @IBAction func showHideOverlayAction(_ sender: AnyObject) {
         
-        if cropView.isoverlayViewActive {
+        if cropView.isOverlayViewActive {
             
             cropView.hideOverlayView(animationDuration: 0.3)
             
@@ -211,6 +211,7 @@ final class CropperViewController: UIViewController {
         
         cropView.delegate = self
         cropView.image = image
+        cropView.zoomEnabled = false
     }
 }
 

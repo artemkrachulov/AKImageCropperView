@@ -31,6 +31,10 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     
     fileprivate var angle: Double = 0.0
     
+    /** Allow zoom enabled or not */
+    
+    open var zoomEnabled: Bool = true
+    
     /** Scroll view minimum edge insets (current value) */
     
     fileprivate var minEdgeInsets: UIEdgeInsets = .zero
@@ -750,8 +754,15 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     
     // MARK: - UIScrollViewDelegate
     
-    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {        
-        return scrollView.subviews.first
+    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        
+        if zoomEnabled {
+            return scrollView.subviews.first
+        }else{
+            return nil
+        }
+        
+        
     }
     
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
