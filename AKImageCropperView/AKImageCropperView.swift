@@ -746,6 +746,8 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
             scrollView.minimumZoomScale *= fillScaleMultiplier
             scrollView.zoomScale        *= fillScaleMultiplier
         }
+
+        delegate?.imageCropperViewDidChangeCropRect(view: self, cropRect: scrollView.scaledVisibleRect)
     }
     
     // MARK: - UIScrollViewDelegate
