@@ -30,7 +30,7 @@ final class CustomImageCropperOverlayView: AKImageCropperOverlayView {
             arcCenter:  CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY),
             radius: width,
             startAngle: 0.0,
-            endAngle: CGFloat(M_PI * 2),
+            endAngle: CGFloat(Double.pi * 2),
             clockwise: true)
 
         layer.path = circlePath.cgPath
