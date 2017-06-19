@@ -110,13 +110,13 @@ override func viewDidLoad() {
 ### Programmatically
 
 ```swift
-var cropView: AKImageCropperView!
+var cropViewProgrammatically: AKImageCropperView!
 
 override func viewDidLoad() {
     super.viewDidLoad()
 
-    cropView = AKImageCropperView(frame: CGRect(x: 0, y: 20.0, width: 375.0, height: 607.0))
-    cropView.image = UIImage(named: "yourImage")
+    cropViewProgrammatically = AKImageCropperView(frame: CGRect(x: 0, y: 20.0, width: 375.0, height: 607.0))
+    cropViewProgrammatically.image = UIImage(named: "yourImage")
     view.addSubview(cropViewProgrammatically)
 }
 ```
