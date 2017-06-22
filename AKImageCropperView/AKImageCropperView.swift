@@ -433,7 +433,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
             return
         }
         
-        minEdgeInsets = overlayView.configuraiton.cropRectInsets
+        minEdgeInsets = overlayView.configuration.cropRectInsets
         savedProperty.save(scrollView: scrollView)
         cancelZoomingTimer()
         
@@ -648,7 +648,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
 
         cancelZoomingTimer()
         
-        zoomingTimer = Timer.scheduledTimer(timeInterval: overlayView.configuraiton.zoomingToFitDelay, target: self, selector: #selector(zoomAction), userInfo: nil, repeats: false)
+        zoomingTimer = Timer.scheduledTimer(timeInterval: overlayView.configuration.zoomingToFitDelay, target: self, selector: #selector(zoomAction), userInfo: nil, repeats: false)
     }
     
     @objc fileprivate func zoomAction() {
@@ -662,7 +662,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
         overlayView.showGrid(false)
         overlayView.showOverlayBlur(true)
 
-        UIView.animate(withDuration: overlayView.configuraiton.animation.duration, delay: 0, options: overlayView.configuraiton.animation.options, animations: {
+        UIView.animate(withDuration: overlayView.configuration.animation.duration, delay: 0, options: overlayView.configuration.animation.options, animations: {
             self.layoutSubviews()
         })
     }

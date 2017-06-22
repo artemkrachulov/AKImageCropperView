@@ -198,15 +198,15 @@ final class CropperViewController: UIViewController {
         // Inset for overlay action view
         
         /*
-        cropView.overlayView?.configuraiton.cropRectInsets.bottom = 50
+        cropView.overlayView?.configuration.cropRectInsets.bottom = 50
         */
         
         // Custom overlay view configuration
         
         /*
-        var customConfiguraiton = AKImageCropperCropViewConfiguration()
-            customConfiguraiton.cropRectInsets.bottom = 50
-        cropView.overlayView = CustomImageCropperOverlayView(configuraiton: customConfiguraiton)
+        var customconfiguration = AKImageCropperCropViewConfiguration()
+            customconfiguration.cropRectInsets.bottom = 50
+        cropView.overlayView = CustomImageCropperOverlayView(configuration: customconfiguration)
         */
         
         cropView.delegate = self
