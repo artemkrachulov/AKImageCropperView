@@ -240,6 +240,13 @@ The smallest value for the crop rectangle size.
 Default value of this property is `60` pixels width and `60` pixels height.
 
 ```swift
+var cropFixed: CGSize { get set }
+
+```	
+Determines whether the crop area is locked.
+Default value is `false`.
+
+```swift
 var cornerTouchSize: CGSize { get set }
 ```	
 
