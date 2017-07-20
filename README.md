@@ -194,7 +194,7 @@ Base configuration and behavior can be set or changed with **AKImageCropperOverl
 ### Initializing an Overlay View
 
 ```swift
-init(configuraiton: AKImageCropperOverlayConfiguration? = default)
+init(configuration: AKImageCropperOverlayConfiguration? = default)
 ```
 
 Returns an overlay view initialized with the specified configuraiton.
@@ -202,7 +202,7 @@ Returns an overlay view initialized with the specified configuraiton.
 ### Base configuration 
 
 ```swift
-var configuraiton: AKImageCropperOverlayConfiguration { get set }
+var configuration: AKImageCropperOverlayConfiguration { get set }
 ```	
 
 Configuration structure for the Overlay View appearance and behavior.
