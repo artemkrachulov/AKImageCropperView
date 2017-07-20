@@ -25,7 +25,7 @@ import UIKit
 
 /// Edges configuration struct.
 public struct AKImageCropperCropViewConfigurationEdge {
-   
+    
     /// A Boolean value that determines whether the edge view is hidden.
     public var isHidden: Bool = false
     
@@ -37,7 +37,7 @@ public struct AKImageCropperCropViewConfigurationEdge {
     
     /// Line color for normal edge state.
     public var normalLineColor: UIColor = .white
-   
+    
     /// Line color for highlighted edge state.
     public var highlightedLineColor: UIColor = .white
 }

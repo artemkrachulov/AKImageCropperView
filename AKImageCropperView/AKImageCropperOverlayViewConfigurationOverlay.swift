@@ -39,4 +39,5 @@ public struct AKImageCropperCropViewConfigurationOverlay {
     
     /// The blur effect alpha value.
     public var blurAlpha: CGFloat = 0.6
+    
 }
