@@ -55,7 +55,7 @@ final class CropperViewController: UIViewController {
     
     @IBAction func cropRandomAction(_ sender: AnyObject) {
         
-//        cropView.setCropRectAnin(CGRect(x: 50, y: 200, width: 100, height: 100))
+        //        cropView.setCropRectAnin(CGRect(x: 50, y: 200, width: 100, height: 100))
         
         
         /*
@@ -69,24 +69,24 @@ final class CropperViewController: UIViewController {
     
     @IBAction func randomImageAction(_ sender: AnyObject) {
         let images = Constants.images.flatMap { $0 }
-        cropView.image = UIImage(named: images[Int(arc4random_uniform(UInt32(images.count)))])        
+        cropView.image = UIImage(named: images[Int(arc4random_uniform(UInt32(images.count)))])
         angle = 0.0
     }
     
     @IBAction func cropImageAction(_ sender: AnyObject) {
         
-         guard let image = cropView.croppedImage else {
+        guard let image = cropView.croppedImage else {
             return
-         }
-         
-         let imageViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ImageViewController") as! ImageViewController
-         imageViewController.image = image
-         navigationController?.pushViewController(imageViewController, animated: true)
+        }
+        
+        let imageViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ImageViewController") as! ImageViewController
+        imageViewController.image = image
+        navigationController?.pushViewController(imageViewController, animated: true)
     }
     
     @IBAction func showHideOverlayAction(_ sender: AnyObject) {
         
-        if cropView.isoverlayViewActive {
+        if cropView.isOverlayViewActive {
             
             cropView.hideOverlayView(animationDuration: 0.3)
             
@@ -110,12 +110,12 @@ final class CropperViewController: UIViewController {
     var angle: Double = 0.0
     
     @IBAction func rotateAction(_ sender: AnyObject) {
-
-        angle += M_PI_2
+        
+        angle += Double.pi/2
         
         cropView.rotate(angle, withDuration: 0.3, completion: { _ in
             
-            if self.angle == 2 * M_PI {
+            if self.angle == 2 * Double.pi {
                 self.angle = 0.0
             }
         })
@@ -133,84 +133,86 @@ final class CropperViewController: UIViewController {
         super.viewDidLoad()
         
         navigationController?.isNavigationBarHidden = true
-
+        
         // Programmatically initialization
         
         /*
-        cropViewProgrammatically = AKImageCropperView()
-        */
+         cropViewProgrammatically = AKImageCropperView()
+         */
         
         // iPhone 4.7"
         
         /*
-        cropViewProgrammatically = AKImageCropperView(frame: CGRect(x: 0, y: 20.0, width: 375.0, height: 607.0))
-        view.addSubview(cropViewProgrammatically)
-        */
+         cropViewProgrammatically = AKImageCropperView(frame: CGRect(x: 0, y: 20.0, width: 375.0, height: 607.0))
+         view.addSubview(cropViewProgrammatically)
+         */
         
         // with constraints
         
         /*
-        cropViewProgrammatically = AKImageCropperView()
-        cropViewProgrammatically.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(cropViewProgrammatically)
+         cropViewProgrammatically = AKImageCropperView()
+         cropViewProgrammatically.translatesAutoresizingMaskIntoConstraints = false
+         view.addSubview(cropViewProgrammatically)
+         
+         if #available(iOS 9.0, *) {
+         
+         cropViewProgrammatically.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+         cropViewProgrammatically.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+         topLayoutGuide.bottomAnchor.constraint(equalTo: cropViewProgrammatically.topAnchor).isActive = true
+         cropViewProgrammatically.bottomAnchor.constraint(equalTo: navigationView.topAnchor).isActive = true
+         
+         } else {
+         
+         for attribute: NSLayoutAttribute in [.top, .left, .bottom, .right] {
+         
+         var toItem: Any?
+         var toAttribute: NSLayoutAttribute!
+         
+         if attribute == .top {
+         
+         toItem = topLayoutGuide
+         toAttribute = .bottom
+         
+         } else if attribute == .bottom {
+         
+         toItem = navigationView
+         toAttribute = .top
+         } else {
+         toItem = view
+         toAttribute = attribute
+         }
+         
+         view.addConstraint(
+         NSLayoutConstraint(
+         item: cropViewProgrammatically,
+         attribute: attribute,
+         relatedBy: NSLayoutRelation.equal,
+         toItem: toItem,
+         attribute: toAttribute,
+         multiplier: 1.0, constant: 0))
+         }
+         }
+         */
         
-        if #available(iOS 9.0, *) {
-            
-            cropViewProgrammatically.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-            cropViewProgrammatically.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-            topLayoutGuide.bottomAnchor.constraint(equalTo: cropViewProgrammatically.topAnchor).isActive = true
-            cropViewProgrammatically.bottomAnchor.constraint(equalTo: navigationView.topAnchor).isActive = true
-            
-        } else {
-            
-            for attribute: NSLayoutAttribute in [.top, .left, .bottom, .right] {
-                
-                var toItem: Any?
-                var toAttribute: NSLayoutAttribute!
-                
-                if attribute == .top {
-                    
-                    toItem = topLayoutGuide
-                    toAttribute = .bottom
-                    
-                } else if attribute == .bottom {
-                    
-                    toItem = navigationView
-                    toAttribute = .top
-                } else {
-                    toItem = view
-                    toAttribute = attribute
-                }
-                
-                view.addConstraint(
-                    NSLayoutConstraint(
-                        item: cropViewProgrammatically,
-                        attribute: attribute,
-                        relatedBy: NSLayoutRelation.equal,
-                        toItem: toItem,
-                        attribute: toAttribute,
-                        multiplier: 1.0, constant: 0))
-            }
-        }
-        */
         
-
         // Inset for overlay action view
         
         /*
-        cropView.overlayView?.configuraiton.cropRectInsets.bottom = 50
-        */
+         cropView.overlayView?.configuraiton.cropRectInsets.bottom = 50
+         */
         
         // Custom overlay view configuration
         
         /*
-        var customConfiguraiton = AKImageCropperCropViewConfiguration()
-            customConfiguraiton.cropRectInsets.bottom = 50
-        cropView.overlayView = CustomImageCropperOverlayView(configuraiton: customConfiguraiton)
-        */
+         var customConfiguraiton = AKImageCropperCropViewConfiguration()
+         customConfiguraiton.cropRectInsets.bottom = 50
+         cropView.overlayView = CustomImageCropperOverlayView(configuraiton: customConfiguraiton)
+         */
         
+        cropView.overlayView?.configuration.cropFixed = true
         cropView.delegate = self
         cropView.image = image
+        
     }
 }
 
@@ -219,7 +221,7 @@ final class CropperViewController: UIViewController {
 extension CropperViewController: AKImageCropperViewDelegate {
     
     func imageCropperViewDidChangeCropRect(view: AKImageCropperView, cropRect rect: CGRect) {
-//        print("New crop rectangle: \(rect)")
+        //        print("New crop rectangle: \(rect)")
     }
-
+    
 }

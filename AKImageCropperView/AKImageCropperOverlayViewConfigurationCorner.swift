@@ -25,13 +25,13 @@ import UIKit
 
 /// Corners configuration struct.
 public struct AKImageCropperCropViewConfigurationCorner {
-
+    
     /// A Boolean value that determines whether the corner view is hidden.
     public var isHidden: Bool = false
-
+    
     /// Line width for normal corner state.
     public var normalLineWidth: CGFloat = 3.0
-     
+    
     /// Line width for highlighted corner state.
     public var highlightedLineWidth: CGFloat = 3.0
     
@@ -44,6 +44,6 @@ public struct AKImageCropperCropViewConfigurationCorner {
     /// Line color for normal corner state.
     public var normalLineColor: UIColor = .white
     
-    /// Line color for highlighted corner state.    
+    /// Line color for highlighted corner state.
     public var highlightedLineColor: UIColor = .white
 }

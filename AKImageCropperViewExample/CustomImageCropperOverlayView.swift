@@ -17,11 +17,11 @@ final class CustomImageCropperOverlayView: AKImageCropperOverlayView {
         var width: CGFloat
         
         if state == .normal {
-            color = configuraiton.corner.normalLineColor
-            width = configuraiton.corner.normalLineWidth
+            color = configuration.corner.normalLineColor
+            width = configuration.corner.normalLineWidth
         } else {
-            color = configuraiton.corner.highlightedLineColor
-            width = configuraiton.corner.highlightedLineWidth
+            color = configuration.corner.highlightedLineColor
+            width = configuration.corner.highlightedLineWidth
         }
         
         let layer: CAShapeLayer = view.layer.sublayers!.first as! CAShapeLayer
@@ -30,7 +30,7 @@ final class CustomImageCropperOverlayView: AKImageCropperOverlayView {
             arcCenter:  CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY),
             radius: width,
             startAngle: 0.0,
-            endAngle: CGFloat(M_PI * 2),
+            endAngle: CGFloat(Double.pi * 2),
             clockwise: true)
 
         layer.path = circlePath.cgPath
