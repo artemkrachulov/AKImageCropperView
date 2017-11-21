@@ -14,7 +14,9 @@ extension UIImage {
     
     func ic_imageInRect(_ rect: CGRect) -> UIImage? {
         
-        UIGraphicsBeginImageContext(rect.size)
+        let size = CGSize(width: floor(rect.size.width), height: floor(rect.size.height))
+        
+        UIGraphicsBeginImageContext(size)
         
         // Create the bitmap context
         
@@ -46,7 +48,7 @@ extension UIImage {
         let rotatedViewBox = UIView(frame: CGRect(origin: .zero, size: self.size))
         rotatedViewBox.transform = CGAffineTransform(rotationAngle: CGFloat(angle))
         
-        let rotatedSize = rotatedViewBox.frame.size
+        let rotatedSize = CGSize(width: floor(rotatedViewBox.frame.size.width), height: floor(rotatedViewBox.frame.size.height))
         
         UIGraphicsBeginImageContext(rotatedSize)
         

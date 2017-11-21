@@ -34,7 +34,7 @@ open class AKImageCropperOverlayView: UIView {
 
     /** Configuration structure for the Overlay View appearance and behavior. */
 
-    open var configuraiton = AKImageCropperCropViewConfiguration()
+    open var configuration = AKImageCropperCropViewConfiguration()
     
     /** Crop rectangle */
     
@@ -139,9 +139,9 @@ open class AKImageCropperOverlayView: UIView {
     //  MARK: - Initialization
 
     /**
-     Returns an overlay view initialized with the specified configuraiton.
+     Returns an overlay view initialized with the specified configuration.
      
-     - Parameter configuraiton: Configuration structure for the Overlay View appearance and behavior.
+     - Parameter configuration: Configuration structure for the Overlay View appearance and behavior.
      */
     
     init() {
@@ -153,11 +153,11 @@ open class AKImageCropperOverlayView: UIView {
         initialize()
     }
     
-    public init(configuraiton: AKImageCropperCropViewConfiguration? = nil) {
+    public init(configuration: AKImageCropperCropViewConfiguration? = nil) {
         super.init(frame: CGRect.zero)
         
-        if configuraiton != nil {
-            self.configuraiton = configuraiton!
+        if configuration != nil {
+            self.configuration = configuration!
         }
         
         backgroundColor = UIColor.clear
@@ -183,9 +183,9 @@ open class AKImageCropperOverlayView: UIView {
         
         addSubview(overlayView)
         
-        let blurEffect = UIBlurEffect(style: configuraiton.overlay.blurStyle)
+        let blurEffect = UIBlurEffect(style: configuration.overlay.blurStyle)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.alpha = self.configuraiton.overlay.blurAlpha
+        blurEffectView.alpha = self.configuration.overlay.blurAlpha
         
         blurEffectView.frame = overlayView.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -224,7 +224,7 @@ open class AKImageCropperOverlayView: UIView {
         leftEdgeView = UIView()
         leftEdgeTouchView.addSubview(leftEdgeView)
         
-        if configuraiton.edge.isHidden {
+        if configuration.edge.isHidden {
             topEdgeView.isHidden = true
             rightEdgeView.isHidden = true
             bottomEdgeView.isHidden = true
@@ -261,7 +261,7 @@ open class AKImageCropperOverlayView: UIView {
         bottomLeftCornerView.layer.addSublayer(CAShapeLayer())
         bottomLeftCornerTouchView.addSubview(bottomLeftCornerView)
         
-        if configuraiton.corner.isHidden {
+        if configuration.corner.isHidden {
             topLeftCornerView.isHidden = true
             topRightCornerView.isHidden = true
             bottomRightCornerView.isHidden = true
@@ -275,23 +275,23 @@ open class AKImageCropperOverlayView: UIView {
         gridViewVerticalLines = []
         gridViewHorizontalLines = []
         
-        for _ in 0..<configuraiton.grid.linesCount.vertical {
+        for _ in 0..<configuration.grid.linesCount.vertical {
             
             let view = UIView()
             
-            view.frame.size.width = configuraiton.grid.linesWidth
-            view.backgroundColor = configuraiton.grid.linesColor
+            view.frame.size.width = configuration.grid.linesWidth
+            view.backgroundColor = configuration.grid.linesColor
             
             gridViewVerticalLines.append(view)
             gridView.addSubview(view)
         }
         
-        for _ in 0..<configuraiton.grid.linesCount.horizontal {
+        for _ in 0..<configuration.grid.linesCount.horizontal {
             
             let view = UIView()
             
-            view.frame.size.height = configuraiton.grid.linesWidth
-            view.backgroundColor = configuraiton.grid.linesColor
+            view.frame.size.height = configuration.grid.linesWidth
+            view.backgroundColor = configuration.grid.linesColor
             
             gridViewHorizontalLines.append(view)
             gridView.addSubview(view)
@@ -299,9 +299,9 @@ open class AKImageCropperOverlayView: UIView {
         
         addSubview(gridView)
         
-        gridView.isHidden = configuraiton.grid.isHidden
+        gridView.isHidden = configuration.grid.isHidden
         
-        if configuraiton.grid.alwaysShowGrid {
+        if configuration.grid.alwaysShowGrid {
             gridView.alpha = 1
         } else {
             gridView.alpha = 0
@@ -384,64 +384,64 @@ open class AKImageCropperOverlayView: UIView {
     fileprivate var cropAreaTopLeftCornerFrame: CGRect {
         return CGRect(
             origin: CGPoint(
-                x: cropRect.origin.x - configuraiton.cornerTouchSize.width / 2,
-                y: cropRect.origin.y - configuraiton.cornerTouchSize.height / 2),
-            size: configuraiton.cornerTouchSize)
+                x: cropRect.origin.x - configuration.cornerTouchSize.width / 2,
+                y: cropRect.origin.y - configuration.cornerTouchSize.height / 2),
+            size: configuration.cornerTouchSize)
     }
     
     fileprivate var cropAreaTopRightCornerFrame: CGRect {
         return CGRect(
             origin: CGPoint(
-                x: cropRect.maxX - configuraiton.cornerTouchSize.width / 2,
-                y: cropRect.minY - configuraiton.cornerTouchSize.height / 2),
-            size: configuraiton.cornerTouchSize)
+                x: cropRect.maxX - configuration.cornerTouchSize.width / 2,
+                y: cropRect.minY - configuration.cornerTouchSize.height / 2),
+            size: configuration.cornerTouchSize)
     }
     
     fileprivate var cropAreaBottomLeftCornerFrame: CGRect {
         return CGRect(
             origin: CGPoint(
-                x: cropRect.origin.x - configuraiton.cornerTouchSize.width / 2,
-                y: cropRect.maxY - configuraiton.cornerTouchSize.height / 2),
-            size: configuraiton.cornerTouchSize)
+                x: cropRect.origin.x - configuration.cornerTouchSize.width / 2,
+                y: cropRect.maxY - configuration.cornerTouchSize.height / 2),
+            size: configuration.cornerTouchSize)
     }
     
     fileprivate var cropAreaBottomRightCornerFrame: CGRect {
         return CGRect(
             origin: CGPoint(
-                x: cropRect.maxX - configuraiton.cornerTouchSize.width / 2,
-                y: cropRect.maxY - configuraiton.cornerTouchSize.height / 2),
-            size: configuraiton.cornerTouchSize)
+                x: cropRect.maxX - configuration.cornerTouchSize.width / 2,
+                y: cropRect.maxY - configuration.cornerTouchSize.height / 2),
+            size: configuration.cornerTouchSize)
     }
     
     fileprivate var cropAreaTopEdgeFrame: CGRect{
         return CGRect(
             x       : cropAreaTopLeftCornerFrame.maxX,
-            y       : cropRect.origin.y - configuraiton.edgeTouchThickness.horizontal / 2,
+            y       : cropRect.origin.y - configuration.edgeTouchThickness.horizontal / 2,
             width   : cropRect.size.width - (cropAreaTopLeftCornerFrame.size.width / 2 + cropAreaTopRightCornerFrame.size.width / 2),
-            height  : configuraiton.edgeTouchThickness.horizontal)
+            height  : configuration.edgeTouchThickness.horizontal)
     }
     
     fileprivate var cropAreaBottomEdgeFrame: CGRect {
         return CGRect(
             x       : cropAreaBottomLeftCornerFrame.maxX,
-            y       : cropRect.maxY - configuraiton.edgeTouchThickness.horizontal / 2,
+            y       : cropRect.maxY - configuration.edgeTouchThickness.horizontal / 2,
             width   : cropRect.size.width - (cropAreaBottomLeftCornerFrame.size.width / 2 + cropAreaBottomRightCornerFrame.size.width / 2),
-            height  : configuraiton.edgeTouchThickness.horizontal)
+            height  : configuration.edgeTouchThickness.horizontal)
     }
     
     fileprivate var cropAreaRightEdgeFrame: CGRect {
         return CGRect(
-            x       : cropRect.maxX - configuraiton.edgeTouchThickness.vertical / 2,
+            x       : cropRect.maxX - configuration.edgeTouchThickness.vertical / 2,
             y       : cropAreaTopLeftCornerFrame.maxY,
-            width   : configuraiton.edgeTouchThickness.vertical,
+            width   : configuration.edgeTouchThickness.vertical,
             height  : cropRect.size.height - (cropAreaTopRightCornerFrame.size.height / 2 + cropAreaBottomRightCornerFrame.size.height / 2))
     }
     
     fileprivate var cropAreaLeftEdgeFrame: CGRect {
         return CGRect(
-            x       : cropRect.origin.x - configuraiton.edgeTouchThickness.vertical / 2,
+            x       : cropRect.origin.x - configuration.edgeTouchThickness.vertical / 2,
             y       : cropAreaTopLeftCornerFrame.maxY,
-            width   : configuraiton.edgeTouchThickness.vertical,
+            width   : configuration.edgeTouchThickness.vertical,
             height  : cropRect.size.height - (cropAreaTopLeftCornerFrame.size.height / 2 + cropAreaBottomLeftCornerFrame.size.height / 2))
     }
     
@@ -471,9 +471,9 @@ open class AKImageCropperOverlayView: UIView {
     
     final func showOverlayBlur(_ show: Bool, completion: ((Bool) -> Void)? = nil) {
 
-        UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: [], animations: {
+        UIView.animate(withDuration: configuration.animation.duration, delay: 0, options: [], animations: {
            
-                self.overlayView.subviews.first?.alpha = show ? self.configuraiton.overlay.blurAlpha : 0.0
+                self.overlayView.subviews.first?.alpha = show ? self.configuration.overlay.blurAlpha : 0.0
 
         }, completion: { isComplete in
             completion?(isComplete)
@@ -482,7 +482,7 @@ open class AKImageCropperOverlayView: UIView {
     
     final func showGrid(_ show: Bool, completion: ((Bool) -> Void)? = nil) {
         
-        if configuraiton.grid.alwaysShowGrid {
+        if configuration.grid.alwaysShowGrid {
              completion?(true)
             return
         }
@@ -491,13 +491,13 @@ open class AKImageCropperOverlayView: UIView {
             self.gridView.alpha = show ? 1 : 0
         }
         
-        if configuraiton.animation.duration == 0 {
+        if configuration.animation.duration == 0 {
             
             animations()
             
         } else {
         
-            UIView.animate(withDuration: configuraiton.animation.duration, delay: 0, options: [], animations: animations, completion: { isComplete in
+            UIView.animate(withDuration: configuration.animation.duration, delay: 0, options: [], animations: animations, completion: { isComplete in
                 completion?(isComplete)
             })
         }
@@ -519,18 +519,18 @@ open class AKImageCropperOverlayView: UIView {
         var width: CGFloat
         
         if state == .normal {
-            color = configuraiton.edge.normalLineColor
-            width = configuraiton.edge.normalLineWidth
+            color = configuration.edge.normalLineColor
+            width = configuration.edge.normalLineWidth
         } else {
-            color = configuraiton.edge.highlightedLineColor
-            width = configuraiton.edge.highlightedLineWidth
+            color = configuration.edge.highlightedLineColor
+            width = configuration.edge.highlightedLineWidth
         }
         
         view.backgroundColor = color
         view.frame = CGRect(
-            x       : touchView.bounds.origin.x - configuraiton.cornerTouchSize.width / 2 - configuraiton.edge.normalLineWidth,
+            x       : touchView.bounds.origin.x - configuration.cornerTouchSize.width / 2 - configuration.edge.normalLineWidth,
             y       : touchView.bounds.midY - width,
-            width   : touchView.bounds.size.width + configuraiton.cornerTouchSize.width + configuraiton.edge.normalLineWidth * 2,
+            width   : touchView.bounds.size.width + configuration.cornerTouchSize.width + configuration.edge.normalLineWidth * 2,
             height  : width)
     }
     
@@ -550,19 +550,19 @@ open class AKImageCropperOverlayView: UIView {
         var width: CGFloat
         
         if state == .normal {
-            color = configuraiton.edge.normalLineColor
-            width = configuraiton.edge.normalLineWidth
+            color = configuration.edge.normalLineColor
+            width = configuration.edge.normalLineWidth
         } else {
-            color = configuraiton.edge.highlightedLineColor
-            width = configuraiton.edge.highlightedLineWidth
+            color = configuration.edge.highlightedLineColor
+            width = configuration.edge.highlightedLineWidth
         }
         
         view.backgroundColor = color
         view.frame = CGRect(
             x       : touchView.bounds.midX,
-            y       : touchView.bounds.origin.y - configuraiton.cornerTouchSize.height / 2 - configuraiton.edge.normalLineWidth,
+            y       : touchView.bounds.origin.y - configuration.cornerTouchSize.height / 2 - configuration.edge.normalLineWidth,
             width   : width,
-            height  : touchView.bounds.size.height + configuraiton.cornerTouchSize.height + configuraiton.edge.normalLineWidth * 2)
+            height  : touchView.bounds.size.height + configuration.cornerTouchSize.height + configuration.edge.normalLineWidth * 2)
     }
     
     /**
@@ -581,18 +581,18 @@ open class AKImageCropperOverlayView: UIView {
         var width: CGFloat
         
         if state == .normal {
-            color = configuraiton.edge.normalLineColor
-            width = configuraiton.edge.normalLineWidth
+            color = configuration.edge.normalLineColor
+            width = configuration.edge.normalLineWidth
         } else {
-            color = configuraiton.edge.highlightedLineColor
-            width = configuraiton.edge.highlightedLineWidth
+            color = configuration.edge.highlightedLineColor
+            width = configuration.edge.highlightedLineWidth
         }
       
         view.backgroundColor = color
         view.frame = CGRect(
-            x       : touchView.bounds.origin.x - configuraiton.cornerTouchSize.width / 2 - configuraiton.edge.normalLineWidth,
+            x       : touchView.bounds.origin.x - configuration.cornerTouchSize.width / 2 - configuration.edge.normalLineWidth,
             y       : touchView.bounds.midY,
-            width   : touchView.bounds.size.width + configuraiton.cornerTouchSize.width + configuraiton.edge.normalLineWidth * 2,
+            width   : touchView.bounds.size.width + configuration.cornerTouchSize.width + configuration.edge.normalLineWidth * 2,
             height  : width)
     }
     
@@ -612,19 +612,19 @@ open class AKImageCropperOverlayView: UIView {
         var width: CGFloat
         
         if state == .normal {
-            color = configuraiton.edge.normalLineColor
-            width = configuraiton.edge.normalLineWidth
+            color = configuration.edge.normalLineColor
+            width = configuration.edge.normalLineWidth
         } else {
-            color = configuraiton.edge.highlightedLineColor
-            width = configuraiton.edge.highlightedLineWidth
+            color = configuration.edge.highlightedLineColor
+            width = configuration.edge.highlightedLineWidth
         }
         
         view.backgroundColor = color
         view.frame = CGRect(
             x       : touchView.bounds.midX - width,
-            y       : touchView.bounds.origin.y - configuraiton.cornerTouchSize.height / 2 - configuraiton.edge.normalLineWidth,
+            y       : touchView.bounds.origin.y - configuration.cornerTouchSize.height / 2 - configuration.edge.normalLineWidth,
             width   : width,
-            height  : touchView.bounds.size.height + configuraiton.cornerTouchSize.height + configuraiton.edge.normalLineWidth * 2)
+            height  : touchView.bounds.size.height + configuration.cornerTouchSize.height + configuration.edge.normalLineWidth * 2)
     }
     
     /**
@@ -644,15 +644,15 @@ open class AKImageCropperOverlayView: UIView {
         
         if state == .normal {
             
-            layer.fillColor = configuraiton.corner.normalLineColor.cgColor
-            view.frame.size = configuraiton.corner.normaSize
-            lineWidth = configuraiton.corner.normalLineWidth
+            layer.fillColor = configuration.corner.normalLineColor.cgColor
+            view.frame.size = configuration.corner.normaSize
+            lineWidth = configuration.corner.normalLineWidth
             
         } else {
             
-            layer.fillColor = configuraiton.edge.highlightedLineColor.cgColor
-            view.frame.size = configuraiton.corner.highlightedSize
-            lineWidth = configuraiton.corner.highlightedLineWidth
+            layer.fillColor = configuration.edge.highlightedLineColor.cgColor
+            view.frame.size = configuration.corner.highlightedSize
+            lineWidth = configuration.corner.highlightedLineWidth
         }
         
         view.center = CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY)
@@ -688,15 +688,15 @@ open class AKImageCropperOverlayView: UIView {
         
         if state == .normal {
             
-            layer.fillColor = configuraiton.corner.normalLineColor.cgColor
-            view.frame.size = configuraiton.corner.normaSize
-            lineWidth = configuraiton.corner.normalLineWidth
+            layer.fillColor = configuration.corner.normalLineColor.cgColor
+            view.frame.size = configuration.corner.normaSize
+            lineWidth = configuration.corner.normalLineWidth
             
         } else {
             
-            layer.fillColor = configuraiton.edge.highlightedLineColor.cgColor
-            view.frame.size = configuraiton.corner.highlightedSize
-            lineWidth = configuraiton.corner.highlightedLineWidth
+            layer.fillColor = configuration.edge.highlightedLineColor.cgColor
+            view.frame.size = configuration.corner.highlightedSize
+            lineWidth = configuration.corner.highlightedLineWidth
         }
         
         view.center = CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY)
@@ -732,15 +732,15 @@ open class AKImageCropperOverlayView: UIView {
         
         if state == .normal {
             
-            layer.fillColor = configuraiton.corner.normalLineColor.cgColor
-            view.frame.size = configuraiton.corner.normaSize
-            lineWidth = configuraiton.corner.normalLineWidth
+            layer.fillColor = configuration.corner.normalLineColor.cgColor
+            view.frame.size = configuration.corner.normaSize
+            lineWidth = configuration.corner.normalLineWidth
             
         } else {
             
-            layer.fillColor = configuraiton.edge.highlightedLineColor.cgColor
-            view.frame.size = configuraiton.corner.highlightedSize
-            lineWidth = configuraiton.corner.highlightedLineWidth
+            layer.fillColor = configuration.edge.highlightedLineColor.cgColor
+            view.frame.size = configuration.corner.highlightedSize
+            lineWidth = configuration.corner.highlightedLineWidth
         }
         
         view.center = CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY)
@@ -776,15 +776,15 @@ open class AKImageCropperOverlayView: UIView {
         
         if state == .normal {
             
-            layer.fillColor = configuraiton.corner.normalLineColor.cgColor
-            view.frame.size = configuraiton.corner.normaSize
-            lineWidth = configuraiton.corner.normalLineWidth
+            layer.fillColor = configuration.corner.normalLineColor.cgColor
+            view.frame.size = configuration.corner.normaSize
+            lineWidth = configuration.corner.normalLineWidth
             
         } else {
             
-            layer.fillColor = configuraiton.edge.highlightedLineColor.cgColor
-            view.frame.size = configuraiton.corner.highlightedSize
-            lineWidth = configuraiton.corner.highlightedLineWidth
+            layer.fillColor = configuration.edge.highlightedLineColor.cgColor
+            view.frame.size = configuration.corner.highlightedSize
+            lineWidth = configuration.corner.highlightedLineWidth
         }
         
         view.center = CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY)
@@ -866,11 +866,11 @@ open class AKImageCropperOverlayView: UIView {
             
             let pointInEdge = touchesBegan.touch.y - touchesBegan.cropRect.minY
             let minStickPoint = pointInEdge + cropRectMaxFrame.minY
-            let maxStickPoint = pointInEdge + touchesBegan.cropRect.maxY - configuraiton.minCropRectSize.height
+            let maxStickPoint = pointInEdge + touchesBegan.cropRect.maxY - configuration.minCropRectSize.height
             
-            if point.y > maxStickPoint || cropRect.height < configuraiton.minCropRectSize.height {
-                cropRect.origin.y = touchesBegan.cropRect.maxY - configuraiton.minCropRectSize.height
-                cropRect.size.height = configuraiton.minCropRectSize.height
+            if point.y > maxStickPoint || cropRect.height < configuration.minCropRectSize.height {
+                cropRect.origin.y = touchesBegan.cropRect.maxY - configuration.minCropRectSize.height
+                cropRect.size.height = configuration.minCropRectSize.height
             }
             
             if point.y < minStickPoint {
@@ -884,15 +884,15 @@ open class AKImageCropperOverlayView: UIView {
             cropRect.size.width += translationPoint.x
             
             let pointInEdge = touchesBegan.touch.x - touchesBegan.cropRect.maxX
-            let minStickPoint = pointInEdge + touchesBegan.cropRect.minX + configuraiton.minCropRectSize.width
+            let minStickPoint = pointInEdge + touchesBegan.cropRect.minX + configuration.minCropRectSize.width
             let maxStickPoint = pointInEdge + cropRectMaxFrame.maxX
             
             if  point.x > maxStickPoint {
                 cropRect.size.width =  cropRectMaxFrame.maxX - cropRect.origin.x
             }
             
-            if point.x < minStickPoint || cropRect.width < configuraiton.minCropRectSize.width {
-                cropRect.size.width = configuraiton.minCropRectSize.width
+            if point.x < minStickPoint || cropRect.width < configuration.minCropRectSize.width {
+                cropRect.size.width = configuration.minCropRectSize.width
             }
         }
         
@@ -901,15 +901,15 @@ open class AKImageCropperOverlayView: UIView {
             cropRect.size.height += translationPoint.y
             
             let pointInEdge = touchesBegan.touch.y - touchesBegan.cropRect.maxY
-            let minStickPoint = pointInEdge + touchesBegan.cropRect.minY + configuraiton.minCropRectSize.height
+            let minStickPoint = pointInEdge + touchesBegan.cropRect.minY + configuration.minCropRectSize.height
             let maxStickPoint = pointInEdge + cropRectMaxFrame.maxY
             
             if  point.y > maxStickPoint {
                 cropRect.size.height = cropRectMaxFrame.maxY - cropRect.origin.y
             }
             
-            if point.y < minStickPoint || cropRect.height < configuraiton.minCropRectSize.height {
-                cropRect.size.height = configuraiton.minCropRectSize.height
+            if point.y < minStickPoint || cropRect.height < configuration.minCropRectSize.height {
+                cropRect.size.height = configuration.minCropRectSize.height
             }
         }
         
@@ -920,11 +920,11 @@ open class AKImageCropperOverlayView: UIView {
             
             let pointInEdge = touchesBegan.touch.x - touchesBegan.cropRect.minX
             let minStickPoint = pointInEdge + cropRectMaxFrame.minX
-            let maxStickPoint = pointInEdge + touchesBegan.cropRect.maxX - configuraiton.minCropRectSize.width
+            let maxStickPoint = pointInEdge + touchesBegan.cropRect.maxX - configuration.minCropRectSize.width
             
-            if  point.x > maxStickPoint || cropRect.width < configuraiton.minCropRectSize.width {
-                cropRect.origin.x = touchesBegan.cropRect.maxX - configuraiton.minCropRectSize.width
-                cropRect.size.width = configuraiton.minCropRectSize.width
+            if  point.x > maxStickPoint || cropRect.width < configuration.minCropRectSize.width {
+                cropRect.origin.x = touchesBegan.cropRect.maxX - configuration.minCropRectSize.width
+                cropRect.size.width = configuration.minCropRectSize.width
             }
             
             if point.x < minStickPoint {
