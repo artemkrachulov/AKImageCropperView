@@ -40,7 +40,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     fileprivate var reversedRect: CGRect {
         return CGRect(
             origin  : .zero,
-            size    : ((angle / M_PI_2).truncatingRemainder(dividingBy: 2)) == 1
+            size    : ((angle / (Double.pi / 2)).truncatingRemainder(dividingBy: 2)) == 1
                 ? CGSize(width: frame.size.height, height: frame.size.width)
                 : frame.size)
     }
@@ -52,19 +52,19 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
         var newEdgeInsets: UIEdgeInsets
         
         switch angle {
-        case M_PI_2:
+        case (Double.pi / 2):
             newEdgeInsets = UIEdgeInsetsMake(
                 minEdgeInsets.right,
                 minEdgeInsets.top,
                 minEdgeInsets.left,
                 minEdgeInsets.bottom)
-        case M_PI:
+        case Double.pi:
             newEdgeInsets = UIEdgeInsetsMake(
                 minEdgeInsets.bottom,
                 minEdgeInsets.right,
                 minEdgeInsets.top,
                 minEdgeInsets.left)
-        case M_PI_2 * 3:
+        case (Double.pi / 2) * 3:
             newEdgeInsets = UIEdgeInsetsMake(
                 minEdgeInsets.left,
                 minEdgeInsets.bottom,
@@ -433,7 +433,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
             return
         }
         
-        minEdgeInsets = overlayView.configuraiton.cropRectInsets
+        minEdgeInsets = overlayView.configuration.cropRectInsets
         savedProperty.save(scrollView: scrollView)
         cancelZoomingTimer()
         
@@ -550,9 +550,9 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     // MARK: Rotate
     
     /**
-     Rotate the image on the angle in multiples of 90 degrees (M_PI_2).
+     Rotate the image on the angle in multiples of 90 degrees ((Double.pi / 2)).
      
-     - Parameter angle: Rotation angle. The angle a multiple of 90 degrees (M_PI_2).
+     - Parameter angle: Rotation angle. The angle a multiple of 90 degrees ((Double.pi / 2)).
      
      - Parameter duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them. Default value is 0.
      
@@ -563,7 +563,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
     
     open func rotate(_ angle: Double, withDuration duration: TimeInterval = 0, options: UIViewAnimationOptions = .curveEaseInOut, completion: ((Bool) -> Void)? = nil) {
         
-        guard angle.truncatingRemainder(dividingBy: M_PI_2) == 0 else {
+        guard angle.truncatingRemainder(dividingBy: (Double.pi / 2)) == 0 else {
             return
         }
         
@@ -648,7 +648,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
 
         cancelZoomingTimer()
         
-        zoomingTimer = Timer.scheduledTimer(timeInterval: overlayView.configuraiton.zoomingToFitDelay, target: self, selector: #selector(zoomAction), userInfo: nil, repeats: false)
+        zoomingTimer = Timer.scheduledTimer(timeInterval: overlayView.configuration.zoomingToFitDelay, target: self, selector: #selector(zoomAction), userInfo: nil, repeats: false)
     }
     
     @objc fileprivate func zoomAction() {
@@ -662,7 +662,7 @@ open class AKImageCropperView: UIView, UIScrollViewDelegate, UIGestureRecognizer
         overlayView.showGrid(false)
         overlayView.showOverlayBlur(true)
 
-        UIView.animate(withDuration: overlayView.configuraiton.animation.duration, delay: 0, options: overlayView.configuraiton.animation.options, animations: {
+        UIView.animate(withDuration: overlayView.configuration.animation.duration, delay: 0, options: overlayView.configuration.animation.options, animations: {
             self.layoutSubviews()
         })
     }
