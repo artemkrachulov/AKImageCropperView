@@ -86,7 +86,7 @@ final class CropperViewController: UIViewController {
     
     @IBAction func showHideOverlayAction(_ sender: AnyObject) {
         
-        if cropView.isoverlayViewActive {
+        if cropView.isOverlayViewActive {
             
             cropView.hideOverlayView(animationDuration: 0.3)
             
@@ -111,11 +111,11 @@ final class CropperViewController: UIViewController {
     
     @IBAction func rotateAction(_ sender: AnyObject) {
 
-        angle += M_PI_2
+        angle += (.pi/2)
         
         cropView.rotate(angle, withDuration: 0.3, completion: { _ in
             
-            if self.angle == 2 * M_PI {
+            if self.angle == 2 * .pi {
                 self.angle = 0.0
             }
         })
