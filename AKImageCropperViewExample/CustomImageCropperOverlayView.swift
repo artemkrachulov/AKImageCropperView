@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import AKImageCropperView
 
 final class CustomImageCropperOverlayView: AKImageCropperOverlayView {
@@ -25,12 +26,12 @@ final class CustomImageCropperOverlayView: AKImageCropperOverlayView {
         }
         
         let layer: CAShapeLayer = view.layer.sublayers!.first as! CAShapeLayer
-        
+        let piMultiply2 = Double.pi * 2
         let circlePath = UIBezierPath(
             arcCenter:  CGPoint(x: touchView.bounds.midX, y: touchView.bounds.midY),
             radius: width,
             startAngle: 0.0,
-            endAngle: CGFloat(M_PI * 2),
+            endAngle: CGFloat(piMultiply2),
             clockwise: true)
 
         layer.path = circlePath.cgPath
