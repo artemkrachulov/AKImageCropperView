@@ -487,7 +487,7 @@ open class AKImageCropperOverlayView: UIView {
             return
         }
         
-        let animations: () -> Void = { _ in
+        let animations: () -> Void = {
             self.gridView.alpha = show ? 1 : 0
         }
         

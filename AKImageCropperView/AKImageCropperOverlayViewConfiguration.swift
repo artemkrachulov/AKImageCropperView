@@ -39,11 +39,11 @@ public struct AKImageCropperCropViewConfiguration {
      -  duration: The duration of the transition animation, measured in seconds.     
      -  options: Specifies the supported animation curves.
      */
-    public var animation: (duration: TimeInterval, options: UIViewAnimationOptions) = (duration: 0.3, options: .curveEaseInOut)
+    public var animation: (duration: TimeInterval, options: UIView.AnimationOptions) = (duration: 0.3, options: .curveEaseInOut)
 
     /// Edges insets for crop rectangle. Static values for programmatically rotation.
     
-    public var cropRectInsets = UIEdgeInsetsMake(20, 20, 20, 20)
+    public var cropRectInsets = UIEdgeInsets.init(top: 20, left: 20, bottom: 20, right: 20)
     
     /// The smallest value for the crop rectangle sizes. Initial value of this property is 60 pixels width and 60 pixels height.
     public var minCropRectSize: CGSize = CGSize(width: 60, height: 60)
