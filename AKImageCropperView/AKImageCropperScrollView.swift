@@ -15,7 +15,7 @@ final class AKImageCropperScrollView: UIScrollView {
     
     /** Return visible rect of an UIScrollView's content */
     
-    open var visibleRect: CGRect {
+    public var visibleRect: CGRect {
         return CGRect(
             x       : contentInset.left,
             y       : contentInset.top,
@@ -25,7 +25,7 @@ final class AKImageCropperScrollView: UIScrollView {
     
     /** Returns scaled visible rect of an UIScrollView's content  */
     
-    open var scaledVisibleRect: CGRect {
+    public var scaledVisibleRect: CGRect {
         return CGRect(
             x       : (contentOffset.x + contentInset.left) / zoomScale,
             y       : (contentOffset.y + contentInset.top) / zoomScale,
@@ -41,7 +41,7 @@ final class AKImageCropperScrollView: UIScrollView {
         return view
     }()
     
-    open var image: UIImage! {
+    public var image: UIImage! {
         didSet {
             
             /* Prepare scroll view to changing the image */
