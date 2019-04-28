@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "AKImageCropperView"
-  s.version      = "2.0.0"
+  s.version      = "2.0.1"
   s.homepage     = "https://github.com/artemkrachulov/AKImageCropperView"
   s.summary      = "Responsive image cropper"
   s.description  = <<-DESC
