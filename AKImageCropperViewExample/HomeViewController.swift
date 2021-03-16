@@ -16,11 +16,11 @@ final class HomeViewController: UIViewController {
     
     @IBAction func galleryAction() {
         
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.savedPhotosAlbum) {
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.savedPhotosAlbum) {
             
             let imagePicker = UIImagePickerController()
             imagePicker.delegate = self
-            imagePicker.sourceType = UIImagePickerControllerSourceType.savedPhotosAlbum
+            imagePicker.sourceType = UIImagePickerController.SourceType.savedPhotosAlbum
             imagePicker.allowsEditing = false
             
             present(imagePicker, animated: true, completion: nil)
@@ -40,9 +40,9 @@ final class HomeViewController: UIViewController {
 
 extension HomeViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    private func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
-        if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage {
             
             let cropperViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "cropperViewController") as! CropperViewController
             cropperViewController.image = pickedImage
