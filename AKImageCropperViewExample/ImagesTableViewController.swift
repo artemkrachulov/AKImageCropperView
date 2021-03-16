@@ -57,7 +57,10 @@ extension ImagesTableViewController {
         // Configure the cell...
         
         cell.textLabel!.text = name.components(separatedBy: "-").joined(separator: " ")
-        cell.detailTextLabel?.text = String(format: "Size %0.1f x %0.1f", image?.size.width as CGFloat!, image?.size.height as CGFloat!)
+        cell.detailTextLabel?.text = ""
+        if let image = image {
+            cell.detailTextLabel?.text = String(format: "Size %0.1f x %0.1f", image.size.width, image.size.height)
+        }
         
         return cell
     }

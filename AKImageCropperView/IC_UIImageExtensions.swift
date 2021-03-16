@@ -6,7 +6,7 @@
 //  Copyright (c) 2016 Artem Krachulov. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 extension UIImage {
     

@@ -37,14 +37,14 @@ final class CropperViewController: UIViewController {
         guard !cropView.isEdited else {
             
             let alertController = UIAlertController(title: "Warning!", message:
-                "All changes will be lost.", preferredStyle: UIAlertControllerStyle.alert)
+                                                        "All changes will be lost.", preferredStyle: UIAlertController.Style.alert)
             
-            alertController.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.cancel, handler: { _ in
+            alertController.addAction(UIAlertAction(title: "Yes", style: UIAlertAction.Style.cancel, handler: { _ in
                 
                 _ = self.navigationController?.popViewController(animated: true)
             }))
             
-            alertController.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.default, handler: nil))
+            alertController.addAction(UIAlertAction(title: "No", style: UIAlertAction.Style.default, handler: nil))
             
             present(alertController, animated: true, completion: nil)
             return
@@ -86,11 +86,11 @@ final class CropperViewController: UIViewController {
     
     @IBAction func showHideOverlayAction(_ sender: AnyObject) {
         
-        if cropView.isoverlayViewActive {
+        if cropView.isOverlayViewActive {
             
             cropView.hideOverlayView(animationDuration: 0.3)
             
-            UIView.animate(withDuration: 0.3, delay: 0, options: UIViewAnimationOptions.curveLinear, animations: {
+            UIView.animate(withDuration: 0.3, delay: 0, options: UIView.AnimationOptions.curveLinear, animations: {
                 self.overlayActionView.alpha = 0
                 
             }, completion: nil)
@@ -99,7 +99,7 @@ final class CropperViewController: UIViewController {
             
             cropView.showOverlayView(animationDuration: 0.3)
             
-            UIView.animate(withDuration: 0.3, delay: 0.3, options: UIViewAnimationOptions.curveLinear, animations: {
+            UIView.animate(withDuration: 0.3, delay: 0.3, options: UIView.AnimationOptions.curveLinear, animations: {
                 self.overlayActionView.alpha = 1
                 
             }, completion: nil)
@@ -111,11 +111,11 @@ final class CropperViewController: UIViewController {
     
     @IBAction func rotateAction(_ sender: AnyObject) {
 
-        angle += M_PI_2
+        angle += (Double.pi / 2)
         
         cropView.rotate(angle, withDuration: 0.3, completion: { _ in
             
-            if self.angle == 2 * M_PI {
+            if self.angle == 2 * (Double.pi / 2) {
                 self.angle = 0.0
             }
         })

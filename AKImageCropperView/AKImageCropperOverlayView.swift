@@ -23,7 +23,7 @@
 
 import UIKit
 
-protocol AKImageCropperOverlayViewDelegate : class {
+protocol AKImageCropperOverlayViewDelegate : AnyObject {
     func cropperOverlayViewDidChangeCropRect(_ view: AKImageCropperOverlayView, _ cropRect: CGRect)
 }
 
@@ -487,7 +487,7 @@ open class AKImageCropperOverlayView: UIView {
             return
         }
         
-        let animations: () -> Void = { _ in
+        let animations: () -> Void = { 
             self.gridView.alpha = show ? 1 : 0
         }
         
